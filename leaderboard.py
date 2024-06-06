@@ -9,17 +9,17 @@ def csv_table(name: str):
     score_df = score_df.sort_values(by="Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
-    score_df.set_index("FIXTURE", inplace=True)
-    st.dataframe(score_df)
+    score_df2 = score_df.set_index("FIXTURE", inplace=True)
+    st.dataframe(score_df2)
 
     filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE"]]
     # Pivot the DataFrame
     pivot_df = df.pivot(index="FILEPATH", columns="FIXTURE", values="LLM_JUDGE_SCORE")
-    pivot_df.sort_values(by=models_by_score, ascending=False, inplace=True)
-    pivot_df = pivot_df[models_by_score]
+    pivot_df2 = pivot_df.sort_values(by=models_by_score, ascending=False, inplace=True)
+    pivot_df3 = pivot_df2[models_by_score]
 
     # Display the pivoted DataFrame
-    st.dataframe(pivot_df)
+    st.dataframe(pivot_df3)
     # st.dataframe(filtered_df)
 
     # Add a selectbox to select a row
@@ -27,13 +27,12 @@ def csv_table(name: str):
 
     # Display the edit diff in a code block with syntax highlighting
     rows = df[df["FILEPATH"] == selected_filepath]
-    rows.sort_values(
+    rows2 = rows.sort_values(
         by="FIXTURE",
         key=lambda x: x.map(lambda fixture: models_by_score.index(fixture)),
-        inplace=True,
     )
 
-    for index, row in rows.iterrows():
+    for index, row in rows2.iterrows():
         diagnostic_after = (
             "" if pd.isna(row["FIX_AFTER_DIAGNOSTIC"]) else row["FIX_AFTER_DIAGNOSTIC"]
         )
