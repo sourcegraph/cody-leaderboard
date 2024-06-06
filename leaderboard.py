@@ -4,23 +4,20 @@ import pandas as pd
 
 def csv_table(name: str):
     df = pd.read_csv(name)
-    # Create a new DataFrame with the sum of LLM_JUDGE_SCORE for each FIXTURE
-    score_df = df.groupby('FIXTURE')['LLM_JUDGE_SCORE'].sum().reset_index()
-    score_df.columns = ['FIXTURE', 'Score']
-    # Sort the DataFrame by Score in descending order
-    score_df = score_df.set_index("FIXTURE").sort_values(by="Score", ascending=False)
+    score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
+    score_df.columns = ["FIXTURE", "Score"]
+    score_df = score_df.sort_values(by="Score", ascending=False)
+    models_by_score = score_df["FIXTURE"].values.tolist()
 
-
-    
-    # Display the new DataFrame
+    score_df.set_index("FIXTURE", inplace=True)
     st.dataframe(score_df)
 
-    # language_id_filter = st.selectbox("Select Language ID", df["LANGUAGEID"].unique())
-    # filtered_df = df[df["LANGUAGEID"] == language_id_filter]
-    filtered_df = df[['FIXTURE', 'FILEPATH', 'LLM_JUDGE_SCORE']]
-     # Pivot the DataFrame
-    pivot_df = df.pivot(index='FILEPATH', columns='FIXTURE', values='LLM_JUDGE_SCORE')
-    
+    filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE"]]
+    # Pivot the DataFrame
+    pivot_df = df.pivot(index="FILEPATH", columns="FIXTURE", values="LLM_JUDGE_SCORE")
+    pivot_df.sort_values(by=models_by_score, ascending=False, inplace=True)
+    pivot_df = pivot_df[models_by_score]
+
     # Display the pivoted DataFrame
     st.dataframe(pivot_df)
     # st.dataframe(filtered_df)
@@ -29,10 +26,17 @@ def csv_table(name: str):
     selected_filepath = st.selectbox("Select a file", filtered_df["FILEPATH"].unique())
 
     # Display the edit diff in a code block with syntax highlighting
-    for index, row in df[
-        df["FILEPATH"] == selected_filepath
-    ].iterrows():
-        diagnostic_after = "" if pd.isna(row["FIX_AFTER_DIAGNOSTIC"]) else row["FIX_AFTER_DIAGNOSTIC"]
+    rows = df[df["FILEPATH"] == selected_filepath]
+    rows.sort_values(
+        by="FIXTURE",
+        key=lambda x: x.map(lambda fixture: models_by_score.index(fixture)),
+        inplace=True,
+    )
+
+    for index, row in rows.iterrows():
+        diagnostic_after = (
+            "" if pd.isna(row["FIX_AFTER_DIAGNOSTIC"]) else row["FIX_AFTER_DIAGNOSTIC"]
+        )
         st.markdown(f"""-----
  **Fixture**: {row["FIXTURE"]}
 
@@ -52,11 +56,22 @@ def csv_table(name: str):
  """)
 
 
+fixTab, editTab, autocompleteTab, chatTab = st.tabs(
+    ["Fix", "Edit", "Autocomplete", "Chat"]
+)
 
-
-def fix():
+with fixTab:
     st.header("Fix Command")
     csv_table("fix.csv")
 
+with editTab:
+    st.header("Edit Command")
+    st.markdown("Coming soon!")
 
-fix()
+with autocompleteTab:
+    st.header("Autocomplete")
+    st.markdown("Coming soon!")
+
+with chatTab:
+    st.header("Chat")
+    st.markdown("Coming soon!")
