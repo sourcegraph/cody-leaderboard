@@ -1,0 +1,336 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,FILE_URL,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
+typescript,ts,claude-3-sonnet,fix,src/example_001.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,1,2,1,8,,,,,true,,,,,"--- (before)
++++ (after)
+  export function example1(): number {
+-   return '42'
++   return 42
+  }
+  ",,[TS2322] Type 'string' is not assignable to type 'number'.,2,"
+The original code had a type mismatch - the function was declared to return a number, but the implementation returned the string '42' instead. This caused a diagnostic indicating that returning a string is not assignable to the declared return type of number.
+
+The automated fix resolved this type mismatch by changing the returned value from the string '42' to the number 42. After this change, the function implementation matches the declared return type of number.
+
+The fix fully resolved the original diagnostic, and there are no remaining diagnostics after the change. The code change itself is clean, efficient and appropriate. Changing '42' to 42 is the minimal change needed to match the declared return type.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_002.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,7,3,15,,,,,false,,,,,"--- (before)
++++ (after)
+  import type { Example2 } from ""./example_002-import"";
+  
+  export function example2(): Example2 {
+- 	const example2: Example2 = ""something is 42"";
++ 	const example2: Example2 = { message: ""something is 42"" };
+  	return example2;
+  }
+  ","[TS2353] Object literal may only specify known properties, and 'message' does not exist in type 'Example2'.",[TS2322] Type 'string' is not assignable to type 'Example2'.,1,"
+The original code had a type mismatch - it was trying to assign a string to a variable of type Example2. The fix attempted to address this by changing the string literal to an object literal, presumably to match the expected type of Example2.
+
+However, the fix introduced a new issue. The object literal specifies a 'message' property, but based on the new diagnostic after the fix, the Example2 type does not actually have a 'message' property. So while the fix resolved the original type mismatch, it did so by constructing an object that doesn't match the expected type.
+
+To fully resolve the error, the assistant would need to know the actual properties of the Example2 type and construct an object with those properties. Alternatively, if the Example2 type is intended to allow arbitrary string properties, it should be defined as a Record<string, string> or similar.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_003.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,16,3,20,,,,,false,,,,,"--- (before)
++++ (after)
+  import { sum } from './example_003-import'
+  
+  export function example3(): number {
+- 	return sum(40, '41', '42')
++ 	return sum(40, 41, 42)
+  }
+  ",[TS2345] Argument of type 'number' is not assignable to parameter of type 'string'.,[TS2345] Argument of type 'string' is not assignable to parameter of type 'number'.,0,"
+The original code passed two string arguments '41' and '42' to the sum() function, which expects numbers. This caused a diagnostic about passing string arguments to a function expecting numbers.
+
+The fix changed the string arguments '41' and '42' to numbers 41 and 42. This resolved the original diagnostic. However, it introduced a new diagnostic saying that numbers are being passed to a function expecting strings.
+
+Looking at the remaining diagnostic after the fix, it seems the sum() function actually expects string arguments, not numbers. So while the fix resolved the immediate diagnostic, it did so in a way that doesn't match the expected types of the sum() function.
+
+To fully resolve this, the fix should have kept the arguments as strings, and updated the sum() function itself to accept numbers if that was the intent. The current fix is incomplete and results in a new type mismatch in the opposite direction.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_004.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,16,3,72,,,,,false,,,,,"--- (before)
++++ (after)
+  import { sum } from './example_004-import'
+  
+  export function example4(): number {
+- 	return sum(41, ""bananas is 42. I like the motorcycles honda and yamaha"")
++ 	return sum(41, 42)
+  }
+  ",[TS2345] Argument of type 'number' is not assignable to parameter of type 'Summer'.,[TS2345] Argument of type 'string' is not assignable to parameter of type 'Summer'.,1,"
+The original code passed a string as the second argument to the sum() function, which expected a numeric type, causing a type error diagnostic. 
+
+The fix attempted to resolve this by changing the second argument from the string ""bananas is 42. I like the motorcycles honda and yamaha"" to the numeric literal 42. This matches the type expected by sum().
+
+However, based on the diagnostic after the fix, it appears sum() actually expects a type called 'Summer', not a number. So while changing the argument to a number instead of a string moved in the right direction, it did not fully resolve the type incompatibility.
+
+To fully fix the error, the code likely needs to pass in a value of the correct 'Summer' type expected by the sum() function. Without more context on what the 'Summer' type is, I cannot say exactly what code change is needed.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_005.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,34,3,49,,,,,false,,,,,"--- (before)
++++ (after)
+  import { type EnglishSpeakingFoodie, foodie } from ""./example_005-import"";
+  
+  export function example5(): EnglishSpeakingFoodie {
+- 	return {spanishPotatoes:  foodie.spanishPotatoes }
++ 	return { spanishOmelette: foodie.spanishOmelette }
+  }
+  ","[TS2353] Object literal may only specify known properties, and 'spanishOmelette' does not exist in type 'EnglishSpeakingFoodie'.
+[TS2339] Property 'spanishOmelette' does not exist on type 'Foodie'.",[TS2339] Property 'spanishPotatoes' does not exist on type 'Foodie'.,0,"
+The original diagnostic indicated that the property 'spanishPotatoes' did not exist on the 'Foodie' type. The code fix attempted to resolve this by changing 'spanishPotatoes' to 'spanishOmelette'.
+
+However, based on the diagnostics after the fix, this change did not fully resolve the issue. There are two new diagnostics:
+1. 'spanishOmelette' does not exist on the 'EnglishSpeakingFoodie' return type 
+2. 'spanishOmelette' does not exist on the 'Foodie' type
+
+So while the fix changed the property name, 'spanishOmelette' is still not a valid property on the relevant types. The core issue has not been resolved, the fix just changed the name of the invalid property.
+
+The fix did not introduce any major new issues, but it failed to properly resolve the original type error. Some further changes would be needed to make the property valid on the 'Foodie' and 'EnglishSpeakingFoodie' types.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_006.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,34,3,49,,,,,true,,,,,"--- (before)
++++ (after)
+  import { type EnglishSpeakingFoodie, foodie } from ""./example_005-import"";
+  
+  export function example6(): EnglishSpeakingFoodie {
+- 	return {spanishPotatoes:  foodie.patatasBravadas }
++ 	return {spanishPotatoes: foodie.patatasBravas}
+  }
+  ",,[TS2551] Property 'patatasBravadas' does not exist on type 'Foodie'. Did you mean 'patatasBravas'?,2,"
+The original diagnostic indicated that the property 'patatasBravadas' did not exist on the 'Foodie' type, and suggested 'patatasBravas' as a possible correct spelling. 
+
+The code fix simply changed 'patatasBravadas' to 'patatasBravas' on line 4. This matches the spelling suggested by the diagnostic message.
+
+After the fix, there are no remaining diagnostics, indicating that the original error was fully resolved by correcting the spelling.
+
+The fix is very targeted and minimal - it makes the smallest possible code change to resolve the diagnostic. It does not introduce any new issues or inelegant code.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_007.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,13,3,21,,,,,true,,,,,"--- (before)
++++ (after)
+  import path from 'node:path'
+  
+  export function example7(): string {
+- 	return path.resolved(process.cwd(), 'example_007.ts')␣
++ 	return path.resolve(process.cwd(), 'example_007.ts')␣
+  }
+  ",,[TS2551] Property 'resolved' does not exist on type 'PlatformPath'. Did you mean 'resolve'?,2,"
+The original code used the non-existent method `path.resolved()` which caused the diagnostic error. The fix correctly changed this to the proper method name `path.resolve()`.
+
+After the fix, the code compiles without any diagnostics or errors. The fix fully resolved the original issue.
+
+The fix was a simple but appropriate change. No new issues were introduced. The resulting code looks clean and correct.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_008.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,2,5,8,,,,,false,,,,,"--- (before)
++++ (after)
+  import path from 'node:path'
+  
+  export function example8(): string {
+      const filePath: string = path.join(__dirname, ""example_008.ts"");
+-  	const fileContents = 42
+-  	return fileContents
++  	const fileContents = fs.readFileSync(filePath, 'utf8');
++  	return fileContents;
+  }
+  ",[TS2304] Cannot find name 'fs'.,[TS2322] Type 'number' is not assignable to type 'string'.,1,"
+The original code had a type error because it was assigning the number literal 42 to a variable of type string. The fix attempted to resolve this by reading the actual contents of the file at the specified path using fs.readFileSync().
+
+This fix does resolve the original type error, since readFileSync returns a string which matches the declared return type of the function. So the fix was successful in addressing the immediate issue.
+
+However, the fix introduced a new error because it references the 'fs' module without importing it. The fs module would need to be properly imported for this code to work.
+
+Additionally, the fix doesn't handle potential errors, such as if the file doesn't exist or can't be read. Production-ready code would need to handle those error cases.
+
+So in summary, the fix resolved the original error but introduced a new minor issue and didn't include some other best practices like error handling. The core logic is sound but some further refinement is needed.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_009.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,9,6,21,,,,,true,,,,,"--- (before)
++++ (after)
+  import fs from 'node:fs'
+  import path from 'node:path'
+  
+  export function example9(): string {
+      const filePath: string = path.join(__dirname, ""example.ts"");
+   	const contents = fs.readFileSync(filePath, 'utf8')
+-  	return fileContents
++  	return contents
+  }
+  ",,[TS2552] Cannot find name 'fileContents'. Did you mean 'contents'?,2,"
+The original code had an error because it was trying to return a variable named 'fileContents' which did not exist. The correct variable name was 'contents'.
+
+The automated fix correctly changed the return statement to use the 'contents' variable instead of the undefined 'fileContents' variable. After this change, there are no remaining diagnostics or error messages.
+
+The fix fully resolved the original error by updating the variable name to match what was actually declared. It did not introduce any new issues or change the behavior of the code in any other way.
+
+The fix is very simple and targeted, making only the minimal necessary change to resolve the error. The resulting code looks clean and has no stylistic or structural issues.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_010.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,2,6,8,,,,,true,,,,,"--- (before)
++++ (after)
+  import fs from 'node:fs'
+  import path from 'node:path'
+  
+  export function example10(): string {
+      const filePath: string = path.join(__dirname, ""example.ts"");
+-  	const fileContents = 42
+-  	return fileContents
++  	const fileContents = fs.readFileSync(filePath, 'utf8');
++  	return fileContents;
+  }
+  ",,[TS2322] Type 'number' is not assignable to type 'string'.,2,"
+The original code had a type error because it was assigning the number literal 42 to a variable of type string. The fix correctly resolved this by instead reading the contents of the file at filePath into the fileContents variable using fs.readFileSync. This properly returns the file contents as a string.
+
+The fix fully resolved the original diagnostic and there are no remaining diagnostics after the change. It introduced no new issues.
+
+The code changes made are clean, efficient and appropriate. Using fs.readFileSync is the correct way to synchronously read the contents of a file into a string variable. The filePath variable was already properly defined pointing to the correct file.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_011.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,8,3,20,,,,,false,,,,,"--- (before)
++++ (after)
+  import makeWebAuthn from 'webauthn4js'
+  
+  export function example11()  {
+- 	return makeWebAuthn();
++ 	return makeWebAuthn({
++ 		timeout: 60000,
++ 		authenticatorTimeout: 0,
++ 		requireResidentKey: false,
++ 		userVerificationMethod: 'required',
++ 		attestation: 'direct'
++ 	});
+  }
+  ","[TS2561] Object literal may only specify known properties, but 'timeout' does not exist in type 'Config'. Did you mean to write 'Timeout'?","[TS2554] Expected 1 arguments, but got 0.",1,"
+The original code was missing a required argument when calling the makeWebAuthn() function, which expected 1 argument but got 0. The fix attempted to resolve this by passing an object literal with several properties as the argument.
+
+This fix does resolve the original diagnostic about the missing argument. However, it introduces a new diagnostic saying that the 'timeout' property does not exist on the 'Config' type expected by the function. It seems the fix used the wrong casing for some of the property names.
+
+So while the fix addresses the core issue, it introduces a new minor problem due to incorrect property names. The overall approach of passing a config object is a reasonable and appropriate change, but the details are not quite right.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_012.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,35,6,39,,,,,true,,,,,"--- (before)
++++ (after)
+  import makeWebAuthn from 'webauthn4js'
+  
+  export function example12()  {
+  	return makeWebAuthn({
+  		RPDisplayName: 'WebAuthnJS',
+  		RPID: 'localhost',
+- 		RPOrigins: [`https://localhost:${port}`],
++ 		RPOrigins: [`https://localhost`],
+  		AuthenticatorSelection: {
+  			userVerification: 'preferred'
+  		}
+  	});
+  }
+  ",,[TS2304] Cannot find name 'port'.,1,"
+The original code was referencing an undefined variable `port` in the `RPOrigins` array, which caused the ""Cannot find name 'port'"" diagnostic.
+
+The fix removed the reference to `port` and just hardcoded the localhost URL without a port number. This does resolve the original diagnostic, as `port` is no longer referenced.
+
+However, hardcoding the URL like this makes the code less flexible. It's likely the original code intended to use the `port` variable to allow the port number to be easily changed. With this fix, the port number cannot be configured.
+
+So while the fix does resolve the immediate diagnostic, it doesn't preserve the original intent of the code and makes it less maintainable. A better fix would be to properly define the `port` variable with a default value, or pass it into the `example12` function as a parameter.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_013.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,2,5,5,,,,,true,,,,,"--- (before)
++++ (after)
+  import makeWebAuthn from 'webauthn4js'
+  
+  export function example13()  {
+  	return makeWebAuthn({
+  		RPDisplayName: 'WebAuthnJS',
+- 		PID: 'localhost',
++ 		RPID: 'localhost',
+  		RPOrigins: [""https://localhost:8080""],
+  		AuthenticatorSelection: {
+  			userVerification: 'preferred'
+  		}
+  	});
+  }
+  ",,"[TS2561] Object literal may only specify known properties, but 'PID' does not exist in type 'Config'. Did you mean to write 'RPID'?",2,"
+The original diagnostic indicated that the 'PID' property in the object literal passed to makeWebAuthn() was not a known property of the 'Config' type. It suggested that 'RPID' may have been intended instead.
+
+The code fix changed 'PID' to 'RPID' in the object literal, which resolves the original diagnostic. No new diagnostics were introduced by this change.
+
+The fix appears fully appropriate and correct. 'RPID' is likely the correct property name for specifying the ""Relying Party ID"" based on the WebAuthn spec and the other property names used ('RPDisplayName', 'RPOrigins'). Changing 'PID' to 'RPID' matches the suggestion in the original diagnostic and results in clean, working code with no remaining issues.
+",,,,,,,,
+typescript,ts,claude-3-sonnet,fix,src/example_014.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,2,6,10,,,,,false,,,,,"--- (before)
++++ (after)
+  import makeWebAuthn from 'webauthn4js'
+  
+  export function example14()  {
+  	return makeWebAuthn({
+  		RPDisplayName: 'WebAuthnJS',
+  		HostResolver: 'localhost',
+- 		Timeouts: 422,
++ 		Timeouts: {
++ 			pollingThrottlePeriod: 422,
++ 			pollingTimeout: 422
++ 		},
+  		RPOrigins: [""https://localhost:8080""],
+  		AuthenticatorSelection: {
+  			userVerification: 'preferred'
+  		}
+  	});
+  }
+  ","[TS2353] Object literal may only specify known properties, and 'pollingThrottlePeriod' does not exist in type 'TimeoutsConfig'.",[TS2322] Type 'number' is not assignable to type 'TimeoutsConfig'.,1,"
+The original diagnostic indicated that the value provided for the Timeouts property (422) was not assignable to the expected TimeoutsConfig type. 
+
+The fix attempted to resolve this by changing the Timeouts property to an object with pollingThrottlePeriod and pollingTimeout properties, both set to 422.
+
+This fix did address the original type mismatch diagnostic by providing an object for Timeouts instead of a number. 
+
+However, the fix introduced a new diagnostic, indicating that pollingThrottlePeriod is not a known property of the TimeoutsConfig type. So while the original diagnostic was fixed, the changes introduced a new issue.
+
+The fix was on the right track by changing Timeouts to an object, but it seems the specific properties used (pollingThrottlePeriod and pollingTimeout) do not match the expected properties of the TimeoutsConfig type. 
+
+To fully resolve the issue, the fix should use the correct properties expected by the TimeoutsConfig type. Without knowing the exact definition of TimeoutsConfig, I can't say what those properties should be.
+",,,,,,,,
+typescriptreact,ts,claude-3-sonnet,fix,src/example_015.tsx,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,20,5,28,,,,,true,,,,,"--- (before)
++++ (after)
+  // biome-ignore lint/style/useImportType: <explanation>
+  import * as React from ""react"";
+  import type { CalculatorProps } from ""./example_015-import"";
+  
+  export function example15(): React.ReactElement {
+- 	return <Calculator language=""arabic"" />;
++ 	return <Calculator languageKind=""arabic"" />;
+  }
+  
+  export const Calculator: React.FunctionComponent<CalculatorProps> = (props) => {
+  	return <h1>My favorite calculator comes from {props.languageKind}</h1>;
+  };
+  ",,"[TS2322] Type '{ language: string; }' is not assignable to type 'IntrinsicAttributes & CalculatorProps'.
+Property 'language' does not exist on type 'IntrinsicAttributes & CalculatorProps'.",2,"
+The original diagnostic indicated that the Calculator component was being passed a ""language"" prop, but the CalculatorProps type did not include a ""language"" property. 
+
+The automated fix changed the prop name from ""language"" to ""languageKind"" in the example15 function where the Calculator component is used. This matches the ""languageKind"" prop that is expected by the CalculatorProps type, based on the Calculator component definition.
+
+After the fix, there are no remaining diagnostics, indicating that the type error was fully resolved.
+
+The fix is clean and minimal - it simply renames the prop to match the expected type. No unnecessary changes or additional issues were introduced.
+",,,,,,,,
+typescriptreact,ts,claude-3-sonnet,fix,src/example_016.tsx,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,33,5,35,,,,,false,,,,,"--- (before)
++++ (after)
+  // biome-ignore lint/style/useImportType: <explanation>
+  import * as React from ""react"";
+  import { Calculator } from ""./example_015"";
+  
+  export function example16(): React.ReactElement {
+- 	return <Calculator languageKind={} />;
++ 	return <Calculator languageKind=""typescript"" />;
+  }
+  
+  ","[TS2322] Type '""typescript""' is not assignable to type '""arabic"" | ""japanese"" | ""roman""'.",[TS17000] JSX attributes must only be assigned a non-empty 'expression'.,1,"
+The original diagnostic indicated that the JSX attribute languageKind was being assigned an empty expression, which is invalid. The fix attempted to resolve this by assigning the string literal ""typescript"" to languageKind.
+
+This fixed the original diagnostic, as languageKind is no longer an empty expression. However, it introduced a new diagnostic saying that ""typescript"" is not assignable to the type '""arabic"" | ""japanese"" | ""roman""'. This suggests that the languageKind prop is a union type that only accepts one of those three string literal values, and ""typescript"" is not a valid value.
+
+So while the fix resolved the original error, it introduced a new type error by providing an invalid value for that prop. The code change itself is simple and targeted, but doesn't quite resolve the issue completely.
+",,,,,,,,
+typescriptreact,ts,claude-3-sonnet,fix,src/example_017.tsx,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,33,5,35,,,,,false,,,,,"--- (before)
++++ (after)
+  // biome-ignore lint/style/useImportType: <explanation>
+  import * as React from ""react"";
+  import { Calculator } from ""./example_015"";
+  
+  export function example17(lingua?: 'japanese'): React.ReactElement {
+- 	return <Calculator languageKind={} />;
++ 	return <Calculator languageKind={lingua === 'japanese'} />;
+  }
+  
+  ","[TS2322] Type 'boolean' is not assignable to type '""japanese"" | ""arabic"" | ""roman""'.",[TS17000] JSX attributes must only be assigned a non-empty 'expression'.,1,"
+The original code had an empty JSX attribute value `languageKind={}`, which is invalid syntax and caused the diagnostic. The fix attempted to resolve this by setting the attribute value to a boolean expression `lingua === 'japanese'`.
+
+This fixed the original diagnostic about the empty attribute value. However, based on the remaining diagnostic after the fix, it seems the `languageKind` prop expects a string value of either `""japanese""`, `""arabic""`, or `""roman""`, not a boolean. 
+
+So while the fix resolved the syntax error, it introduced a new type error by assigning a boolean to a prop that expects a string enum value. The fix is incomplete and does not fully handle the prop type expected by the `Calculator` component.
+",,,,,,,,
