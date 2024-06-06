@@ -9,13 +9,13 @@ def csv_table(name: str):
     score_df = score_df.sort_values(by="Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
-    score_df2 = score_df.set_index("FIXTURE", inplace=True)
+    score_df2 = score_df.set_index("FIXTURE")
     st.dataframe(score_df2)
 
     filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE"]]
     # Pivot the DataFrame
     pivot_df = df.pivot(index="FILEPATH", columns="FIXTURE", values="LLM_JUDGE_SCORE")
-    pivot_df2 = pivot_df.sort_values(by=models_by_score, ascending=False, inplace=True)
+    pivot_df2 = pivot_df.sort_values(by=models_by_score, ascending=False)
     pivot_df3 = pivot_df2[models_by_score]
 
     # Display the pivoted DataFrame
