@@ -12,13 +12,13 @@
 // DIFF   export function example11()  {
 // DIFF - 	return makeWebAuthn();
 // DIFF + 	return makeWebAuthn({
-// DIFF + 		timeout: 60000,
-// DIFF + 		allowCredentials: []
+// DIFF + 		// Add configuration options here
 // DIFF + 	});
 // DIFF   }
 // DIFF   
 
-// DIAGNOSTIC_AFTER [TS2561] Object literal may only specify known properties, but 'timeout' does not exist in type 'Config'. Did you mean to write 'Timeout'?
+// DIAGNOSTIC_AFTER [TS2345] Argument of type '{}' is not assignable to parameter of type 'Config'.
+// DIAGNOSTIC_AFTER Type '{}' is missing the following properties from type 'Config': RPID, RPDisplayName, RPOrigins
 
   }
   
