@@ -1,0 +1,100 @@
+{
+  "queriesDirectory": "queries",
+  "snapshotDirectory": "snapshots/autocomplete",
+  "fixtures": [
+    {
+      "name": "dynamic-multiline",
+      "strategy": "bfg",
+      "customConfiguration": {
+        "cody.autocomplete.experimental.dynamicMultilineCompletions": true,
+        "cody.autocomplete.advanced.provider": "fireworks",
+        "cody.autocomplete.advanced.model": "starcoder-7b"
+      }
+    },
+    {
+      "name": "claude",
+      "strategy": "bfg",
+      "customConfiguration": {
+        "cody.autocomplete.advanced.provider": "anthropic",
+        "cody.autocomplete.experimental.dynamicMultilineCompletions": false
+      }
+    },
+    {
+      "name": "bfg",
+      "strategy": "bfg",
+      "customConfiguration": {
+        "cody.experimental.cody-engine.await-indexing": true,
+        "cody.autocomplete.experimental.graphContext": "bfg",
+        "cody.autocomplete.advanced.provider": "fireworks",
+        "cody.autocomplete.advanced.model": "starcoder-7b"
+      }
+    },
+    {
+      "name": "vscode-0.14.0",
+      "strategy": "bfg",
+      "codyAgentBinary": "../cody-binaries/vscode-0.14.0/agent-macos-arm64",
+      "customConfiguration": {
+        "cody.autocomplete.advanced.provider": "fireworks",
+        "cody.autocomplete.advanced.model": "starcoder-7b"
+      }
+    },
+    {
+      "name": "baseline",
+      "strategy": "bfg",
+      "customConfiguration": {
+        "cody.autocomplete.experimental.dynamicMultilineCompletions": false,
+        "cody.autocomplete.advanced.provider": "fireworks",
+        "cody.autocomplete.advanced.model": "starcoder-7b"
+      }
+    },
+    {
+      "name": "git-log",
+      "strategy": "git-log",
+      "customConfiguration": {
+        "cody.autocomplete.advanced.provider": "fireworks",
+        "cody.autocomplete.advanced.model": "starcoder-7b"
+      }
+    }
+  ],
+  "workspaces": [
+    {
+      "workspace": "repos/ts-rspress",
+      "gitLogFilter": "'*.ts' | awk 'NF>=5 && NF<=25'",
+      "includeLanguage": ["typescript"],
+      "installCommand": "pnpm install",
+      "testCommand": "pnpm typecheck"
+    },
+    {
+      "workspace": "repos/go-kong",
+      "includeLanguage": ["go"],
+      "installCommand": "rtx install",
+      "testCommand": "go build ./..."
+    },
+    {
+      "workspace": "repos/java-jcommander",
+      "includeLanguage": ["java"],
+      "testCommand": "./gradlew compileTestJava"
+    },
+    {
+      "workspace": "repos/python-flask",
+      "includeLanguage": ["python"],
+      "testCommand": "tox -e typing"
+    },
+    {
+      "workspace": "repos/js-svelte",
+      "includeLanguage": ["javascript"]
+    },
+    {
+      "workspace": "repos/csharp-diffplex",
+      "includeLanguage": ["csharp"]
+    },
+    {
+      "workspace": "repos/cpp-llama",
+      "includeLanguage": ["cpp"]
+    },
+    {
+      "workspace": "repos/php-monica",
+      "includeLanguage": ["php"]
+    }
+  ]
+}
