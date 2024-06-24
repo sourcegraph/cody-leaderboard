@@ -72,23 +72,12 @@ def chat_csv_table(name: str):
         by="FIXTURE",
     )
 
-    col1, col2 = st.columns(2)
     for index, row in rows2.iterrows():
-        # Create col based on index
-        if index % 2 == 0:
-            with col1:
-                st.header(row["FIXTURE"])
-                st.markdown(f"""-----
- **Chat Reply**: {row["CHAT_REPLY"]}
+        st.header(row["FIXTURE"])
+        st.markdown(f"""-----
+**Chat Reply**: {row["CHAT_REPLY"]}
 
- """)
-        else:
-            with col2:
-                st.header(row["FIXTURE"])
-                st.markdown(f"""-----
- **Chat Reply**: {row["CHAT_REPLY"]}
-
- """)
+""")
 
 
 chatTab, fixTab, editTab, autocompleteTab = st.tabs(
