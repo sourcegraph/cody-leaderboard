@@ -11,12 +11,12 @@
 // DIFF   
 // DIFF   export function example2(): Example2 {
 // DIFF - 	const example2: Example2 = "something is 42";
-// DIFF + 	const example2: Example2 = { message: "something is 42" };
+// DIFF + 	const example2: Example2 = { value: "something is 42" };
 // DIFF   	return example2;
 // DIFF   }
 // DIFF   
 
-// DIAGNOSTIC_AFTER [TS2353] Object literal may only specify known properties, and 'message' does not exist in type 'Example2'.
+// DIAGNOSTIC_AFTER [TS2353] Object literal may only specify known properties, and 'value' does not exist in type 'Example2'.
 
    return example2;
   }

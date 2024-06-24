@@ -1,18 +1,18 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,FILE_URL,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
-typescript,ts,gpt-4-turbo,fix,src/example_001.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,1,2,1,8,,,,,true,,,,,"--- (before)
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
+typescript,ts,gpt-4-turbo,fix,src/example_001.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,1,2,1,8,,,,,true,,,,,"--- (before)
 +++ (after)
   export function example1(): number {
 -   return '42'
 +   return 42
   }
   ",,[TS2322] Type 'string' is not assignable to type 'number'.,2,"
-The original code had a type mismatch - the function was declared to return a number, but the implementation returned the string '42' instead. This caused a diagnostic indicating that returning a string is not assignable to the declared return type of number.
+The original code had a type mismatch - the function was declared to return a number, but the implementation returned the string '42' instead. This caused a diagnostic indicating that returning a string was not assignable to the declared return type of number.
 
 The automated fix resolved this type mismatch by changing the returned value from the string '42' to the number 42. After this change, the function implementation matches the declared return type of number.
 
-The fix fully resolved the original diagnostic, and there are no remaining diagnostics after the change. The code change itself is clean, efficient and appropriate. Changing '42' to 42 is the minimal change needed to match the declared return type.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_002.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,7,3,15,,,,,false,,,,,"--- (before)
+There are no remaining diagnostics after the fix, indicating that the type error was fully resolved. The code change itself is clean and appropriate - using the numeric value 42 instead of the string '42' is the correct way to resolve the return type mismatch.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_002.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,7,3,15,,,,,false,,,,,"--- (before)
 +++ (after)
   import type { Example2 } from ""./example_002-import"";
   
@@ -24,11 +24,11 @@ typescript,ts,gpt-4-turbo,fix,src/example_002.ts,20ae3f81572a9fd97bf37a285dfca05
   ","[TS2353] Object literal may only specify known properties, and 'value' does not exist in type 'Example2'.",[TS2322] Type 'string' is not assignable to type 'Example2'.,0,"
 The original code had a type mismatch - it was trying to assign a string value to a variable of type Example2. The fix attempted to address this by changing the string to an object literal with a 'value' property containing the string.
 
-However, based on the diagnostic after the fix, it seems the Example2 type does not actually contain a 'value' property. So while the fix changed the structure to an object literal, the object literal it created does not match the expected properties of the Example2 type.
+However, based on the diagnostic after the fix, it appears that the Example2 type does not actually contain a 'value' property. So while the fix changed the structure to an object literal, the object literal it created does not match the expected properties of the Example2 type.
 
-The fix did not fully resolve the original type mismatch diagnostic, and introduced a new diagnostic about specifying an unknown property. The changes were an attempt in the right direction by using an object instead of a plain string, but did not correctly match the Example2 type structure.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_003.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,16,3,20,,,,,false,,,,,"--- (before)
+The fix did not fully resolve the original type mismatch diagnostic, and introduced a new diagnostic about the object literal having an unknown 'value' property. The changes were an attempt in the right direction by using an object instead of a plain string, but did not correctly match the Example2 type structure.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_003.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,16,3,20,,,,,false,,,,,"--- (before)
 +++ (after)
   import { sum } from './example_003-import'
   
@@ -37,15 +37,15 @@ typescript,ts,gpt-4-turbo,fix,src/example_003.ts,20ae3f81572a9fd97bf37a285dfca05
 + 	return sum(40, 41, 42)
   }
   ",[TS2345] Argument of type 'number' is not assignable to parameter of type 'string'.,[TS2345] Argument of type 'string' is not assignable to parameter of type 'number'.,1,"
-The original code passed two string arguments '41' and '42' to the sum() function, which expects numbers. This caused a diagnostic about passing string arguments to a function expecting numbers.
+The original code passed two string arguments '41' and '42' to the sum() function, which expects number arguments. This caused the diagnostic about an argument of type 'string' not being assignable to a parameter of type 'number'.
 
-The fix changed the string arguments '41' and '42' to numbers 41 and 42. This resolved the original diagnostic. 
+The automated fix changed the '41' and '42' arguments to be the number literals 41 and 42 instead. This resolves the original diagnostic.
 
-However, the fix introduced a new diagnostic, because the sum() function is actually defined to take string arguments, not numbers. So while the fix resolved the original error, it created a new one by passing number arguments to a function expecting strings.
+However, the fix introduced a new diagnostic, because the sum() function is apparently defined to take string parameters, not number parameters. So while the fix resolved the original error, it caused a new error by passing number arguments to a function expecting strings.
 
-The fix made the correct change to resolve the immediate diagnostic, but failed to realize that the root issue was the mismatch between the sum() definition and how it was being called. To fully fix this, either the calls to sum() should pass strings, or sum() should be defined to take numbers.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_004.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,16,3,72,,,,,false,,,,,"--- (before)
+The fix was on the right track by changing the argument types, but it should have changed the parameter types of sum() to accept numbers if the intent was to pass numeric arguments.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_004.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,16,3,72,,,,,false,,,,,"--- (before)
 +++ (after)
   import { sum } from './example_004-import'
   
@@ -58,36 +58,31 @@ The original code passed a string as the second argument to the sum() function, 
 
 The fix attempted to resolve this by changing the second argument from the string ""bananas is 42. I like the motorcycles honda and yamaha"" to the numeric literal 42. This matches the type expected by sum().
 
-However, based on the diagnostic after the fix, it appears that sum() actually expects a type called 'Summer', not a number. So while changing the argument to a number instead of a string moved in the right direction, it did not fully resolve the type incompatibility.
+However, after the change, there is still a diagnostic complaining that ""Argument of type 'number' is not assignable to parameter of type 'Summer'."" It seems the sum() function expects a more specific numeric type called Summer, not just any number. 
 
-To fully fix the error, the code likely needs to pass in a value of the correct 'Summer' type expected by the sum() function. Without more context on what the 'Summer' type is, I cannot say exactly what code change is needed.
-
-The automated fix made the code better by using the correct argument type, but did not fully resolve the diagnostic due to a mistaken assumption about the expected type. No new issues were introduced.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_005.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,34,3,49,,,,,false,,,,,"--- (before)
+So while the fix addressed the original type mismatch between string and number, it did not fully resolve the problem, as the supplied number is still not of the correct Summer type expected by sum(). The fix is incomplete.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_005.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,34,3,49,,,,,false,,,,,"--- (before)
 +++ (after)
   import { type EnglishSpeakingFoodie, foodie } from ""./example_005-import"";
   
   export function example5(): EnglishSpeakingFoodie {
 - 	return {spanishPotatoes:  foodie.spanishPotatoes }
-+ 	return { ...foodie, spanishPotatoes: foodie.spanishOmelette }
++ 	return {spanishOmelette: foodie.spanishOmelette}
   }
-  ",[TS2339] Property 'spanishOmelette' does not exist on type 'Foodie'.,[TS2339] Property 'spanishPotatoes' does not exist on type 'Foodie'.,1,"
-The original code had an error because it was trying to access a property `spanishPotatoes` on the `foodie` object, but that property did not exist on the `Foodie` type.
+  ","[TS2353] Object literal may only specify known properties, and 'spanishOmelette' does not exist in type 'EnglishSpeakingFoodie'.
+[TS2339] Property 'spanishOmelette' does not exist on type 'Foodie'.",[TS2339] Property 'spanishPotatoes' does not exist on type 'Foodie'.,0,"
+The original diagnostic stated that the property 'spanishPotatoes' does not exist on type 'Foodie'. To fix this, the assistant changed the property name from 'spanishPotatoes' to 'spanishOmelette' in the returned object literal.
 
-The fix attempted to resolve this by spreading all the properties of `foodie` into a new object literal, and then explicitly setting a `spanishPotatoes` property on that object to `foodie.spanishOmelette`. 
+However, this introduced two new diagnostics:
+1. 'spanishOmelette' does not exist in type 'EnglishSpeakingFoodie', which is the return type of the function.
+2. 'spanishOmelette' does not exist on type 'Foodie', so 'foodie.spanishOmelette' is invalid.
 
-This fix does resolve the original error, since `spanishPotatoes` is no longer being accessed directly on `foodie`. However, it introduces a new error, because `spanishOmelette` also does not exist on the `Foodie` type.
+The fix attempted to resolve the original diagnostic by renaming the property, but it did not ensure that the new property name actually exists in the relevant types. The function is still returning an object that does not match its declared return type, and it is accessing a property that does not exist on 'foodie'.
 
-The fix is heading in the right direction by avoiding direct property access on an object with an incompatible type. But it still has an error by trying to access a non-existent `spanishOmelette` property.
-
-To fully resolve the error, the fix should either:
-1. Only spread/copy properties from `foodie` that are actually defined on the `Foodie` type 
-2. Or, add the missing `spanishPotatoes` and `spanishOmelette` properties to the `Foodie` type definition.
-
-As it stands, the fix has one remaining type error. The code changes are an improvement but do not fully resolve the problem.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_006.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,34,3,49,,,,,true,,,,,"--- (before)
+So while the original diagnostic was resolved, the fix introduced new type errors and did not fully solve the underlying problem in the code.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_006.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,34,3,49,,,,,true,,,,,"--- (before)
 +++ (after)
   import { type EnglishSpeakingFoodie, foodie } from ""./example_005-import"";
   
@@ -103,8 +98,8 @@ The code fix simply changed 'patatasBravadas' to 'patatasBravas' on line 4. This
 After the fix, there are no remaining diagnostics, indicating that the original error was fully resolved by correcting the spelling.
 
 The fix is very targeted and minimal - it makes the smallest possible code change to resolve the diagnostic. It does not introduce any new issues or inelegant code.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_007.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,13,3,21,,,,,true,,,,,"--- (before)
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_007.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,13,3,21,,,,,true,,,,,"--- (before)
 +++ (after)
   import path from 'node:path'
   
@@ -118,8 +113,8 @@ The original code used the non-existent method `path.resolved()` which caused th
 After the fix, the code compiles without any diagnostics or errors. The fix fully resolved the original issue.
 
 The fix was a simple and appropriate one-line change. It did not introduce any new issues or inelegant code. The resulting code looks clean and correct.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_008.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,2,5,8,,,,,false,,,,,"--- (before)
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_008.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,5,2,5,8,,,,,false,,,,,"--- (before)
 +++ (after)
   import path from 'node:path'
   
@@ -131,13 +126,13 @@ typescript,ts,gpt-4-turbo,fix,src/example_008.ts,20ae3f81572a9fd97bf37a285dfca05
 +  	return fileContents;
   }
   ",[TS2304] Cannot find name 'fs'.,[TS2322] Type 'number' is not assignable to type 'string'.,1,"
-The original code had a type error because it was assigning the number literal 42 to a variable of type string. The fix attempted to resolve this by reading the actual contents of the file at the specified path into the fileContents variable.
+The original code had a type error because it was assigning the number literal 42 to a variable of type string. The AI coding assistant attempted to fix this by reading the contents of the file at filePath into the fileContents variable using fs.readFileSync().
 
-This does fix the original type error, since fs.readFileSync will return the file contents as a string. However, it introduces a new ReferenceError diagnostic because the fs module is not imported. To fully resolve the error, an import statement for the fs module would need to be added.
+This fix does resolve the original type error, since readFileSync returns a string which matches the declared type of fileContents. However, it introduces a new ReferenceError diagnostic ""Cannot find name 'fs'"". This is because the fs module is not imported at the top of the file.
 
-The general approach of reading the file contents is a reasonable way to fix the type mismatch. However, the new code is still not quite production-ready due to the missing import.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_009.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,9,6,21,,,,,true,,,,,"--- (before)
+So while the fix addresses the original issue, it does so in an incomplete way and introduces a new error. The code changes are on the right track, but the fix is not fully correct or complete.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_009.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,6,9,6,21,,,,,true,,,,,"--- (before)
 +++ (after)
   import fs from 'node:fs'
   import path from 'node:path'
@@ -151,13 +146,11 @@ typescript,ts,gpt-4-turbo,fix,src/example_009.ts,20ae3f81572a9fd97bf37a285dfca05
   ",,[TS2552] Cannot find name 'fileContents'. Did you mean 'contents'?,2,"
 The original code had an error because it was trying to return a variable named 'fileContents' which did not exist. The correct variable name was 'contents'.
 
-The automated fix correctly changed the return statement to use the 'contents' variable instead of the undefined 'fileContents' variable. After this change, there are no remaining diagnostics or error messages.
+The automated fix correctly changed the return statement to use the 'contents' variable instead of the undefined 'fileContents' variable. After this change, there are no remaining diagnostics or errors.
 
-The fix fully resolved the original error by updating the variable name to match what was actually declared. It did not introduce any new issues or change the behavior of the code in any other way.
-
-The fix is very simple and targeted, making only the minimal necessary change to resolve the error. The resulting code looks clean and has no stylistic or structural issues.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_010.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,2,6,8,,,,,true,,,,,"--- (before)
+The fix fully resolved the original diagnostic by renaming the variable reference appropriately. It did not introduce any new issues. The code change is straightforward, clean and resolves the issue elegantly.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_010.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,6,2,6,8,,,,,true,,,,,"--- (before)
 +++ (after)
   import fs from 'node:fs'
   import path from 'node:path'
@@ -170,31 +163,29 @@ typescript,ts,gpt-4-turbo,fix,src/example_010.ts,20ae3f81572a9fd97bf37a285dfca05
 +  	return fileContents;
   }
   ",,[TS2322] Type 'number' is not assignable to type 'string'.,2,"
-The original code had a type error because it was assigning the number literal 42 to a variable of type string. The fix correctly resolved this by instead reading the contents of the file at filePath into the fileContents variable using fs.readFileSync. This properly returns the file contents as a string.
+The original code had a type error because it was assigning the number literal 42 to a variable of type string. The fix correctly resolved this by instead reading the contents of the file at filePath into the fileContents variable using fs.readFileSync. This returns the file contents as a string, which matches the declared return type of the function.
 
-The fix fully resolved the original diagnostic and there are no remaining diagnostics after the change. It introduced no new issues.
-
-The code changes made are clean, efficient and appropriate. Using fs.readFileSync is the correct way to synchronously read the contents of a file into a string variable. The filePath variable was already properly defined pointing to the correct file.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_011.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,3,8,3,20,,,,,false,,,,,"--- (before)
+The fix fully resolved the original diagnostic and there are no remaining diagnostics after the change. The fix used the appropriate fs.readFileSync function to read the file contents into a string variable. The code changes are clean and efficient.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_011.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,3,8,3,20,,,,,false,,,,,"--- (before)
 +++ (after)
   import makeWebAuthn from 'webauthn4js'
   
   export function example11()  {
 - 	return makeWebAuthn();
 + 	return makeWebAuthn({
-+ 		timeout: 60000,
-+ 		allowCredentials: []
++ 		// Add configuration options here
 + 	});
   }
-  ","[TS2561] Object literal may only specify known properties, but 'timeout' does not exist in type 'Config'. Did you mean to write 'Timeout'?","[TS2554] Expected 1 arguments, but got 0.",1,"
-The original diagnostic indicated that the makeWebAuthn() function expected 1 argument but was called with 0 arguments. The fix attempted to resolve this by passing an object literal as an argument with timeout and allowCredentials properties.
+  ","[TS2345] Argument of type '{}' is not assignable to parameter of type 'Config'.
+Type '{}' is missing the following properties from type 'Config': RPID, RPDisplayName, RPOrigins","[TS2554] Expected 1 arguments, but got 0.",1,"
+The original diagnostic indicated that the makeWebAuthn() function expected 1 argument but was called with 0 arguments. The fix attempted to resolve this by passing an empty object literal as the argument.
 
-This fix does resolve the original diagnostic by providing the missing argument. However, it introduces a new diagnostic complaining that the timeout property does not exist on the Config type expected by makeWebAuthn(). The fix used timeout instead of the correct property name Timeout.
+This fix does resolve the original diagnostic about the missing argument. However, it introduces a new diagnostic saying the empty object is not assignable to the expected Config type, since it is missing required properties like RPID, RPDisplayName, and RPOrigins.
 
-So while the fix addressed the original issue, it introduced a new problem by using the wrong property name. The code changes were headed in the right direction but were not quite correct.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_012.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,35,6,39,,,,,true,,,,,"--- (before)
+So while the fix addresses the immediate diagnostic, it does so in an incomplete way that doesn't fully satisfy the API contract of the makeWebAuthn function. The code change itself is simple and targeted, but passing in an empty object is not an appropriate or complete solution.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_012.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,6,35,6,39,,,,,true,,,,,"--- (before)
 +++ (after)
   import makeWebAuthn from 'webauthn4js'
   
@@ -214,11 +205,11 @@ The original code was referencing an undefined variable `port` in the `RPOrigins
 
 The fix removed the reference to `port` and just hardcoded the localhost URL without a port number. This does resolve the original diagnostic, as `port` is no longer referenced.
 
-However, hardcoding the URL like this makes the code less flexible. It's likely the original code intended to use the `port` variable to allow the port number to be easily configured. With this fix, the port number cannot be changed without modifying the code.
+However, hardcoding the URL like this makes the code less flexible. It would be better to keep the port number as a variable that can be easily changed.
 
-So while the fix does resolve the immediate diagnostic, it doesn't seem like the ideal solution. A better approach would be to properly define the `port` variable with the desired port number, or get the port from an environment variable or configuration setting.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_013.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,2,5,5,,,,,true,,,,,"--- (before)
+The fix resolved the immediate diagnostic but the resulting code is not ideal. I would categorize this as an acceptable but not amazing fix.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_013.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,5,2,5,5,,,,,true,,,,,"--- (before)
 +++ (after)
   import makeWebAuthn from 'webauthn4js'
   
@@ -234,13 +225,13 @@ typescript,ts,gpt-4-turbo,fix,src/example_013.ts,20ae3f81572a9fd97bf37a285dfca05
   	});
   }
   ",,"[TS2561] Object literal may only specify known properties, but 'PID' does not exist in type 'Config'. Did you mean to write 'RPID'?",2,"
-The original diagnostic indicated that the 'PID' property in the object literal passed to makeWebAuthn() was not a known property of the 'Config' type. It suggested that 'RPID' may have been intended instead.
+The original diagnostic indicated that the 'PID' property passed to makeWebAuthn() was invalid, and suggested using 'RPID' instead. The code fix correctly changed 'PID' to 'RPID' while keeping the value 'localhost' the same.
 
-The code fix changed 'PID' to 'RPID' in the object literal, which resolves the original diagnostic. No new diagnostics were introduced by this change.
+After the fix, there are no remaining diagnostics, indicating that the original error was fully resolved. The fix did not introduce any new issues.
 
-The fix appears fully appropriate and correct. 'RPID' is likely the correct property name for specifying the ""Relying Party ID"" based on the WebAuthn spec and the other property names used ('RPDisplayName', 'RPOrigins'). Changing 'PID' to 'RPID' matches the suggestion in the original diagnostic and results in clean, working code with no remaining issues.
-",,,,,,,,
-typescript,ts,gpt-4-turbo,fix,src/example_014.ts,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,6,2,6,10,,,,,false,,,,,"--- (before)
+The code change is very simple and targeted, only updating the one incorrect property name. It is a clean and appropriate fix for the reported diagnostic.
+",,,,,,,
+typescript,ts,gpt-4-turbo,fix,src/example_014.ts,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,6,2,6,10,,,,,false,,,,,"--- (before)
 +++ (after)
   import makeWebAuthn from 'webauthn4js'
   
@@ -268,9 +259,13 @@ This fix did address the original type mismatch diagnostic by providing an objec
 
 However, the fix introduced a new diagnostic, indicating that pollingThrottlePeriod is not a known property of the TimeoutsConfig type. So while the original diagnostic was fixed, the changes introduced a new issue.
 
-The fix was on the right track by changing Timeouts to an object, but it seems the property names used are not correct according to the TimeoutsConfig type. Using the correct properties that are actually part of that type would fully resolve the issue.
-",,,,,,,,
-typescriptreact,ts,gpt-4-turbo,fix,src/example_015.tsx,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,20,5,28,,,,,true,,,,,"--- (before)
+The fix was on the right track by changing Timeouts to an object, but it seems the specific properties used (pollingThrottlePeriod and pollingTimeout) do not match the expected properties of the TimeoutsConfig type. 
+
+To fully resolve the issue, the fix should use the correct properties expected by the TimeoutsConfig type. Without knowing the exact definition of TimeoutsConfig, I can't say what those properties should be.
+
+So in summary, the fix resolved the original diagnostic but introduced a new one, indicating the changes were not a complete solution.
+",,,,,,,
+typescriptreact,ts,gpt-4-turbo,fix,src/example_015.tsx,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,5,20,5,28,,,,,true,,,,,"--- (before)
 +++ (after)
   // biome-ignore lint/style/useImportType: <explanation>
   import * as React from ""react"";
@@ -293,8 +288,8 @@ The automated fix changed the prop name from ""language"" to ""languageKind"" in
 After the fix, there are no remaining diagnostics, indicating the original type error was resolved.
 
 The fix fully resolved the diagnostic by aligning the prop name with what was expected by the props type. The code changes were minimal and appropriate to resolve the issue. No new issues or inelegant code were introduced.
-",,,,,,,,
-typescriptreact,ts,gpt-4-turbo,fix,src/example_016.tsx,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,33,5,35,,,,,false,,,,,"--- (before)
+",,,,,,,
+typescriptreact,ts,gpt-4-turbo,fix,src/example_016.tsx,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,5,33,5,35,,,,,false,,,,,"--- (before)
 +++ (after)
   // biome-ignore lint/style/useImportType: <explanation>
   import * as React from ""react"";
@@ -302,19 +297,17 @@ typescriptreact,ts,gpt-4-turbo,fix,src/example_016.tsx,20ae3f81572a9fd97bf37a285
   
   export function example16(): React.ReactElement {
 - 	return <Calculator languageKind={} />;
-+ 	return <Calculator languageKind=""javascript"" />;
++ 	return <Calculator languageKind=""typescript"" />;
   }
   
-  ","[TS2322] Type '""javascript""' is not assignable to type '""arabic"" | ""japanese"" | ""roman""'.",[TS17000] JSX attributes must only be assigned a non-empty 'expression'.,1,"
-The original diagnostic was complaining that the JSX attribute languageKind was being assigned an empty expression, which is invalid. The fix attempted to resolve this by assigning the string literal ""javascript"" to languageKind.
+  ","[TS2322] Type '""typescript""' is not assignable to type '""arabic"" | ""japanese"" | ""roman""'.",[TS17000] JSX attributes must only be assigned a non-empty 'expression'.,1,"
+The original diagnostic indicated that the JSX attribute languageKind was being assigned an empty expression, which is invalid. The fix attempted to resolve this by assigning the string literal ""typescript"" to languageKind.
 
-This fixed the original diagnostic, as languageKind is no longer an empty expression. However, it introduced a new diagnostic complaining that the type ""javascript"" is not assignable to the type ""arabic"" | ""japanese"" | ""roman"". 
+This fixed the original diagnostic, as languageKind is no longer an empty expression. However, it introduced a new diagnostic saying that ""typescript"" is not assignable to the type ""arabic"" | ""japanese"" | ""roman"". This suggests that the languageKind prop is an enum that only accepts one of those three string values, and ""typescript"" is not a valid value.
 
-Looking at the Calculator component definition in example_015.tsx, it seems the languageKind prop is a union type that only allows the values ""arabic"", ""japanese"" or ""roman"". So while assigning ""javascript"" fixes the empty expression diagnostic, it is an invalid value for that prop.
-
-To fully resolve the issue, the fix should have assigned one of ""arabic"", ""japanese"" or ""roman"" instead of ""javascript"". The current fix is incomplete and introduces a new type error.
-",,,,,,,,
-typescriptreact,ts,gpt-4-turbo,fix,src/example_017.tsx,20ae3f81572a9fd97bf37a285dfca05d83b7c9a1,,,,5,33,5,35,,,,,false,,,,,"--- (before)
+So while the fix resolved the original error, it introduced a new type error by providing an invalid value for that prop. The fix is incomplete, as it should have assigned one of the allowed enum values instead of ""typescript"".
+",,,,,,,
+typescriptreact,ts,gpt-4-turbo,fix,src/example_017.tsx,7d230692338eeb9c31c9419d1c76879a4627a45c,,,,5,33,5,35,,,,,false,,,,,"--- (before)
 +++ (after)
   // biome-ignore lint/style/useImportType: <explanation>
   import * as React from ""react"";
@@ -328,9 +321,15 @@ typescriptreact,ts,gpt-4-turbo,fix,src/example_017.tsx,20ae3f81572a9fd97bf37a285
   ","[TS2322] Type 'boolean' is not assignable to type '""japanese"" | ""arabic"" | ""roman""'.",[TS17000] JSX attributes must only be assigned a non-empty 'expression'.,1,"
 The original diagnostic was caused by assigning an empty value `{}` to the `languageKind` prop of the `Calculator` component. This is not allowed in JSX - props must be assigned a valid expression.
 
-The automated fix attempted to resolve this by changing the prop assignment to `{lingua === 'japanese'}`. This does provide a valid boolean expression to the prop, instead of an empty value.
+The automated fix attempted to resolve this by changing the prop assignment to `{lingua === 'japanese'}`. This does provide a valid boolean expression to the prop, which resolves the original diagnostic.
 
-However, based on the new diagnostic after the fix, it seems that the `languageKind` prop is actually expecting a string value of either `""japanese""`, `""arabic""`, or `""roman""`, not a boolean. So while the fix resolved the original diagnostic, it introduced a new type error because it is passing the wrong type of value to the prop.
+However, based on the new diagnostic after the fix, it seems that the `languageKind` prop is actually expecting a string value of either `""japanese""`, `""arabic""`, or `""roman""`, not a boolean. So while the original error is fixed, the change introduces a new type error.
 
-To fully resolve the error, the fix should pass the `lingua` value directly to the `languageKind` prop, e.g. `<Calculator languageKind={lingua} />`. This would provide the string value the prop is expecting.
-",,,,,,,,
+To fully resolve the error, the fix should assign one of those valid string literals to the `languageKind` prop, based on the value of `lingua`. Something like:
+
+```
+<Calculator languageKind={lingua === 'japanese' ? 'japanese' : 'roman'} />
+```
+
+So in summary, the automated fix resolved the original diagnostic but introduced a new type error. The fix was in the right direction but did not fully account for the expected type of the `languageKind` prop.
+",,,,,,,

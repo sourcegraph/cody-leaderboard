@@ -15,12 +15,12 @@
 // DIFF   
 // DIFF   export function example16(): React.ReactElement {
 // DIFF - 	return <Calculator languageKind={} />;
-// DIFF + 	return <Calculator languageKind="javascript" />;
+// DIFF + 	return <Calculator languageKind="typescript" />;
 // DIFF   }
 // DIFF   
 // DIFF   
 
-// DIAGNOSTIC_AFTER [TS2322] Type '"javascript"' is not assignable to type '"arabic" | "japanese" | "roman"'.
+// DIAGNOSTIC_AFTER [TS2322] Type '"typescript"' is not assignable to type '"arabic" | "japanese" | "roman"'.
 
   }
   

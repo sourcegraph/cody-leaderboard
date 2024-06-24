@@ -1,0 +1,54 @@
+{
+  "queriesDirectory": "queries",
+  "snapshotDirectory": "output/autocomplete",
+  "fixtures": [
+    {
+      "name": "starcoder",
+      "strategy": "autocomplete",
+      "customConfiguration": {
+        "cody.autocomplete.advanced.provider": "fireworks"
+      }
+    }
+  ],
+  "workspaces": [
+    {
+      "workspace": "input/autocomplete/ts-rspress",
+      "gitLogFilter": "'*.ts' | awk 'NF>=5 && NF<=25'",
+      "includeLanguage": ["typescript"],
+      "installCommand": "pnpm install",
+      "testCommand": "pnpm typecheck"
+    },
+    {
+      "workspace": "input/autocomplete/go-kong",
+      "includeLanguage": ["go"],
+      "installCommand": "rtx install",
+      "testCommand": "go build ./..."
+    },
+    {
+      "workspace": "input/autocomplete/java-jcommander",
+      "includeLanguage": ["java"],
+      "testCommand": "./gradlew compileTestJava"
+    },
+    {
+      "workspace": "input/autocomplete/py-flask",
+      "includeLanguage": ["python"],
+      "testCommand": "tox -e typing"
+    },
+    {
+      "workspace": "input/autocomplete/js-svelte",
+      "includeLanguage": ["javascript"]
+    },
+    {
+      "workspace": "input/autocomplete/cs-diffplex",
+      "includeLanguage": ["csharp"]
+    },
+    {
+      "workspace": "input/autocomplete/cpp-llama.cpp",
+      "includeLanguage": ["cpp"]
+    },
+    {
+      "workspace": "input/autocomplete/php-monica",
+      "includeLanguage": ["php"]
+    }
+  ]
+}

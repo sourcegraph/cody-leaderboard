@@ -16,7 +16,8 @@
 // DIFF + 		authenticatorTimeout: 0,
 // DIFF + 		requireResidentKey: false,
 // DIFF + 		userVerificationMethod: 'required',
-// DIFF + 		attestation: 'direct'
+// DIFF + 		attestationConveyancePreference: 'none',
+// DIFF + 		authenticatorAttachment: 'cross-platform'
 // DIFF + 	});
 // DIFF   }
 // DIFF   

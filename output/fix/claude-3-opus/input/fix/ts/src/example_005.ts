@@ -11,12 +11,11 @@
 // DIFF   
 // DIFF   export function example5(): EnglishSpeakingFoodie {
 // DIFF - 	return {spanishPotatoes:  foodie.spanishPotatoes }
-// DIFF + 	return {spanishOmelette: foodie.spanishOmelette}
+// DIFF + 	return { ...foodie, spanishPotatoes: foodie.tapas }
 // DIFF   }
 // DIFF   
 
-// DIAGNOSTIC_AFTER [TS2353] Object literal may only specify known properties, and 'spanishOmelette' does not exist in type 'EnglishSpeakingFoodie'.
-// DIAGNOSTIC_AFTER [TS2339] Property 'spanishOmelette' does not exist on type 'Foodie'.
+// DIAGNOSTIC_AFTER [TS2339] Property 'tapas' does not exist on type 'Foodie'.
 
   }
   

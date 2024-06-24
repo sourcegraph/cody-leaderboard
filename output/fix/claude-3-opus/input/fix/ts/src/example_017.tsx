@@ -4,7 +4,7 @@
   
   export function example17(lingua?: 'japanese'): React.ReactElement {
    return <Calculator languageKind={} />;
-//                                 ^^ FIX TYPECHECK_OK
+//                                 ^^ FIX TYPECHECK_ERROR
 // DIAGNOSTIC_BEFORE [TS17000] JSX attributes must only be assigned a non-empty 'expression'.
 
 // DIFF --- (before)
@@ -15,10 +15,12 @@
 // DIFF   
 // DIFF   export function example17(lingua?: 'japanese'): React.ReactElement {
 // DIFF - 	return <Calculator languageKind={} />;
-// DIFF + 	return <Calculator languageKind={lingua === 'japanese' ? 'japanese' : undefined} />;
+// DIFF + 	return <Calculator languageKind={lingua === 'japanese'} />;
 // DIFF   }
 // DIFF   
 // DIFF   
+
+// DIAGNOSTIC_AFTER [TS2322] Type 'boolean' is not assignable to type '"japanese" | "arabic" | "roman"'.
 
   }
   
