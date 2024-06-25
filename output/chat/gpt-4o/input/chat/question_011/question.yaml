@@ -1,0 +1,47 @@
+ question: What does directory watcher do?
+# CHAT
+# CHAT_REPLY A directory watcher is a tool or service that monitors a specified directory (or directories) for changes. These changes can include the creation, modification, or deletion of files and subdirectories within the monitored directory. Directory watchers are commonly used in various applications and development workflows for tasks such as:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **Automated Testing**: Running tests automatically when code files are changed.
+# CHAT_REPLY 2. **Live Reloading**: Automatically reloading a web page or application when source files are modified.
+# CHAT_REPLY 3. **Backup and Sync**: Triggering backup or synchronization processes when files are added or changed.
+# CHAT_REPLY 4. **Logging and Auditing**: Keeping a log of changes to files for security or auditing purposes.
+# CHAT_REPLY 5. **Build Systems**: Triggering build processes when source files are updated.
+# CHAT_REPLY 
+# CHAT_REPLY Directory watchers can be implemented using various programming languages and libraries. For example, in Python, you might use the `watchdog` library, while in Node.js, you might use the `chokidar` library.
+# CHAT_REPLY 
+# CHAT_REPLY Here is a simple example using Python's `watchdog` library:
+# CHAT_REPLY 
+# CHAT_REPLY ```python
+# CHAT_REPLY import time
+# CHAT_REPLY from watchdog.observers import Observer
+# CHAT_REPLY from watchdog.events import FileSystemEventHandler
+# CHAT_REPLY 
+# CHAT_REPLY class MyHandler(FileSystemEventHandler):
+# CHAT_REPLY     def on_modified(self, event):
+# CHAT_REPLY         print(f'File modified: {event.src_path}')
+# CHAT_REPLY     
+# CHAT_REPLY     def on_created(self, event):
+# CHAT_REPLY         print(f'File created: {event.src_path}')
+# CHAT_REPLY     
+# CHAT_REPLY     def on_deleted(self, event):
+# CHAT_REPLY         print(f'File deleted: {event.src_path}')
+# CHAT_REPLY 
+# CHAT_REPLY if __name__ == "__main__":
+# CHAT_REPLY     path = "."  # Directory to watch
+# CHAT_REPLY     event_handler = MyHandler()
+# CHAT_REPLY     observer = Observer()
+# CHAT_REPLY     observer.schedule(event_handler, path, recursive=True)
+# CHAT_REPLY     observer.start()
+# CHAT_REPLY     
+# CHAT_REPLY     try:
+# CHAT_REPLY         while True:
+# CHAT_REPLY             time.sleep(1)
+# CHAT_REPLY     except KeyboardInterrupt:
+# CHAT_REPLY         observer.stop()
+# CHAT_REPLY     observer.join()
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY In this example, the `MyHandler` class defines actions to take when files are modified, created, or deleted. The `Observer` watches the specified directory and triggers the appropriate handler methods when changes are detected.
+
+ 

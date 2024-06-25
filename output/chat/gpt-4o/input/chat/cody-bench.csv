@@ -1,5 +1,5 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
-yaml,chat,gpt-4o,chat,question_001/question.yaml,898ee2633173fa4c1f11d184eb32bffb895684b7,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, here is a simple implementation of a `Dog` class that implements the `Animal` interface:
+yaml,chat,gpt-4o,chat,question_001/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Sure, based on the provided `Animal` interface, here is an implementation of a `Dog` class:
 
 ```typescript
 interface Animal {
@@ -16,11 +16,860 @@ class Dog implements Animal {
         this.age = age;
     }
 
-    bark(): void {
+    bark() {
         console.log(""Woof! Woof!"");
     }
 }
 ```
 
-This `Dog` class includes a constructor to initialize the `name` and `age` properties and a `bark` method to simulate the dog barking.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_002/question.yaml,898ee2633173fa4c1f11d184eb32bffb895684b7,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, `Squirrel` is an interface that represents a code intelligence API. It has a method `symbolInformation` which takes a file path as a string argument and returns an object that conforms to the `CodeIntelligence` interface, which includes an array of symbols.",,,,,,,,,,,
+This `Dog` class implements the `Animal` interface and includes a `bark` method.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_002/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, `Squirrel` is an interface that represents a code intelligence API. It has a method `symbolInformation` which takes a file name as a string argument and returns an object that conforms to the `CodeIntelligence` interface. The `CodeIntelligence` interface includes a property `symbols`, which is an array of strings.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_003/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I have access to the following code:
+
+1. `squirrel.ts`:
+    ```typescript
+    interface CodeIntelligence {
+        symbols: string[]
+    }
+    /**
+     * Squirrel is a code intelligence API.
+     */
+    interface Squirrel {
+        symbolInformation(file: string): CodeIntelligence
+    }
+    ```
+
+2. `animal.ts`:
+    ```typescript
+    interface Animal {
+        name: string;
+        age: number;
+    }
+    ```",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_004/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"In Go, slices are a flexible and powerful way to work with sequences of elements. They are more versatile than arrays and are used extensively in Go programming. Here’s a brief overview of how slices work in Go:
+
+### Definition and Initialization
+
+A slice is a descriptor for a contiguous segment of an array and provides much more powerful and flexible operations than arrays. A slice is defined by three components:
+- A pointer to the underlying array.
+- The length of the segment.
+- The capacity of the segment (the maximum length the slice can grow to).
+
+You can create a slice in several ways:
+
+1. **From an array:**
+   ```go
+   arr := [5]int{1, 2, 3, 4, 5}
+   slice := arr[1:4] // slice now contains [2, 3, 4]
+   ```
+
+2. **Using the `make` function:**
+   ```go
+   slice := make([]int, 5) // creates a slice of length 5 and capacity 5
+   ```
+
+3. **Composite literal:**
+   ```go
+   slice := []int{1, 2, 3, 4, 5}
+   ```
+
+### Slicing
+
+You can create a new slice from an existing slice or array using the slicing syntax `slice[low:high]`:
+
+```go
+arr := [5]int{1, 2, 3, 4, 5}
+slice := arr[1:4] // slice now contains [2, 3, 4]
+```
+
+### Length and Capacity
+
+- **Length**: The number of elements in the slice.
+- **Capacity**: The number of elements in the underlying array, starting from the first element in the slice.
+
+You can get the length and capacity using the built-in `len` and `cap` functions:
+
+```go
+fmt.Println(len(slice)) // Output: 3
+fmt.Println(cap(slice)) // Output: 4
+```
+
+### Modifying Slices
+
+Slices are reference types, meaning that when you modify the contents of a slice, you are modifying the underlying array:
+
+```go
+slice[0] = 10
+fmt.Println(arr) // Output: [1, 10, 3, 4, 5]
+```
+
+### Appending to Slices
+
+You can append elements to a slice using the built-in `append` function. If the slice has enough capacity, the underlying array is reused. If not, a new array is allocated:
+
+```go
+slice = append(slice, 6)
+fmt.Println(slice) // Output: [2, 3, 4, 6]
+```
+
+### Copying Slices
+
+You can copy the contents of one slice to another using the `copy` function:
+
+```go
+src := []int{1, 2, 3}
+dst := make([]int, len(src))
+copy(dst, src)
+fmt.Println(dst) // Output: [1, 2, 3]
+```
+
+### Zero Value
+
+The zero value of a slice is `nil`. A `nil` slice has a length and capacity of 0 and no underlying array:
+
+```go
+var slice []int
+fmt.Println(slice == nil) // Output: true
+fmt.Println(len(slice))   // Output: 0
+fmt.Println(cap(slice))   // Output: 0
+```
+
+### Summary
+
+Slices in Go provide a powerful way to work with sequences of elements, offering flexibility and efficiency. They are built on top of arrays but provide more functionality, such as dynamic resizing and easy slicing. Understanding slices is crucial for effective Go programming.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_005/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided regex `/n/a|e|i|o|u/` is designed to match any of the following characters: `a`, `e`, `i`, `o`, or `u`. Here's a breakdown of the regex:
+
+- `a|e|i|o|u`: This part of the regex uses the alternation operator `|` to match any one of the characters `a`, `e`, `i`, `o`, or `u`.
+
+The `/n` at the end seems to be a typo or misplaced. In JavaScript, regex patterns are enclosed within forward slashes `/.../`, and `/n` at the end does not have any special meaning in this context.
+
+So, the effective regex pattern is `/a|e|i|o|u/`, which matches any single vowel character (lowercase) in the input string.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_006/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To style a checkbox using light purple in CSS, you can use the `:checked` pseudo-class and the `::before` or `::after` pseudo-elements to customize the appearance. Here's an example of how you can achieve this:
+
+```html
+<!DOCTYPE html>
+<html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>Styled Checkbox</title>
+    <style>
+        /* Hide the default checkbox */
+        input[type=""checkbox""] {
+            display: none;
+        }
+
+        /* Create a custom checkbox */
+        .custom-checkbox {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #f3e5f5; /* Light purple background */
+            border: 2px solid #d1c4e9; /* Light purple border */
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Style the checkmark */
+        .custom-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            background-color: #7e57c2; /* Darker purple for the checkmark */
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        /* Show the checkmark when the checkbox is checked */
+        input[type=""checkbox""]:checked + .custom-checkbox::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <label>
+        <input type=""checkbox"">
+        <span class=""custom-checkbox""></span>
+        Check me!
+    </label>
+</body>
+</html>
+```
+
+In this example:
+
+1. The default checkbox is hidden using `display: none`.
+2. A custom checkbox is created using a `span` element with the class `custom-checkbox`.
+3. The custom checkbox is styled with a light purple background and border.
+4. The `::after` pseudo-element is used to create the checkmark, which is initially hidden (`opacity: 0`).
+5. When the checkbox is checked, the `::after` pseudo-element becomes visible (`opacity: 1`).
+
+You can adjust the colors, sizes, and other styles as needed to fit your design requirements.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_007/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To upgrade your Python version, you can follow these steps depending on your operating system:
+
+### On Windows:
+1. **Download the Installer:**
+   - Go to the [official Python website](https://www.python.org/downloads/).
+   - Download the latest version of Python.
+
+2. **Run the Installer:**
+   - Open the downloaded installer.
+   - Make sure to check the box that says ""Add Python to PATH"".
+   - Click on ""Upgrade Now"" to upgrade your existing Python installation.
+
+### On macOS:
+1. **Using Homebrew:**
+   - Open Terminal.
+   - Update Homebrew:
+     ```sh
+     brew update
+     ```
+   - Upgrade Python:
+     ```sh
+     brew upgrade python
+     ```
+
+2. **Using the Installer:**
+   - Go to the [official Python website](https://www.python.org/downloads/).
+   - Download the latest version of Python.
+   - Open the downloaded installer and follow the instructions to install the new version.
+
+### On Linux:
+1. **Using a Package Manager:**
+   - For Debian-based systems (like Ubuntu):
+     ```sh
+     sudo apt update
+     sudo apt install python3
+     ```
+   - For Red Hat-based systems (like Fedora):
+     ```sh
+     sudo dnf install python3
+     ```
+
+2. **Using `pyenv`:**
+   - Install `pyenv` if you haven't already:
+     ```sh
+     curl https://pyenv.run | bash
+     ```
+   - Add `pyenv` to your shell:
+     ```sh
+     export PATH=""$HOME/.pyenv/bin:$PATH""
+     eval ""$(pyenv init --path)""
+     eval ""$(pyenv init -)""
+     eval ""$(pyenv virtualenv-init -)""
+     ```
+   - Install the desired Python version:
+     ```sh
+     pyenv install <version>
+     ```
+   - Set the new version as the global default:
+     ```sh
+     pyenv global <version>
+     ```
+
+Replace `<version>` with the specific version number you want to install, such as `3.9.7`.
+
+After upgrading, you can verify the installed version by running:
+```sh
+python --version
+```
+or
+```sh
+python3 --version
+```
+
+These steps should help you upgrade your Python version on your respective operating system.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_008/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To understand what a repository (repo) does, you typically need to look at several key files and directories within it. Here are some steps you can follow to get a good overview:
+
+1. **README.md**: This file usually contains a high-level description of the project, its purpose, and how to get started with it. It's often the first place to look.
+
+2. **Documentation**: Look for a `docs` directory or any other documentation files. These can provide more detailed information about the project's functionality and usage.
+
+3. **Source Code**: Examine the main source code files. Look for the entry point of the application (e.g., `main.py` for Python, `index.js` for Node.js, etc.). This can give you an idea of how the application runs.
+
+4. **Configuration Files**: Files like `package.json` (for Node.js), `requirements.txt` (for Python), `Makefile`, `Dockerfile`, etc., can provide insights into the dependencies and setup process.
+
+5. **Tests**: Look for a `tests` or `spec` directory. Reviewing test cases can help you understand the expected behavior of the code.
+
+6. **Comments and Docstrings**: Inline comments and docstrings within the code can provide additional context and explanations.
+
+If you provide me with a link to the repository or specific files within it, I can help you analyze them and give you a more detailed explanation of what the repo does.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_009/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Sure, I'd be happy to help! Please provide the code you'd like me to describe.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_010/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, it seems like you are working with a Go codebase that includes a server struct and a JSON-RPC server implementation for interacting with Cody. However, the context is quite limited. 
+
+To describe your code more accurately, I would need more information or specific files you want to be described. Given the current context:
+
+1. **server struct**:
+   - The `server` struct in `chunker_test.go` embeds `grpc_testing.UnimplementedTestServiceServer`. This suggests that it is part of a gRPC service implementation, likely for testing purposes.
+
+2. **Cody Agent**:
+   - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. It is designed for use by non-ECMAScript clients such as JetBrains and NeoVim plugins.
+
+If you need a more detailed description or have specific parts of the codebase you want to be described, please provide additional context or specify the files or components you are interested in.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_011/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher is a tool or service that monitors a specified directory (or directories) for changes. These changes can include the creation, modification, or deletion of files and subdirectories within the monitored directory. Directory watchers are commonly used in various applications and development workflows for tasks such as:
+
+1. **Automated Testing**: Running tests automatically when code files are changed.
+2. **Live Reloading**: Automatically reloading a web page or application when source files are modified.
+3. **Backup and Sync**: Triggering backup or synchronization processes when files are added or changed.
+4. **Logging and Auditing**: Keeping a log of changes to files for security or auditing purposes.
+5. **Build Systems**: Triggering build processes when source files are updated.
+
+Directory watchers can be implemented using various programming languages and libraries. For example, in Python, you might use the `watchdog` library, while in Node.js, you might use the `chokidar` library.
+
+Here is a simple example using Python's `watchdog` library:
+
+```python
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+class MyHandler(FileSystemEventHandler):
+    def on_modified(self, event):
+        print(f'File modified: {event.src_path}')
+    
+    def on_created(self, event):
+        print(f'File created: {event.src_path}')
+    
+    def on_deleted(self, event):
+        print(f'File deleted: {event.src_path}')
+
+if __name__ == ""__main__"":
+    path = "".""  # Directory to watch
+    event_handler = MyHandler()
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=True)
+    observer.start()
+    
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+```
+
+In this example, the `MyHandler` class defines actions to take when files are modified, created, or deleted. The `Observer` watches the specified directory and triggers the appropriate handler methods when changes are detected.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_012/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To determine if your codebase is clean, I would need to analyze it for various factors such as readability, maintainability, adherence to coding standards, presence of documentation, and absence of bugs or security vulnerabilities. Here are a few steps you can take to assess the cleanliness of your codebase:
+
+1. **Code Review**: Conduct thorough code reviews with your team to ensure that the code is readable, well-documented, and follows best practices.
+
+2. **Linting**: Use linters to automatically check for coding standards and style issues. Tools like ESLint for JavaScript, Pylint for Python, and RuboCop for Ruby can be very helpful.
+
+3. **Static Analysis**: Use static analysis tools to detect potential bugs, security vulnerabilities, and code smells. Examples include SonarQube, CodeClimate, and Coverity.
+
+4. **Unit Tests**: Ensure that you have a comprehensive suite of unit tests that cover the critical parts of your codebase. Tools like Jest for JavaScript, pytest for Python, and JUnit for Java can help.
+
+5. **Documentation**: Check if your codebase is well-documented. This includes inline comments, README files, and API documentation.
+
+6. **Dependency Management**: Ensure that your dependencies are up-to-date and that you are not using deprecated or vulnerable libraries.
+
+7. **Continuous Integration**: Set up a continuous integration (CI) pipeline to automatically run tests and checks on every commit. Tools like Jenkins, GitHub Actions, and CircleCI can help with this.
+
+If you provide access to your codebase or specific parts of it, I can help you analyze it further and provide more detailed feedback.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_013/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code snippet from `chunker_test.go`, it appears that the file is related to testing a gRPC service. However, the snippet itself does not provide enough information to determine where the gRPC chunker is specifically tested.
+
+To locate the tests for the gRPC chunker, you would need to look through the `chunker_test.go` file for any test functions that are testing chunking functionality. These test functions typically start with the `Test` prefix and might include terms like ""chunker"" or ""chunking"" in their names.
+
+If you have access to the entire `chunker_test.go` file, you can search for relevant test functions. If you need further assistance with specific parts of the file, please provide more context or additional code snippets.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_014/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, I don't have access to any specific information or files related to your PyTorch setup or environment. Additionally, the file `question_014/external-services.ts` is empty and does not provide any relevant details.
+
+However, I can guide you on how to upgrade your PyTorch version to 1.0.0. Here are the general steps you can follow:
+
+1. **Uninstall the current version of PyTorch:**
+   ```bash
+   pip uninstall torch
+   ```
+
+2. **Install PyTorch 1.0.0:**
+   You can install a specific version of PyTorch using pip. For PyTorch 1.0.0, you can use the following command:
+   ```bash
+   pip install torch==1.0.0
+   ```
+
+3. **Verify the installation:**
+   After installation, you can verify the version of PyTorch installed by running:
+   ```python
+   import torch
+   print(torch.__version__)
+   ```
+
+For more detailed instructions or if you need to install additional components like CUDA support, you can refer to the official [PyTorch installation guide](https://pytorch.org/get-started/previous-versions/).
+
+If you have any specific requirements or need further assistance, please provide more details.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_015/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To identify conflicting packages, we need to look at the import statements and see if there are any packages that might be causing issues due to name conflicts or version incompatibilities. Here are the import statements from the provided code:
+
+```go
+import (
+	""context""
+	""fmt""
+	""net/http""
+	""slices""
+	""strconv""
+	""time""
+
+	""github.com/sourcegraph/log""
+	""go.opentelemetry.io/otel/attribute""
+	oteltrace ""go.opentelemetry.io/otel/trace""
+
+	""github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter""
+	""github.com/sourcegraph/sourcegraph/internal/codygateway""
+	""github.com/sourcegraph/sourcegraph/internal/trace""
+	""github.com/sourcegraph/sourcegraph/lib/errors""
+)
+```
+
+Let's break down the imports:
+
+1. **Standard Library Packages:**
+   - `context`
+   - `fmt`
+   - `net/http`
+   - `strconv`
+   - `time`
+
+2. **Third-Party Packages:**
+   - `slices` (This is a Go 1.18+ package for working with slices)
+   - `github.com/sourcegraph/log`
+   - `go.opentelemetry.io/otel/attribute`
+   - `oteltrace ""go.opentelemetry.io/otel/trace""`
+
+3. **Internal Packages:**
+   - `github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter`
+   - `github.com/sourcegraph/sourcegraph/internal/codygateway`
+   - `github.com/sourcegraph/sourcegraph/internal/trace`
+   - `github.com/sourcegraph/sourcegraph/lib/errors`
+
+### Potential Conflicts
+
+1. **Third-Party Package Versions:**
+   - Ensure that the versions of `go.opentelemetry.io/otel` and `github.com/sourcegraph/log` are compatible with each other and with the rest of your codebase. Version conflicts can sometimes cause issues.
+
+2. **Internal Package Naming:**
+   - The internal packages (`limiter`, `codygateway`, `trace`, `errors`) should be checked to ensure there are no duplicate or conflicting names within the `github.com/sourcegraph/sourcegraph` repository. For example, if there are multiple `limiter` packages in different directories, it could cause confusion.
+
+3. **Standard Library vs. Third-Party Packages:**
+   - The `slices` package is part of the Go standard library starting from Go 1.18. Ensure that you are using the correct version of Go that includes this package.
+
+### Steps to Identify Conflicts
+
+1. **Check Go Modules:**
+   - Look at your `go.mod` file to see the versions of the third-party packages being used. Ensure there are no version conflicts.
+
+2. **Search for Duplicate Packages:**
+   - Search your codebase for duplicate package names that might be imported from different paths.
+
+3. **Run Dependency Management Tools:**
+   - Use tools like `go mod tidy` to clean up any unnecessary dependencies and `go mod verify` to ensure that your dependencies are correctly downloaded and verified.
+
+4. **Check for Deprecated Packages:**
+   - Ensure none of the packages you are using have been deprecated or replaced with newer versions.
+
+By following these steps, you should be able to identify any conflicting packages that might be causing issues in your codebase. If you provide more specific details about the errors or issues you are encountering, I can give more targeted advice.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_016/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Sure, let's take a closer look at the `limit.go` file. Here is the content again for reference:
+
+```go
+package actor
+
+import (
+	""context""
+	""fmt""
+	""net/http""
+	""slices""
+	""strconv""
+	""time""
+
+	""github.com/sourcegraph/log""
+	""go.opentelemetry.io/otel/attribute""
+	oteltrace ""go.opentelemetry.io/otel/trace""
+
+	""github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter""
+	""github.com/sourcegraph/sourcegraph/internal/codygateway""
+	""github.com/sourcegraph/sourcegraph/internal/trace""
+	""github.com/sourcegraph/sourcegraph/lib/errors""
+)
+
+type RateLimit struct {
+	// AllowedModels is a set of models in Cody Gateway's model configuration
+	// format, ""$PROVIDER/$MODEL_NAME"". A single-item slice with value '*' means
+	// that all models in the 'master allowlist' are allowed.
+	//
+	// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)
+	// instead.
+	AllowedModels []string `json:""allowedModels""`
+
+	Limit    int64         `json:""limit""`
+	Interval time.Duration `json:""interval""`
+
+	// ConcurrentRequests, ConcurrentRequestsInterval are generally applied
+	// with NewRateLimitWithPercentageConcurrency.
+	ConcurrentRequests         int           `json:""concurrentRequests""`
+	ConcurrentRequestsInterval time.Duration `json:""concurrentRequestsInterval""`
+}
+
+func NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {
+	// The actual type of time.Duration is int64, so we can use it to compute the
+	// ratio of the rate limit interval to a day (24 hours).
+	ratioToDay := float32(interval) / float32(24*time.Hour)
+	// Then use the ratio to compute the rate limit for a day.
+	dailyLimit := float32(limit) / ratioToDay
+	// Finally, compute the concurrency limit with the given percentage of the daily limit.
+	concurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)
+	// Just in case a poor choice of percentage results in a concurrency limit less than 1.
+	if concurrencyLimit < 1 {
+		concurrencyLimit = 1
+	}
+
+	return RateLimit{
+		AllowedModels: allowedModels,
+		Limit:         limit,
+		Interval:      interval,
+
+		ConcurrentRequests:         concurrencyLimit,
+		ConcurrentRequestsInterval: concurrencyConfig.Interval,
+	}
+}
+
+func (r *RateLimit) IsValid() bool {
+	return r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0
+}
+
+// EvaluateAllowedModels returns the intersection of a 'master' allowlist and
+// the actor's allowlist, where only values on the 'master' allowlist are returned.
+// The provided allowlist MUST be prefixed with the provider name (e.g. ""anthropic/"").
+//
+// If the actor's allowlist is a single value '*', then the master allowlist is
+// returned (i.e. all models are allowed).
+func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
+	if len(r.AllowedModels) == 1 && r.AllowedModels[0] == ""*"" {
+		return prefixedMasterAllowlist // all models allowed
+	}
+
+	var result []string
+	for _, val := range r.AllowedModels {
+		if slices.Contains(prefixedMasterAllowlist, val) {
+			result = append(result, val)
+		}
+	}
+	return result
+}
+
+type concurrencyLimiter struct {
+	logger  log.Logger
+	actor   *Actor
+	feature codygateway.Feature
+
+	// redis must be a prefixed store
+	redis limiter.RedisStore
+
+	concurrentRequests int
+	concurrentInterval time.Duration
+
+	nextLimiter limiter.Limiter
+
+	nowFunc func() time.Time
+}
+
+func (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
+	commit, err := (limiter.StaticLimiter{
+		LimiterName:        ""actor.concurrencyLimiter"",
+		Identifier:         l.actor.ID,
+		Redis:              l.redis,
+		Limit:              int64(l.concurrentRequests),
+		Interval:           l.concurrentInterval,
+		UpdateRateLimitTTL: true, // always adjust
+		NowFunc:            l.nowFunc,
+	}).TryAcquire(ctx)
+	if err != nil {
+		if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
+			retryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)
+			if err != nil {
+				return nil, errors.Wrap(err, ""failed to get TTL for rate limit counter"")
+			}
+			return nil, ErrConcurrencyLimitExceeded{
+				feature:    l.feature,
+				limit:      l.concurrentRequests,
+				retryAfter: retryAfter,
+			}
+		}
+		return nil, errors.Wrap(err, ""check concurrent limit"")
+	}
+	if err = commit(ctx, 1); err != nil {
+		trace.Logger(ctx, l.logger).Error(""failed to commit concurrency limit consumption"", log.Error(err))
+	}
+
+	return l.nextLimiter.TryAcquire(ctx)
+}
+
+func (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {
+	return l.nextLimiter.Usage(ctx)
+}
+
+type ErrConcurrencyLimitExceeded struct {
+	feature    codygateway.Feature
+	limit      int
+	retryAfter time.Time
+}
+
+// Error generates a simple string that is fairly static for use in logging.
+// This helps with categorizing errors. For more detailed output use Summary().
+func (e ErrConcurrencyLimitExceeded) Error() string {
+	return fmt.Sprintf(""%q: concurrency limit exceeded"", e.feature)
+}
+
+func (e ErrConcurrencyLimitExceeded) Summary() string {
+	return fmt.Sprintf(""you have exceeded the concurrency limit of %d requests for %q. Retry after %s"",
+		e.limit, e.feature, e.retryAfter.Truncate(time.Second))
+}
+
+func (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {
+	// Rate limit exceeded, write well known headers and return correct status code.
+	w.Header().Set(""x-ratelimit-limit"", strconv.Itoa(e.limit))
+	w.Header().Set(""x-ratelimit-remaining"", ""0"")
+	w.Header().Set(""retry-after"", e.retryAfter.Format(time.RFC1123))
+	// Use Summary instead of Error for more informative text
+	http.Error(w, e.Summary(), http.StatusTooManyRequests)
+}
+
+// updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain
+// access errors.
+type updateOnErrorLimiter struct {
+	logger log.Logger
+	actor  *Actor
+
+	nextLimiter limiter.Limiter
+}
+
+func (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
+	commit, err := u.nextLimiter.TryAcquire(ctx)
+	// If we have an access issue, try to update the actor in case they have
+	// been granted updated access.
+	if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
+		oteltrace.SpanFromContext(ctx).
+			SetAttributes(attribute.Bool(""update-on-error"", true))
+		// Do update transiently, outside request hotpath
+		go func() {
+			if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
+				!IsErrActorRecentlyUpdated(updateErr) {
+				u.logger.Warn(""unexpected error updating actor"",
+					log.Error(updateErr),
+					log.NamedError(""originalError"", err))
+			}
+		}()
+	}
+	return commit, err
+}
+
+func (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {
+	return u.nextLimiter.Usage(ctx)
+}
+```
+
+This file defines several types and functions related to rate limiting and concurrency control for actors in the Cody Gateway system. Here are the main components:
+
+1. **RateLimit struct**: Defines the rate limit configuration, including allowed models, limit, interval, and concurrency settings.
+
+2. **NewRateLimitWithPercentageConcurrency function**: Creates a new `RateLimit` instance with concurrency settings based on a percentage of the daily limit.
+
+3. **IsValid method**: Checks if the `RateLimit` instance is valid.
+
+4. **EvaluateAllowedModels method**: Evaluates the allowed models based on a master allowlist and the actor's allowlist.
+
+5. **concurrencyLimiter struct**: Defines a concurrency limiter with methods to try acquiring a slot and to get usage information.
+
+6. **TryAcquire method**: Attempts to acquire a concurrency slot, handling errors and updating rate limits as necessary.
+
+7. **Usage method**: Retrieves usage information from the next limiter.
+
+8. **ErrConcurrencyLimitExceeded struct**: Defines an error type for concurrency limit exceeded scenarios, with methods to generate error messages and write HTTP responses.
+
+9. **updateOnErrorLimiter struct**: Defines a limiter that updates the actor's access if certain errors occur.
+
+10. **TryAcquire method**: Attempts to acquire a slot and updates the actor's access if necessary.
+
+11. **Usage method**: Retrieves usage information from the next limiter.
+
+If you have any specific questions or need further details about any part of this file, please let me know!",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_017/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided codebase context does not include any information about the project's licensing decisions or rationale for using the MIT license. To understand why this project uses the MIT license, you would typically need to refer to project documentation, commit messages, or discussions among the project maintainers that explain the choice of license. If such information is not available in the codebase, you might consider reaching out to the project maintainers directly for clarification.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_018/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To find the location of the `tensor` function in the `zoekt` repository, you can use Sourcegraph's search functionality. Here’s how you can do it:
+
+1. **Open Sourcegraph**: Navigate to your Sourcegraph instance.
+2. **Search Query**: Use the search bar to enter the following query:
+   ```
+   repo:zoekt function:tensor
+   ```
+   This query will search for the definition of the `tensor` function within the `zoekt` repository.
+
+3. **Review Results**: Look through the search results to find the file and location where the `tensor` function is defined.
+
+If you have access to the `zoekt` repository locally, you can also use command-line tools like `grep` or `rg` (ripgrep) to search for the function definition:
+
+```sh
+grep -r ""func tensor"" /path/to/zoekt/repo
+```
+
+or
+
+```sh
+rg ""func tensor"" /path/to/zoekt/repo
+```
+
+These commands will recursively search for the `tensor` function definition in the specified directory.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_019/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I don't have access to the contents of `src/agent.go` based on the provided context. If you can share the relevant portions of `src/agent.go`, I can help explain the logic and how agents interact with ranking.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_020/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `README.md` file for the `@sourcegraph/cody-agent` package provides a brief overview of the package's purpose and functionality. Specifically, it explains that the package implements a JSON-RPC server to facilitate interaction with Cody through standard input and output (stdout/stdin). This setup is designed to be used by clients that are not based on ECMAScript, such as plugins for JetBrains and NeoVim.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_021/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Goroutines are a fundamental feature of the Go programming language that allow for concurrent execution of functions. They are lightweight threads managed by the Go runtime. Here’s a detailed explanation of how goroutines work:
+
+### Basics of Goroutines
+
+1. **Creation**:
+   - A goroutine is created using the `go` keyword followed by a function call. For example:
+     ```go
+     go myFunction()
+     ```
+   - This spawns a new goroutine that runs concurrently with the calling (main) goroutine.
+
+2. **Concurrency**:
+   - Goroutines run in the same address space, which means they share memory. This makes communication between them efficient but also requires synchronization to avoid race conditions.
+
+3. **Scheduling**:
+   - The Go runtime includes a scheduler that manages the execution of goroutines. It multiplexes thousands of goroutines onto a smaller number of OS threads.
+   - The scheduler uses a technique called M:N scheduling, where M goroutines are scheduled on N OS threads.
+
+4. **Communication**:
+   - Goroutines can communicate with each other using channels, which are typed conduits for sending and receiving values.
+   - Channels provide a way to synchronize goroutines and share data safely.
+
+### Example
+
+Here’s a simple example to illustrate goroutines:
+
+```go
+package main
+
+import (
+	""fmt""
+	""time""
+)
+
+func printNumbers() {
+	for i := 1; i <= 5; i++ {
+		fmt.Println(i)
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func main() {
+	go printNumbers() // Start printNumbers in a new goroutine
+
+	// Main goroutine continues to execute
+	for i := 'a'; i <= 'e'; i++ {
+		fmt.Printf(""%c\n"", i)
+		time.Sleep(150 * time.Millisecond)
+	}
+
+	// Wait for a while to let the other goroutine finish
+	time.Sleep(1 * time.Second)
+}
+```
+
+In this example:
+- The `printNumbers` function is executed in a new goroutine.
+- The main goroutine continues to execute and prints letters.
+- Both goroutines run concurrently, and their outputs are interleaved.
+
+### Synchronization
+
+To synchronize goroutines or wait for them to finish, you can use synchronization primitives like `sync.WaitGroup` or channels. Here’s an example using `sync.WaitGroup`:
+
+```go
+package main
+
+import (
+	""fmt""
+	""sync""
+	""time""
+)
+
+func printNumbers(wg *sync.WaitGroup) {
+	defer wg.Done() // Notify the WaitGroup that this goroutine is done
+	for i := 1; i <= 5; i++ {
+		fmt.Println(i)
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
+func main() {
+	var wg sync.WaitGroup
+
+	wg.Add(1) // Increment the WaitGroup counter
+	go printNumbers(&wg)
+
+	// Main goroutine continues to execute
+	for i := 'a'; i <= 'e'; i++ {
+		fmt.Printf(""%c\n"", i)
+		time.Sleep(150 * time.Millisecond)
+	}
+
+	wg.Wait() // Wait for all goroutines to finish
+}
+```
+
+### Error Handling
+
+Goroutines do not return values directly and do not propagate panics to the calling goroutine. To handle errors, you can use channels to communicate error states back to the main goroutine.
+
+### Goroutines in the Provided Codebase Context
+
+In the provided codebase context, goroutines are used in the `updateOnErrorLimiter` struct:
+
+```go
+go func() {
+	if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
+		!IsErrActorRecentlyUpdated(updateErr) {
+		u.logger.Warn(""unexpected error updating actor"",
+			log.Error(updateErr),
+			log.NamedError(""originalError"", err))
+	}
+}()
+```
+
+Here, a goroutine is created to update the actor outside the request hotpath. This allows the main execution to continue without waiting for the update to complete, thus improving performance and responsiveness.
+
+### Summary
+
+- Goroutines are lightweight, concurrent functions managed by the Go runtime.
+- They are created using the `go` keyword.
+- Communication and synchronization between goroutines are typically done using channels and synchronization primitives like `sync.WaitGroup`.
+- Goroutines share memory, so proper synchronization is necessary to avoid race conditions.
+- The Go runtime scheduler efficiently manages the execution of goroutines.
+
+Goroutines are a powerful feature of Go, enabling efficient and scalable concurrent programming.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_022/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file in the provided codebase context defines structures and functions related to rate limiting and concurrency control for actors in the Cody Gateway system. Here's a breakdown of its components and functionality:
+
+1. **RateLimit Structure**:
+   - The `RateLimit` struct defines the rate limiting configuration for an actor. It includes fields for allowed models, limit, interval, and concurrent request settings.
+   - `NewRateLimitWithPercentageConcurrency` is a constructor function that creates a `RateLimit` instance with concurrency limits based on a percentage of the daily limit.
+   - `IsValid` is a method that checks if the `RateLimit` instance is valid.
+   - `EvaluateAllowedModels` is a method that returns the intersection of a master allowlist and the actor's allowlist, allowing only models that are in both lists.
+
+2. **concurrencyLimiter Structure**:
+   - The `concurrencyLimiter` struct is responsible for enforcing concurrency limits for an actor.
+   - It includes fields for logging, actor information, feature, Redis store, concurrency settings, and a reference to the next limiter in the chain.
+   - `TryAcquire` is a method that attempts to acquire a concurrency slot for the actor. If the limit is exceeded, it returns an error with retry information.
+   - `Usage` is a method that returns the current usage of the concurrency limit.
+
+3. **ErrConcurrencyLimitExceeded Structure**:
+   - The `ErrConcurrencyLimitExceeded` struct represents an error when the concurrency limit is exceeded.
+   - It includes fields for the feature, limit, and retry-after time.
+   - `Error` and `Summary` methods provide error messages.
+   - `WriteResponse` is a method that writes an HTTP response indicating that the rate limit has been exceeded.
+
+4. **updateOnErrorLimiter Structure**:
+   - The `updateOnErrorLimiter` struct is a wrapper around another limiter that attempts to update the actor's information if certain access errors occur.
+   - `TryAcquire` is a method that tries to acquire a slot and updates the actor if access errors are encountered.
+   - `Usage` is a method that returns the current usage of the limiter.
+
+Overall, the `limit.go` file provides mechanisms to enforce rate limits and concurrency controls for actors, ensuring that they adhere to specified limits and handling errors appropriately.",,,,,,,,,,,

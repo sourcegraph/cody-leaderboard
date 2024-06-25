@@ -1,0 +1,232 @@
+ question: Mind taking a second look at the file? @limit.go
+# CHAT
+# CHAT_REPLY Sure, let's take a closer look at the `limit.go` file. Here is the content again for reference:
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY package actor
+# CHAT_REPLY 
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"slices"
+# CHAT_REPLY 	"strconv"
+# CHAT_REPLY 	"time"
+# CHAT_REPLY 
+# CHAT_REPLY 	"github.com/sourcegraph/log"
+# CHAT_REPLY 	"go.opentelemetry.io/otel/attribute"
+# CHAT_REPLY 	oteltrace "go.opentelemetry.io/otel/trace"
+# CHAT_REPLY 
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/internal/codygateway"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/internal/trace"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/lib/errors"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY type RateLimit struct {
+# CHAT_REPLY 	// AllowedModels is a set of models in Cody Gateway's model configuration
+# CHAT_REPLY 	// format, "$PROVIDER/$MODEL_NAME". A single-item slice with value '*' means
+# CHAT_REPLY 	// that all models in the 'master allowlist' are allowed.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)
+# CHAT_REPLY 	// instead.
+# CHAT_REPLY 	AllowedModels []string `json:"allowedModels"`
+# CHAT_REPLY 
+# CHAT_REPLY 	Limit    int64         `json:"limit"`
+# CHAT_REPLY 	Interval time.Duration `json:"interval"`
+# CHAT_REPLY 
+# CHAT_REPLY 	// ConcurrentRequests, ConcurrentRequestsInterval are generally applied
+# CHAT_REPLY 	// with NewRateLimitWithPercentageConcurrency.
+# CHAT_REPLY 	ConcurrentRequests         int           `json:"concurrentRequests"`
+# CHAT_REPLY 	ConcurrentRequestsInterval time.Duration `json:"concurrentRequestsInterval"`
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {
+# CHAT_REPLY 	// The actual type of time.Duration is int64, so we can use it to compute the
+# CHAT_REPLY 	// ratio of the rate limit interval to a day (24 hours).
+# CHAT_REPLY 	ratioToDay := float32(interval) / float32(24*time.Hour)
+# CHAT_REPLY 	// Then use the ratio to compute the rate limit for a day.
+# CHAT_REPLY 	dailyLimit := float32(limit) / ratioToDay
+# CHAT_REPLY 	// Finally, compute the concurrency limit with the given percentage of the daily limit.
+# CHAT_REPLY 	concurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)
+# CHAT_REPLY 	// Just in case a poor choice of percentage results in a concurrency limit less than 1.
+# CHAT_REPLY 	if concurrencyLimit < 1 {
+# CHAT_REPLY 		concurrencyLimit = 1
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return RateLimit{
+# CHAT_REPLY 		AllowedModels: allowedModels,
+# CHAT_REPLY 		Limit:         limit,
+# CHAT_REPLY 		Interval:      interval,
+# CHAT_REPLY 
+# CHAT_REPLY 		ConcurrentRequests:         concurrencyLimit,
+# CHAT_REPLY 		ConcurrentRequestsInterval: concurrencyConfig.Interval,
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (r *RateLimit) IsValid() bool {
+# CHAT_REPLY 	return r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // EvaluateAllowedModels returns the intersection of a 'master' allowlist and
+# CHAT_REPLY // the actor's allowlist, where only values on the 'master' allowlist are returned.
+# CHAT_REPLY // The provided allowlist MUST be prefixed with the provider name (e.g. "anthropic/").
+# CHAT_REPLY //
+# CHAT_REPLY // If the actor's allowlist is a single value '*', then the master allowlist is
+# CHAT_REPLY // returned (i.e. all models are allowed).
+# CHAT_REPLY func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
+# CHAT_REPLY 	if len(r.AllowedModels) == 1 && r.AllowedModels[0] == "*" {
+# CHAT_REPLY 		return prefixedMasterAllowlist // all models allowed
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	var result []string
+# CHAT_REPLY 	for _, val := range r.AllowedModels {
+# CHAT_REPLY 		if slices.Contains(prefixedMasterAllowlist, val) {
+# CHAT_REPLY 			result = append(result, val)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return result
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY type concurrencyLimiter struct {
+# CHAT_REPLY 	logger  log.Logger
+# CHAT_REPLY 	actor   *Actor
+# CHAT_REPLY 	feature codygateway.Feature
+# CHAT_REPLY 
+# CHAT_REPLY 	// redis must be a prefixed store
+# CHAT_REPLY 	redis limiter.RedisStore
+# CHAT_REPLY 
+# CHAT_REPLY 	concurrentRequests int
+# CHAT_REPLY 	concurrentInterval time.Duration
+# CHAT_REPLY 
+# CHAT_REPLY 	nextLimiter limiter.Limiter
+# CHAT_REPLY 
+# CHAT_REPLY 	nowFunc func() time.Time
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
+# CHAT_REPLY 	commit, err := (limiter.StaticLimiter{
+# CHAT_REPLY 		LimiterName:        "actor.concurrencyLimiter",
+# CHAT_REPLY 		Identifier:         l.actor.ID,
+# CHAT_REPLY 		Redis:              l.redis,
+# CHAT_REPLY 		Limit:              int64(l.concurrentRequests),
+# CHAT_REPLY 		Interval:           l.concurrentInterval,
+# CHAT_REPLY 		UpdateRateLimitTTL: true, // always adjust
+# CHAT_REPLY 		NowFunc:            l.nowFunc,
+# CHAT_REPLY 	}).TryAcquire(ctx)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
+# CHAT_REPLY 			retryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)
+# CHAT_REPLY 			if err != nil {
+# CHAT_REPLY 				return nil, errors.Wrap(err, "failed to get TTL for rate limit counter")
+# CHAT_REPLY 			}
+# CHAT_REPLY 			return nil, ErrConcurrencyLimitExceeded{
+# CHAT_REPLY 				feature:    l.feature,
+# CHAT_REPLY 				limit:      l.concurrentRequests,
+# CHAT_REPLY 				retryAfter: retryAfter,
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 		return nil, errors.Wrap(err, "check concurrent limit")
+# CHAT_REPLY 	}
+# CHAT_REPLY 	if err = commit(ctx, 1); err != nil {
+# CHAT_REPLY 		trace.Logger(ctx, l.logger).Error("failed to commit concurrency limit consumption", log.Error(err))
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return l.nextLimiter.TryAcquire(ctx)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {
+# CHAT_REPLY 	return l.nextLimiter.Usage(ctx)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY type ErrConcurrencyLimitExceeded struct {
+# CHAT_REPLY 	feature    codygateway.Feature
+# CHAT_REPLY 	limit      int
+# CHAT_REPLY 	retryAfter time.Time
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Error generates a simple string that is fairly static for use in logging.
+# CHAT_REPLY // This helps with categorizing errors. For more detailed output use Summary().
+# CHAT_REPLY func (e ErrConcurrencyLimitExceeded) Error() string {
+# CHAT_REPLY 	return fmt.Sprintf("%q: concurrency limit exceeded", e.feature)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (e ErrConcurrencyLimitExceeded) Summary() string {
+# CHAT_REPLY 	return fmt.Sprintf("you have exceeded the concurrency limit of %d requests for %q. Retry after %s",
+# CHAT_REPLY 		e.limit, e.feature, e.retryAfter.Truncate(time.Second))
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {
+# CHAT_REPLY 	// Rate limit exceeded, write well known headers and return correct status code.
+# CHAT_REPLY 	w.Header().Set("x-ratelimit-limit", strconv.Itoa(e.limit))
+# CHAT_REPLY 	w.Header().Set("x-ratelimit-remaining", "0")
+# CHAT_REPLY 	w.Header().Set("retry-after", e.retryAfter.Format(time.RFC1123))
+# CHAT_REPLY 	// Use Summary instead of Error for more informative text
+# CHAT_REPLY 	http.Error(w, e.Summary(), http.StatusTooManyRequests)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain
+# CHAT_REPLY // access errors.
+# CHAT_REPLY type updateOnErrorLimiter struct {
+# CHAT_REPLY 	logger log.Logger
+# CHAT_REPLY 	actor  *Actor
+# CHAT_REPLY 
+# CHAT_REPLY 	nextLimiter limiter.Limiter
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
+# CHAT_REPLY 	commit, err := u.nextLimiter.TryAcquire(ctx)
+# CHAT_REPLY 	// If we have an access issue, try to update the actor in case they have
+# CHAT_REPLY 	// been granted updated access.
+# CHAT_REPLY 	if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
+# CHAT_REPLY 		oteltrace.SpanFromContext(ctx).
+# CHAT_REPLY 			SetAttributes(attribute.Bool("update-on-error", true))
+# CHAT_REPLY 		// Do update transiently, outside request hotpath
+# CHAT_REPLY 		go func() {
+# CHAT_REPLY 			if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
+# CHAT_REPLY 				!IsErrActorRecentlyUpdated(updateErr) {
+# CHAT_REPLY 				u.logger.Warn("unexpected error updating actor",
+# CHAT_REPLY 					log.Error(updateErr),
+# CHAT_REPLY 					log.NamedError("originalError", err))
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}()
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return commit, err
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {
+# CHAT_REPLY 	return u.nextLimiter.Usage(ctx)
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY This file defines several types and functions related to rate limiting and concurrency control for actors in the Cody Gateway system. Here are the main components:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **RateLimit struct**: Defines the rate limit configuration, including allowed models, limit, interval, and concurrency settings.
+# CHAT_REPLY 
+# CHAT_REPLY 2. **NewRateLimitWithPercentageConcurrency function**: Creates a new `RateLimit` instance with concurrency settings based on a percentage of the daily limit.
+# CHAT_REPLY 
+# CHAT_REPLY 3. **IsValid method**: Checks if the `RateLimit` instance is valid.
+# CHAT_REPLY 
+# CHAT_REPLY 4. **EvaluateAllowedModels method**: Evaluates the allowed models based on a master allowlist and the actor's allowlist.
+# CHAT_REPLY 
+# CHAT_REPLY 5. **concurrencyLimiter struct**: Defines a concurrency limiter with methods to try acquiring a slot and to get usage information.
+# CHAT_REPLY 
+# CHAT_REPLY 6. **TryAcquire method**: Attempts to acquire a concurrency slot, handling errors and updating rate limits as necessary.
+# CHAT_REPLY 
+# CHAT_REPLY 7. **Usage method**: Retrieves usage information from the next limiter.
+# CHAT_REPLY 
+# CHAT_REPLY 8. **ErrConcurrencyLimitExceeded struct**: Defines an error type for concurrency limit exceeded scenarios, with methods to generate error messages and write HTTP responses.
+# CHAT_REPLY 
+# CHAT_REPLY 9. **updateOnErrorLimiter struct**: Defines a limiter that updates the actor's access if certain errors occur.
+# CHAT_REPLY 
+# CHAT_REPLY 10. **TryAcquire method**: Attempts to acquire a slot and updates the actor's access if necessary.
+# CHAT_REPLY 
+# CHAT_REPLY 11. **Usage method**: Retrieves usage information from the next limiter.
+# CHAT_REPLY 
+# CHAT_REPLY If you have any specific questions or need further details about any part of this file, please let me know!
+
+ files:
+   - limit.go
+   - chunker_test.go
+   - README.md
+ 

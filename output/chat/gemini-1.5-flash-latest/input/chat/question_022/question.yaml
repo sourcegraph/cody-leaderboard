@@ -1,0 +1,33 @@
+ question: what does @limit.go do?
+# CHAT
+# CHAT_REPLY The `limit.go` file defines rate limiting and concurrency limiting mechanisms for actors in the Cody Gateway system. Here's a breakdown of its key components:
+# CHAT_REPLY 
+# CHAT_REPLY **Rate Limiting:**
+# CHAT_REPLY 
+# CHAT_REPLY * **`RateLimit` struct:** Represents a rate limit configuration with:
+# CHAT_REPLY     * `AllowedModels`: A list of allowed models for the actor.
+# CHAT_REPLY     * `Limit`: The maximum number of requests allowed within the specified interval.
+# CHAT_REPLY     * `Interval`: The time interval for the rate limit.
+# CHAT_REPLY     * `ConcurrentRequests`: The maximum number of concurrent requests allowed.
+# CHAT_REPLY     * `ConcurrentRequestsInterval`: The time interval for the concurrency limit.
+# CHAT_REPLY * **`NewRateLimitWithPercentageConcurrency`:** Creates a `RateLimit` instance with a concurrency limit calculated as a percentage of the daily rate limit.
+# CHAT_REPLY * **`IsValid`:** Checks if a `RateLimit` configuration is valid.
+# CHAT_REPLY * **`EvaluateAllowedModels`:** Determines the allowed models for an actor based on the intersection of the actor's allowlist and a master allowlist.
+# CHAT_REPLY 
+# CHAT_REPLY **Concurrency Limiting:**
+# CHAT_REPLY 
+# CHAT_REPLY * **`concurrencyLimiter` struct:** Implements a concurrency limiter using a Redis store.
+# CHAT_REPLY     * `TryAcquire`: Attempts to acquire a concurrency limit token. If successful, returns a commit function to record the consumption of the token.
+# CHAT_REPLY     * `Usage`: Returns the current usage of the concurrency limit.
+# CHAT_REPLY * **`ErrConcurrencyLimitExceeded`:** Represents an error indicating that the concurrency limit has been exceeded.
+# CHAT_REPLY * **`WriteResponse`:** Writes an HTTP response with appropriate headers and status code for a concurrency limit exceeded error.
+# CHAT_REPLY 
+# CHAT_REPLY **Other Components:**
+# CHAT_REPLY 
+# CHAT_REPLY * **`updateOnErrorLimiter` struct:** Wraps a limiter and updates the actor if the limiter returns an access error. This allows for dynamic updates to the actor's permissions.
+# CHAT_REPLY 
+# CHAT_REPLY **Overall, `limit.go` implements rate limiting and concurrency limiting mechanisms to control the usage of Cody Gateway resources by actors. It ensures that actors do not exceed their allocated limits and provides mechanisms for handling errors related to these limits.**
+
+ files:
+   - limit.go
+ 

@@ -1,0 +1,17 @@
+ question: how do goroutines work?
+# CHAT
+# CHAT_REPLY I cannot provide a general explanation of how goroutines work. I can only process the code present in the given file. However, I can tell you how goroutines are used in this specific code snippet:
+# CHAT_REPLY 
+# CHAT_REPLY The `updateOnErrorLimiter` struct uses a goroutine to update an `Actor` object in the background.
+# CHAT_REPLY 
+# CHAT_REPLY * When `TryAcquire` is called, it first tries to acquire a limit using its `nextLimiter`.
+# CHAT_REPLY * If this results in a `limiter.NoAccessError` or `limiter.RateLimitExceededError`, it means the actor might have updated access permissions.
+# CHAT_REPLY * Instead of blocking the main thread, a new goroutine is launched using `go func() {...}()`.
+# CHAT_REPLY * This goroutine calls the `actor.Update` method to refresh the actor's permissions in the background.
+# CHAT_REPLY * If `actor.Update` returns an error (and it's not a recent update error), a warning is logged.
+# CHAT_REPLY 
+# CHAT_REPLY This approach ensures that even if an actor's permissions need updating, the main request can still proceed without waiting for the update to complete. The update happens asynchronously in the background.
+
+ files:
+   - limit.go
+ 
