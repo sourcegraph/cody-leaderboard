@@ -60,13 +60,30 @@ def fix_csv_table(name: str):
 
 def chat_csv_table(name: str):
     df = pd.read_csv(name)
-    st.dataframe(df[['CHAT_QUESTION', 'FIXTURE', 'FILEPATH']])
+    st.subheader("Leaderboard")
+    score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
+    score_df.columns = ["FIXTURE", "Score"]
+    score_df = score_df.sort_values(by="Score", ascending=False)
+    models_by_score = score_df["FIXTURE"].values.tolist()
+
+    score_df2 = score_df.set_index("FIXTURE")
+    st.dataframe(score_df2)
+
+    filtered_df = df[["FIXTURE", "FILEPATH",
+                      "LLM_JUDGE_SCORE", "CHAT_QUESTION"]]
+    # Pivot the DataFrame
+    pivot_df = df.pivot(index="CHAT_QUESTION", columns="FIXTURE",
+                        values="LLM_JUDGE_SCORE")
+    pivot_df2 = pivot_df.sort_values(by=models_by_score, ascending=False)
+    pivot_df3 = pivot_df2[models_by_score]
+
+    # Display the pivoted DataFrame
+    st.dataframe(pivot_df3)
 
     # Add a selectbox to select a row
     selected_question = st.selectbox(
-        "Select a question", df["CHAT_QUESTION"].unique())
+        "Select a question", filtered_df["CHAT_QUESTION"].unique())
 
-    # Display the edit diff in a code block with syntax highlighting
     rows = df[df["CHAT_QUESTION"] == selected_question]
     rows2 = rows.sort_values(
         by="FIXTURE",
