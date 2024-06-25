@@ -60,14 +60,14 @@ def fix_csv_table(name: str):
 
 def chat_csv_table(name: str):
     df = pd.read_csv(name)
-    st.dataframe(df[['FILEPATH', 'FIXTURE']])
+    st.dataframe(df[['CHAT_QUESTION', 'FIXTURE', 'FILEPATH']])
 
     # Add a selectbox to select a row
     selected_question = st.selectbox(
-        "Select a question", df["FILEPATH"].unique())
+        "Select a question", df["CHAT_QUESTION"].unique())
 
     # Display the edit diff in a code block with syntax highlighting
-    rows = df[df["FILEPATH"] == selected_question]
+    rows = df[df["CHAT_QUESTION"] == selected_question]
     rows2 = rows.sort_values(
         by="FIXTURE",
     )
