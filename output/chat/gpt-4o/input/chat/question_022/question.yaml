@@ -1,32 +1,28 @@
  question: what does @limit.go do?
 # CHAT
-# CHAT_REPLY The `limit.go` file in the provided codebase context defines structures and functions related to rate limiting and concurrency control for actors in the Cody Gateway system. Here's a breakdown of its components and functionality:
+# CHAT_REPLY The `limit.go` file defines structures and functions related to rate limiting and concurrency control for actors in the context of Cody Gateway. Here's a breakdown of its main components and functionality:
 # CHAT_REPLY 
 # CHAT_REPLY 1. **RateLimit Structure**:
-# CHAT_REPLY    - The `RateLimit` struct defines the rate limiting configuration for an actor. It includes fields for allowed models, limit, interval, and concurrent request settings.
-# CHAT_REPLY    - `NewRateLimitWithPercentageConcurrency` is a constructor function that creates a `RateLimit` instance with concurrency limits based on a percentage of the daily limit.
-# CHAT_REPLY    - `IsValid` is a method that checks if the `RateLimit` instance is valid.
-# CHAT_REPLY    - `EvaluateAllowedModels` is a method that returns the intersection of a master allowlist and the actor's allowlist, allowing only models that are in both lists.
+# CHAT_REPLY    - Defines the rate limit configuration for an actor, including allowed models, limit, interval, and concurrency settings.
+# CHAT_REPLY    - `NewRateLimitWithPercentageConcurrency`: A constructor function that creates a `RateLimit` instance with concurrency limits based on a percentage of the daily limit.
+# CHAT_REPLY    - `IsValid`: A method to check if the rate limit configuration is valid.
+# CHAT_REPLY    - `EvaluateAllowedModels`: A method to determine the intersection of a master allowlist and the actor's allowlist.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **concurrencyLimiter Structure**:
-# CHAT_REPLY    - The `concurrencyLimiter` struct is responsible for enforcing concurrency limits for an actor.
-# CHAT_REPLY    - It includes fields for logging, actor information, feature, Redis store, concurrency settings, and a reference to the next limiter in the chain.
-# CHAT_REPLY    - `TryAcquire` is a method that attempts to acquire a concurrency slot for the actor. If the limit is exceeded, it returns an error with retry information.
-# CHAT_REPLY    - `Usage` is a method that returns the current usage of the concurrency limit.
+# CHAT_REPLY 2. **Concurrency Limiter**:
+# CHAT_REPLY    - `concurrencyLimiter`: A structure that implements concurrency control using a Redis store.
+# CHAT_REPLY    - `TryAcquire`: A method to attempt to acquire a concurrency slot. If the limit is exceeded, it returns an error with retry information.
+# CHAT_REPLY    - `Usage`: A method to get the current usage of the concurrency limit.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **ErrConcurrencyLimitExceeded Structure**:
-# CHAT_REPLY    - The `ErrConcurrencyLimitExceeded` struct represents an error when the concurrency limit is exceeded.
-# CHAT_REPLY    - It includes fields for the feature, limit, and retry-after time.
-# CHAT_REPLY    - `Error` and `Summary` methods provide error messages.
-# CHAT_REPLY    - `WriteResponse` is a method that writes an HTTP response indicating that the rate limit has been exceeded.
+# CHAT_REPLY 3. **Error Handling**:
+# CHAT_REPLY    - `ErrConcurrencyLimitExceeded`: A custom error type for when the concurrency limit is exceeded. It includes methods to generate error messages and write HTTP responses.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **updateOnErrorLimiter Structure**:
-# CHAT_REPLY    - The `updateOnErrorLimiter` struct is a wrapper around another limiter that attempts to update the actor's information if certain access errors occur.
-# CHAT_REPLY    - `TryAcquire` is a method that tries to acquire a slot and updates the actor if access errors are encountered.
-# CHAT_REPLY    - `Usage` is a method that returns the current usage of the limiter.
+# CHAT_REPLY 4. **Update on Error Limiter**:
+# CHAT_REPLY    - `updateOnErrorLimiter`: A structure that wraps another limiter and attempts to update the actor's access if certain errors occur.
+# CHAT_REPLY    - `TryAcquire`: A method that tries to acquire a slot and updates the actor's access if needed.
+# CHAT_REPLY    - `Usage`: A method to get the current usage of the wrapped limiter.
 # CHAT_REPLY 
-# CHAT_REPLY Overall, the `limit.go` file provides mechanisms to enforce rate limits and concurrency controls for actors, ensuring that they adhere to specified limits and handling errors appropriately.
+# CHAT_REPLY Overall, the file provides mechanisms to enforce rate limits and concurrency controls, handle errors, and update actor access as needed.
 
  files:
-   - limit.go
+   - ../mocked_context/limit.go
  

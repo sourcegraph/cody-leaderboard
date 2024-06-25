@@ -1,15 +1,14 @@
  question: how do goroutines work?
 # CHAT
-# CHAT_REPLY The code you provided doesn't directly explain how goroutines work. It uses them, but the focus is on rate limiting and actor management. 
+# CHAT_REPLY The code you provided doesn't directly explain how goroutines work. It uses them, but it doesn't delve into their underlying mechanics. 
 # CHAT_REPLY 
-# CHAT_REPLY To understand goroutines, you need to look at the Go language itself. Here's a breakdown:
+# CHAT_REPLY Here's a breakdown of how goroutines work in Go:
 # CHAT_REPLY 
-# CHAT_REPLY **Goroutines in Go:**
+# CHAT_REPLY **Goroutines: Lightweight Threads**
 # CHAT_REPLY 
-# CHAT_REPLY * **Lightweight Threads:** Goroutines are lightweight, concurrent execution units managed by the Go runtime. They are much cheaper to create and manage than traditional operating system threads.
-# CHAT_REPLY * **Concurrency, Not Parallelism:** Goroutines enable concurrency, meaning multiple tasks can be in progress at the same time. However, they don't necessarily run in parallel on multiple CPU cores. The Go runtime schedules goroutines onto available cores.
-# CHAT_REPLY * **Channels for Communication:** Goroutines communicate with each other using channels, which are typed communication conduits. This allows them to exchange data and synchronize their execution.
-# CHAT_REPLY * **`go` Keyword:** You create a goroutine by using the `go` keyword before a function call. For example: `go myFunction(arg1, arg2)`. This starts the function `myFunction` in a separate goroutine.
+# CHAT_REPLY * **Concurrency, not Parallelism:** Goroutines are lightweight, user-level threads managed by the Go runtime. They enable concurrent execution of code, meaning multiple tasks can run seemingly simultaneously. However, they don't necessarily run in parallel on multiple CPU cores. The Go runtime schedules goroutines onto available threads.
+# CHAT_REPLY * **Stack Management:** Goroutines have a small, dynamically growing stack. This means they use memory efficiently compared to traditional threads, which have a fixed stack size.
+# CHAT_REPLY * **Channels for Communication:** Goroutines communicate with each other using channels, which are typed communication pipes. This allows them to exchange data and synchronize their actions.
 # CHAT_REPLY 
 # CHAT_REPLY **Example:**
 # CHAT_REPLY 
@@ -24,46 +23,9 @@
 # CHAT_REPLY func worker(id int, jobs <-chan int, results chan<- int) {
 # CHAT_REPLY 	for j := range jobs {
 # CHAT_REPLY 		fmt.Printf("Worker %d started job %d\n", id, j)
-# CHAT_REPLY 		time.Sleep(time.Second)
-# CHAT_REPLY 		fmt.Printf("Worker %d finished job %d\n", id, j)
-# CHAT_REPLY 		results <- j * 2
-# CHAT_REPLY 	}
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func main() {
-# CHAT_REPLY 	jobs := make(chan int, 10)
-# CHAT_REPLY 	results := make(chan int, 10)
-# CHAT_REPLY 
-# CHAT_REPLY 	for w := 1; w <= 3; w++ {
-# CHAT_REPLY 		go worker(w, jobs, results)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	for j := 1; j <= 5; j++ {
-# CHAT_REPLY 		jobs <- j
-# CHAT_REPLY 	}
-# CHAT_REPLY 	close(jobs)
-# CHAT_REPLY 
-# CHAT_REPLY 	for j := 1; j <= 5; j++ {
-# CHAT_REPLY 		fmt.Printf("Result: %d\n", <-results)
-# CHAT_REPLY 	}
-# CHAT_REPLY }
+# CHAT_REPLY 		time
 # CHAT_REPLY ```
-# CHAT_REPLY 
-# CHAT_REPLY **In this example:**
-# CHAT_REPLY 
-# CHAT_REPLY 1. Three worker goroutines are created.
-# CHAT_REPLY 2. Jobs are sent to the `jobs` channel.
-# CHAT_REPLY 3. Workers receive jobs from the `jobs` channel, process them, and send results to the `results` channel.
-# CHAT_REPLY 4. The main goroutine receives results from the `results` channel.
-# CHAT_REPLY 
-# CHAT_REPLY **Key Points:**
-# CHAT_REPLY 
-# CHAT_REPLY * Goroutines are a powerful tool for writing concurrent programs in Go.
-# CHAT_REPLY * They are lightweight and efficient, making it easy to create and manage many concurrent tasks.
-# CHAT_REPLY * Channels provide a safe and reliable way for goroutines to communicate with each other.
-# CHAT_REPLY 
-# CHAT_REPLY Let me know if you have any more questions about goroutines or the code you provided.
 
  files:
-   - limit.go
+   - ../mocked_context/limit.go
  

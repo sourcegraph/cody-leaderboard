@@ -1,57 +1,35 @@
  question: what does @limit.go do?
 # CHAT
-# CHAT_REPLY The code you provided defines rate limiting and concurrency limiting logic for actors in a Go program. Here's a breakdown:
+# CHAT_REPLY The file `limit.go` implements rate limiting and concurrency limiting for actors in a system likely related to Cody Gateway. 
 # CHAT_REPLY 
-# CHAT_REPLY **1. Rate Limiting:**
+# CHAT_REPLY Here's a breakdown:
 # CHAT_REPLY 
-# CHAT_REPLY * **`RateLimit` struct:**
-# CHAT_REPLY     * Defines the structure for rate limiting configuration.
-# CHAT_REPLY     * `AllowedModels`: List of allowed models for this rate limit. A single "*" allows all models.
-# CHAT_REPLY     * `Limit`: Maximum number of requests allowed within the `Interval`.
-# CHAT_REPLY     * `Interval`: Time window for the rate limit.
-# CHAT_REPLY     * `ConcurrentRequests`: Maximum concurrent requests allowed.
-# CHAT_REPLY     * `ConcurrentRequestsInterval`: Time window for the concurrency limit.
-# CHAT_REPLY * **`NewRateLimitWithPercentageConcurrency` function:**
-# CHAT_REPLY     * Creates a new `RateLimit` instance, calculating the `ConcurrentRequests` based on a percentage of the daily request limit.
-# CHAT_REPLY * **`IsValid` method:**
-# CHAT_REPLY     * Checks if the `RateLimit` configuration is valid (non-nil, positive values for limits and intervals).
-# CHAT_REPLY * **`EvaluateAllowedModels` method:**
-# CHAT_REPLY     * Determines the allowed models by intersecting the actor's allowed models with a master allowlist.
-# CHAT_REPLY     * Returns the intersection, ensuring only models from the master allowlist are considered.
+# CHAT_REPLY 1. **Rate Limiting:**
+# CHAT_REPLY     - It defines a `RateLimit` struct to store rate limit configurations:
+# CHAT_REPLY         - `AllowedModels`: List of allowed models for this rate limit.
+# CHAT_REPLY         - `Limit`: Maximum number of requests allowed within the `Interval`.
+# CHAT_REPLY         - `Interval`: Time window for the rate limit.
+# CHAT_REPLY         - `ConcurrentRequests`: Maximum concurrent requests allowed.
+# CHAT_REPLY         - `ConcurrentRequestsInterval`: Time window for the concurrency limit.
+# CHAT_REPLY     - `NewRateLimitWithPercentageConcurrency`: Creates a `RateLimit` with concurrency limits calculated as a percentage of the daily rate limit.
+# CHAT_REPLY     - `IsValid`: Checks if the `RateLimit` configuration is valid.
+# CHAT_REPLY     - `EvaluateAllowedModels`: Determines the allowed models based on a master allowlist and the actor's allowed models.
 # CHAT_REPLY 
-# CHAT_REPLY **2. Concurrency Limiting:**
+# CHAT_REPLY 2. **Concurrency Limiting:**
+# CHAT_REPLY     - It defines a `concurrencyLimiter` struct to manage concurrent requests:
+# CHAT_REPLY         - Uses Redis to track concurrent requests.
+# CHAT_REPLY         - `TryAcquire`: Attempts to acquire a concurrency slot. Returns an error if the limit is exceeded.
+# CHAT_REPLY         - `Usage`: Returns the current usage and reset time of the concurrency limiter.
 # CHAT_REPLY 
-# CHAT_REPLY * **`concurrencyLimiter` struct:**
-# CHAT_REPLY     * Implements concurrency limiting for an actor.
-# CHAT_REPLY     * `logger`: Logger instance for recording events.
-# CHAT_REPLY     * `actor`: The actor to which the concurrency limit applies.
-# CHAT_REPLY     * `feature`: The feature being rate limited.
-# CHAT_REPLY     * `redis`: Redis store for tracking rate limit counters.
-# CHAT_REPLY     * `concurrentRequests`: Maximum concurrent requests allowed.
-# CHAT_REPLY     * `concurrentInterval`: Time window for the concurrency limit.
-# CHAT_REPLY     * `nextLimiter`: The next limiter in the chain (potentially a rate limiter).
-# CHAT_REPLY     * `nowFunc`: Function to get the current time (for testing).
-# CHAT_REPLY * **`TryAcquire` method:**
-# CHAT_REPLY     * Attempts to acquire a concurrency slot.
-# CHAT_REPLY     * Uses a `limiter.StaticLimiter` backed by Redis to enforce the concurrency limit.
-# CHAT_REPLY     * If successful, calls the `TryAcquire` method of the `nextLimiter`.
-# CHAT_REPLY     * Returns an `ErrConcurrencyLimitExceeded` error if the concurrency limit is reached.
-# CHAT_REPLY * **`Usage` method:**
-# CHAT_REPLY     * Delegates to the `Usage` method of the `nextLimiter`.
+# CHAT_REPLY 3. **Error Handling:**
+# CHAT_REPLY     - `ErrConcurrencyLimitExceeded`: Represents an error when the concurrency limit is exceeded.
+# CHAT_REPLY     - Provides methods to handle and respond to concurrency limit errors.
 # CHAT_REPLY 
-# CHAT_REPLY **3. Error Handling:**
+# CHAT_REPLY 4. **Actor Updates on Errors:**
+# CHAT_REPLY     - `updateOnErrorLimiter`: A limiter wrapper that attempts to update the actor's information if rate limit or access errors occur. This is useful if an actor's permissions have changed and need to be refreshed.
 # CHAT_REPLY 
-# CHAT_REPLY * **`ErrConcurrencyLimitExceeded` struct:**
-# CHAT_REPLY     * Represents an error when the concurrency limit is exceeded.
-# CHAT_REPLY     * Provides methods for generating error messages and HTTP responses.
-# CHAT_REPLY * **`updateOnErrorLimiter` struct:**
-# CHAT_REPLY     * Wraps another limiter and attempts to update the actor's information if an access error occurs.
-# CHAT_REPLY     * This allows for dynamic updates to an actor's permissions.
-# CHAT_REPLY 
-# CHAT_REPLY **In summary:**
-# CHAT_REPLY 
-# CHAT_REPLY The `limit.go` file provides mechanisms for both rate limiting and concurrency limiting requests made by actors. It uses Redis to store rate limit counters and allows for flexible configuration of limits and intervals. The code also includes error handling and mechanisms for updating actor information in case of access issues.
+# CHAT_REPLY **Overall, `limit.go` provides a mechanism to control and limit the usage of resources by actors in the system, preventing abuse and ensuring fair access.**
 
  files:
-   - limit.go
+   - ../mocked_context/limit.go
  

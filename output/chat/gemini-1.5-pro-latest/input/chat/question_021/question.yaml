@@ -1,17 +1,39 @@
  question: how do goroutines work?
 # CHAT
-# CHAT_REPLY I cannot provide a general explanation of how goroutines work. I can only process the code present in the given file. However, I can tell you how goroutines are used in this specific code snippet:
+# CHAT_REPLY This code snippet doesn't directly demonstrate how goroutines work in general. It shows how a goroutine is used in a specific context to update an actor's state asynchronously. 
 # CHAT_REPLY 
-# CHAT_REPLY The `updateOnErrorLimiter` struct uses a goroutine to update an `Actor` object in the background.
+# CHAT_REPLY Let's break down how goroutines work and then revisit this code:
 # CHAT_REPLY 
-# CHAT_REPLY * When `TryAcquire` is called, it first tries to acquire a limit using its `nextLimiter`.
-# CHAT_REPLY * If this results in a `limiter.NoAccessError` or `limiter.RateLimitExceededError`, it means the actor might have updated access permissions.
-# CHAT_REPLY * Instead of blocking the main thread, a new goroutine is launched using `go func() {...}()`.
-# CHAT_REPLY * This goroutine calls the `actor.Update` method to refresh the actor's permissions in the background.
-# CHAT_REPLY * If `actor.Update` returns an error (and it's not a recent update error), a warning is logged.
+# CHAT_REPLY **What are Goroutines?**
 # CHAT_REPLY 
-# CHAT_REPLY This approach ensures that even if an actor's permissions need updating, the main request can still proceed without waiting for the update to complete. The update happens asynchronously in the background.
+# CHAT_REPLY * **Lightweight Concurrency:** Goroutines are functions or methods that can run concurrently with other functions or methods. They are lightweight, meaning you can have thousands or even millions of them running simultaneously without significant performance overhead.
+# CHAT_REPLY * **Go Scheduler:** The Go runtime manages goroutines using a scheduler. The scheduler distributes goroutines across available OS threads, allowing efficient use of multiple CPU cores.
+# CHAT_REPLY * **Creating Goroutines:** You create a goroutine by adding the keyword `go` before a function or method call.
+# CHAT_REPLY 
+# CHAT_REPLY    ```go
+# CHAT_REPLY    go myFunction() // Starts myFunction as a goroutine
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY **How Goroutines Work in the Code:**
+# CHAT_REPLY 
+# CHAT_REPLY In the provided code, a goroutine is used within the `updateOnErrorLimiter.TryAcquire` method:
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY go func() {
+# CHAT_REPLY     // ... code to update the actor ...
+# CHAT_REPLY }() 
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY 1. **Asynchronous Update:** When `TryAcquire` encounters an access error (like rate limiting), it starts a goroutine to update the actor's information in the background. This prevents the main request from being blocked while the update happens.
+# CHAT_REPLY 2. **Non-blocking:** The `go` keyword starts the goroutine and immediately continues to the next line of code. The main function doesn't wait for the goroutine to finish.
+# CHAT_REPLY 3. **Transient Update:** The update is performed in a separate goroutine using `context.WithoutCancel(ctx)`. This means the update will continue even if the original request context is canceled.
+# CHAT_REPLY 
+# CHAT_REPLY **Key Points:**
+# CHAT_REPLY 
+# CHAT_REPLY * Goroutines are essential for concurrent programming in Go.
+# CHAT_REPLY * The Go scheduler manages goroutines efficiently, making them suitable for high-concurrency scenarios.
+# CHAT_REPLY * The provided code uses a goroutine to handle actor updates asynchronously, improving responsiveness.
 
  files:
-   - limit.go
+   - ../mocked_context/limit.go
  

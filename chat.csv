@@ -1,5 +1,5 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
-yaml,chat,gemini-1.5-pro-latest,chat,question_001/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"```typescript
+yaml,chat,gemini-1.5-pro-latest,chat,question_001/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"```typescript
 interface Animal {
     name: string;
     age: number;
@@ -13,43 +13,133 @@ class Dog implements Animal {
         this.name = name;
         this.age = age;
     }
+
+    bark(): string {
+        return ""Woof!"";
+    }
 }
 ```",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_002/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code, **Squirrel is a code intelligence API**. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_002/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code, **Squirrel is a code intelligence API**. 
 
-The interface definition includes a method `symbolInformation` which takes a file path as input and returns `CodeIntelligence`. This suggests that Squirrel is designed to provide information about code symbols within a given file.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_003/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I have access to the code defining two interfaces:
+The interface definition includes a method `symbolInformation` which takes a file path as input and returns `CodeIntelligence` containing an array of symbols. This suggests that Squirrel is used for extracting code intelligence information, specifically symbols, from code files.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_003/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I have access to a single file: 
 
-* **`CodeIntelligence`** (from `question_003/squirrel.ts`): This interface represents some code intelligence information and contains a single property:
-    * `symbols`: An array of strings. 
-* **`Squirrel`** (from `question_003/squirrel.ts`): This interface represents a code intelligence API and contains a single method:
-    * `symbolInformation(file: string): CodeIntelligence`: This method takes a file path as a string and returns a `CodeIntelligence` object.
-* **`Animal`** (from `question_003/animal.ts`): This interface represents an animal and contains two properties:
-    * `name`: A string representing the animal's name.
-    * `age`: A number representing the animal's age.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_004/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, I can only answer questions based on the code you provide. The provided code defines interfaces for a code intelligence API and does not contain information about Go slices.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_005/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The regex `/n/a|e|i|o|u//n` appears to have a syntax error with an extra `/` after the character class. 
+* **mocked_context/README.md** - This file seems to describe a package called `@sourcegraph/cody-agent` which is a JSON-RPC server used to interact with Cody from non-ECMAScript clients. 
 
-However, I can tell you what it would do if it were corrected:
+This is all the code I have access to.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_004/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Slices in Go are a dynamically-sized, flexible data structure that provide a view into an underlying array. They are similar to arrays but with the added advantage of being able to grow or shrink in size. Here's a breakdown of how slices work in Go:
 
-**Corrected Regex:** `/n[aeiou]/n`
+**Key Concepts:**
+
+* **Underlying Array:** A slice doesn't store the elements directly; instead, it points to an underlying array that holds the actual data.
+* **Length:** The number of elements accessible through the slice.
+* **Capacity:** The total number of elements the underlying array can hold before needing to be resized.
+
+**Declaration and Initialization:**
+
+```go
+var s []int // Declares a nil slice of integers (length and capacity are 0)
+s := []int{1, 2, 3} // Declares and initializes a slice with 3 elements
+s := make([]int, 5) // Creates a slice with length and capacity of 5
+s := make([]int, 3, 5) // Creates a slice with length 3 and capacity 5
+```
+
+**Accessing Elements:**
+
+Slices are accessed using square brackets `[]` and zero-based indexing, just like arrays.
+
+```go
+s := []int{1, 2, 3}
+fmt.Println(s[0]) // Output: 1
+```
+
+**Modifying Elements:**
+
+Since slices provide a view into the underlying array, modifying an element in a slice modifies the corresponding element in the underlying array.
+
+```go
+s := []int{1, 2, 3}
+s[1] = 4
+fmt.Println(s) // Output: [1 4 3]
+```
+
+**Appending Elements:**
+
+The `append()` function is used to add elements to the end of a slice. If the slice's capacity is insufficient, a new underlying array is allocated, and the existing elements are copied over.
+
+```go
+s := []int{1, 2, 3}
+s = append(s, 4, 5)
+fmt.Println(s) // Output: [1 2 3 4 5]
+```
+
+**Slicing Slices:**
+
+You can create a sub-slice from an existing slice using the slicing operator `[:]`. This creates a new slice that shares the same underlying array but with a different starting point and length.
+
+```go
+s := []int{1, 2, 3, 4, 5}
+subSlice := s[1:4] // Elements at index 1, 2, and 3
+fmt.Println(subSlice) // Output: [2 3 4]
+```
+
+**Important Considerations:**
+
+* **Passing Slices to Functions:** When you pass a slice to a function, a copy of the slice header (containing the pointer to the underlying array, length, and capacity) is made. This means that modifications to the slice elements inside the function will affect the original slice. However, if the function modifies the slice header itself (e.g., by appending elements beyond its capacity), those changes won't be reflected in the original slice.
+* **Nil Slices vs. Empty Slices:** A nil slice has no underlying array and a length and capacity of 0. An empty slice has an underlying array with a length of 0 but a non-zero capacity.
+
+**Example in provided code:**
+
+In the `limit.go` file, you can see slices being used in the `EvaluateAllowedModels` function:
+
+```go
+func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
+	// ...
+	var result []string
+	for _, val := range r.AllowedModels {
+		if slices.Contains(prefixedMasterAllowlist, val) {
+			result = append(result, val)
+		}
+	}
+	return result
+}
+```
+
+This function iterates through the `r.AllowedModels` slice and appends elements to the `result` slice based on a condition.
+
+Let me know if you have any more questions or would like a deeper dive into specific aspects of slices!",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_005/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"This regular expression, `/n/a|e|i|o|u//n`, appears to be invalid and would likely throw an error in most regex engines. 
+
+Here's a breakdown of why it's problematic and a possible correction:
+
+**Issues:**
+
+* **`//n` at the end:** This seems like an attempt to specify a substitution and a flag. However, flags are placed at the end of the entire regex, not after a substitution.
+* **Unclear intent:** The regex seems to target vowels (`a|e|i|o|u`), but the purpose of matching them with `/n` at the beginning is unclear.
+
+**Possible Correction and Explanation:**
+
+It's difficult to determine the exact intention without more context. Here's a possible correction assuming the goal is to replace vowels with the letter ""n"":
+
+```regexp
+/[aeiou]/g
+```
 
 **Explanation:**
 
-* `/`: Start of the regular expression.
-* `n`: Matches the literal character ""n"".
-* `[aeiou]`: Matches any single vowel (a, e, i, o, or u).
-* `n`: Matches the literal character ""n"".
-* `/`: End of the regular expression.
-* `n`: This ""n"" is not part of the regex. It might be a typo or indicate a flag like `/n` for newline, but it's not standard.
+* **`[aeiou]`:** This character class matches any single vowel (a, e, i, o, or u).
+* **`g` (global flag):** This flag ensures that all occurrences of vowels in the input string are replaced, not just the first one.
 
-**In essence, this corrected regex would match any occurrence of the letter ""n"" followed by a vowel and then another ""n"".** 
+**To use this corrected regex for replacement, you would typically use it with a replace function in your chosen programming language.** For example, in JavaScript:
 
-**Examples:**
+```javascript
+const inputString = ""This is a test string."";
+const newString = inputString.replace(/[aeiou]/g, ""n"");
+console.log(newString); // Output: ""Thns ns n tnst strnng.""
+```
 
-* **Match:** ""banana"", ""infinity""
-* **No Match:** ""nine"", ""noun"", ""clean""",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"```css
+If you can provide more context about what you're trying to achieve with this regex, I can give you a more accurate and helpful answer.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"```css
 /* Customize the label (the text next to the checkbox) */
 .my-checkbox-label {
   display: block;
@@ -136,20 +226,11 @@ yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,30830dc3a92fa839
 - **Checkmark:** The `.checkmark:after` creates the checkmark symbol using borders and is only visible when the checkbox is checked.
 
 This code provides a basic styled checkbox with a light purple color. You can further customize the appearance by adjusting the CSS properties like colors, sizes, borders, and more.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_007/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided code snippet is in Go, not Python. It defines a `server` struct in a Go test file. This code snippet doesn't provide information about managing Python versions. 
-
-To help you upgrade your Python version, I need more context. Please tell me:
-
-* **What operating system are you using?** (e.g., Windows, macOS, Linux)
-* **How did you install Python?** (e.g., official installer, package manager like Homebrew or apt)
-* **What version of Python are you currently using?** (You can check by running `python --version` or `python3 --version` in your terminal)
-* **What version of Python do you want to upgrade to?**
-
-Once I have this information, I can provide you with specific instructions on how to upgrade your Python version.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_008/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the link to the repository you're interested in. I need more context to understand which repo you're referring to. 😊 
+yaml,chat,gemini-1.5-pro-latest,chat,question_007/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I cannot answer this question. The provided code snippet is in Go and relates to gRPC testing, not Python version management.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_008/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the link to the repository you're interested in. I need more context to understand which repo you're referring to. 😊 
 
 Once you provide the link, I can analyze the code and give you a summary of what the repository does.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_009/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the code you would like me to describe! I need to see the code itself to understand its purpose, structure, and functionality. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_009/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the code you would like me to describe! I need to see the code itself to understand its purpose, structure, and functionality. 
 
 For example, you can:
 
@@ -158,26 +239,8 @@ For example, you can:
 * **Tell me the programming language** so I can make more accurate assumptions.
 
 The more information you give me, the better I can understand and describe your code!",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_010/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I can see that your code defines a `server` struct in `question_010/chunker_test.go`. This struct embeds `grpc_testing.UnimplementedTestServiceServer`. 
-
-The `README.md` file in `question_010/` describes a package called `@sourcegraph/cody-agent`. This package implements a JSON-RPC server to interact with Cody (me!) via stdout/stdin. It's designed for non-ECMAScript clients like JetBrains and NeoVim plugins.
-
-Based on this information, it seems like you are working on a project that involves:
-
-* **gRPC:** The presence of `grpc_testing` suggests you are using gRPC for communication.
-* **Testing:** The file name `chunker_test.go` indicates this code is part of a testing suite.
-* **Cody Integration:** The `README.md` file suggests this project integrates with Cody through the `@sourcegraph/cody-agent` package.
-
-However, without more context or code, it's difficult to give a more precise description. 
-
-To help me understand your code better, please provide me with more information, such as:
-
-* What is the purpose of the `chunker_test.go` file? 
-* What is the `server` struct used for? 
-* What functionality are you testing in this code? 
-
-With more information, I can give you a more accurate and helpful description of your code.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_011/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher, also known as a folder monitor or file system watcher, is a software component that **detects and reacts to changes within a specified directory (folder) and its subdirectories**. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_010/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, I cannot answer that question. I can only access the code that you provide, and I do not have access to any external websites or files, including the content of ""@zoekt"".",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_011/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher, also known as a folder monitor or file system watcher, is a software component that **detects and reacts to changes within a specified directory (folder) and its subdirectories**. 
 
 Here's how it generally works:
 
@@ -211,7 +274,7 @@ Directory watchers can be implemented using various programming languages and li
 * **Efficiency:** Reduces unnecessary processing by only reacting to actual changes.
 
 By understanding the capabilities of directory watchers, you can leverage them to automate tasks, improve efficiency, and build more responsive applications.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_012/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Please tell me more about your codebase so I can help you determine if it's clean!  To give you the best advice, I need some context.  For example:
+yaml,chat,gemini-1.5-pro-latest,chat,question_012/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please tell me more about your codebase so I can help you determine if it's clean!  To give you the best advice, I need some context.  For example:
 
 * **What language(s) is your codebase written in?**
 * **What does your codebase do? What kind of project is it?**
@@ -226,135 +289,122 @@ Once I have a better understanding of your codebase, I can leverage Sourcegraph'
 * **Suggesting best practices and design patterns.**
 
 I'm here to help you write the best code possible!",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_013/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I can't answer this question. The provided context only shows a struct definition for a gRPC server and doesn't contain information about where a ""grpc chunker"" is tested. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_013/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, but based on the provided code snippet, I cannot tell you where the gRPC chunker is tested. 
 
-To help me find the answer, please provide more context or code snippets related to:
+The code you provided only defines a `server` struct that implements the `grpc_testing.UnimplementedTestServiceServer` interface. This suggests that it's part of a test setup, but it doesn't reveal anything about the ""grpc chunker"" or where it might be tested. 
 
-* **The ""grpc chunker"" itself:** What is it and how is it implemented? 
-* **Test files:** Are there any files with names suggesting they might contain tests related to chunking or gRPC? 
+To help me locate the tests for the gRPC chunker, please provide more context:
 
-With more information, I can help you locate the tests you're looking for.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_014/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I cannot help you upgrade your PyTorch version. The provided code snippet is empty and doesn't contain any information about your project or its dependencies. 
+* **What is the ""grpc chunker""?** Is it a specific function, a module, or a concept within your codebase? 
+* **Can you share more code snippets, particularly those related to the ""grpc chunker""?**  
+* **Are there any file names or directory structures that could hint at the location of these tests?** For example, are tests typically located in a ""tests"" directory or do they follow a specific naming convention?
 
-To upgrade your PyTorch version, I need more information about your project, such as:
+With more information, I can help you find where the gRPC chunker is tested within your codebase.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_014/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the codebase context! I need to see the code and any relevant files like `requirements.txt` or `setup.py` to understand how PyTorch is currently used in your project. 
 
-* **What kind of project is it?** (e.g., Python script, Jupyter notebook, web application)
-* **How is PyTorch currently installed?** (e.g., pip, conda)
-* **What operating system are you using?**
-* **Can you share relevant files, like your `requirements.txt` or `environment.yml`?**
+Once I have that information, I can tell you if I can help you upgrade to PyTorch 1.0.0 and even guide you through the process using the official guide you mentioned. 
 
-Once I have this information, I can guide you through the process of upgrading PyTorch to version 1.0.0 using the official guide.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_015/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided code snippet doesn't show any conflicting packages. It only uses imports from standard library and a few internal and external packages. 
+Let's get your PyTorch version updated! 🚀",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_015/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I cannot identify any conflicting packages from the given code snippet. There is no indication of conflicting package imports or usage. 
 
-To identify conflicting packages, you would typically look for:
+To effectively help you debug conflicting packages, please provide:
 
-* **Same package imported with different paths:** This usually happens when you have a package with the same name in different modules. 
-* **Diamond dependency problem:** This occurs when two different versions of the same package are imported indirectly through different dependencies.
+* **Error messages:** Share the specific error messages you are encountering.  These often contain clues about the conflicting packages.
+* **Import statements:** Show the import statements from the files where the conflict arises.
+* **Package management tool:** Let me know which package management tool you are using (e.g., Go modules).
 
-Can you please provide more context or code snippets that might indicate conflicting packages? For example:
+With more information, I can assist you in identifying and resolving the package conflicts.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_016/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"You're right! I apologize for the mistake. I can see now that the file you're asking about is `limit.go`, not `@limit.go`. 
 
-* **Error messages:**  Share any error messages you are getting, especially those mentioning conflicting packages or versions.
-* **Go.mod file:** The `go.mod` file lists all the dependencies and their versions. Sharing this file can help identify potential conflicts.
-* **Build command and output:** The output of your build command (e.g., `go build`) might contain clues about conflicting packages. 
+What would you like to know about the `limit.go` file? For example:
 
-With more information, I can help you pinpoint the conflicting packages.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_016/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"You're right! I apologize for overlooking your request to focus on `limit.go`.  I am ready to assist you with the contents of `limit.go`. What would you like to know about it? 
+* **Specific functions or structures:**  Do you want to understand how a particular function like `NewRateLimitWithPercentageConcurrency` works, or the purpose of the `RateLimit` struct?
+* **Overall purpose:** Are you interested in the general goal of the rate limiting logic implemented in this file? 
+* **Relationship to other files:**  Are you curious how this file interacts with other parts of the codebase?
 
-For example:
+Please give me more context about what you'd like to know, and I'll do my best to help!",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The provided codebase context does not contain information about the project's license. Therefore, I cannot answer why the project uses the MIT license.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided code snippet doesn't give me any information about a ""tensor"" function or the ""zoekt"" repository. It's focused on configuration management and restarting a service when certain configuration values change. 
 
-* Do you have a specific question about the code in `limit.go`?
-* Are you interested in a particular function or data structure?
-* Would you like me to summarize the purpose of the code in this file? 
+To help you find the location of the ""tensor"" function in the ""zoekt"" repository, I need more context. Please provide:
 
-Let me know how I can help!",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided context does not contain the answer to why the project uses the MIT license. The provided code snippets explain how rate limiting is implemented and provide a brief overview of the `cody-agent` package. There is no information about licensing in these files. 
+* **More information about the ""tensor"" function:** What does this function do? What are its inputs and outputs? 
+* **Context about the ""zoekt"" repository:** Is it a specific repository you can share a link to? What programming language is it primarily written in?
 
-To understand the reasoning behind the licensing choice, you would need to look for files like LICENSE, README, or documentation that explicitly discuss licensing.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, but the provided code snippet doesn't contain any information about a ""tensor function"" or the ""zoekt"" repository. Therefore, I cannot answer your question. 
-
-To help you find the location of the ""tensor function"", please provide me with more context:
-
-* **What is the ""tensor function""?** What does it do? What are its inputs and outputs?
-* **What is the ""zoekt"" repository?** Is it a Git repository? If so, can you provide a link to it? 
-
-With more information, I can assist you better.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I need more information to answer your question. The provided code snippet doesn't contain any code from a file named `src/agent.go` or any logic related to ""agents"" or ""ranking"". 
-
-Please provide the code from `src/agent.go` or a different snippet that contains the relevant information for me to explain the logic and how agents interact with ranking.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_020/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `@sourcegraph/cody-agent` package enables non-ECMAScript clients, such as JetBrains and NeoVim plugins, to interact with Cody. It achieves this by implementing a JSON-RPC server that communicates via standard input/output streams (stdout/stdin). 
+With more information, I can help you locate the ""tensor"" function.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,You have not provided me with the content of `src/agent.go`. Please provide the content of this file so I can answer your question about the logic and how agents interact with ranking.,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_020/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The file `mocked_context/README.md` you provided describes a software package called `@sourcegraph/cody-agent`. 
 
 Here's a breakdown:
 
-* **`@sourcegraph/cody-agent`**: This refers to a specific software package named ""cody-agent"" within the ""@sourcegraph"" organization or namespace.
-* **JSON-RPC server**: This indicates that the package sets up a server that adheres to the JSON-RPC protocol. JSON-RPC is a lightweight remote procedure call protocol that uses JSON for data transmission.
-* **stdout/stdin**: These stand for ""standard output"" and ""standard input,"" respectively. They are communication channels used by computer programs to exchange data.
-* **Non-ECMAScript clients**: This specifies that the package is designed for clients written in programming languages other than ECMAScript (which includes JavaScript).
-* **JetBrains and NeoVim plugins**: These are examples of clients that might use the `cody-agent` package. JetBrains develops IDEs like IntelliJ IDEA, and NeoVim is a text editor.
+* **Purpose:** This package allows non-JavaScript programs (like plugins for JetBrains IDEs or NeoVim) to communicate with Cody. 
+* **Mechanism:** It achieves this communication by setting up a JSON-RPC server. This server interacts with Cody through standard input/output streams (stdin/stdout).
+* **Target Audience:** This package is not intended for typical JavaScript developers. Instead, it's designed for developers building Cody integrations in other programming languages and environments.
 
-In essence, the `cody-agent` package acts as a bridge, allowing plugins and tools outside the typical JavaScript ecosystem to leverage Cody's capabilities by sending requests and receiving responses in a standardized JSON format.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_021/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I cannot provide a general explanation of how goroutines work. I can only process the code present in the given file. However, I can tell you how goroutines are used in this specific code snippet:
+In essence, this package acts as a bridge, enabling Cody's capabilities to be used in a wider range of developer tools and editors.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_021/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"This code snippet doesn't directly demonstrate how goroutines work in general. It shows how a goroutine is used in a specific context to update an actor's state asynchronously. 
 
-The `updateOnErrorLimiter` struct uses a goroutine to update an `Actor` object in the background.
+Let's break down how goroutines work and then revisit this code:
 
-* When `TryAcquire` is called, it first tries to acquire a limit using its `nextLimiter`.
-* If this results in a `limiter.NoAccessError` or `limiter.RateLimitExceededError`, it means the actor might have updated access permissions.
-* Instead of blocking the main thread, a new goroutine is launched using `go func() {...}()`.
-* This goroutine calls the `actor.Update` method to refresh the actor's permissions in the background.
-* If `actor.Update` returns an error (and it's not a recent update error), a warning is logged.
+**What are Goroutines?**
 
-This approach ensures that even if an actor's permissions need updating, the main request can still proceed without waiting for the update to complete. The update happens asynchronously in the background.",,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_022/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The code you provided defines rate limiting and concurrency limiting logic for actors in a Go program. Here's a breakdown:
+* **Lightweight Concurrency:** Goroutines are functions or methods that can run concurrently with other functions or methods. They are lightweight, meaning you can have thousands or even millions of them running simultaneously without significant performance overhead.
+* **Go Scheduler:** The Go runtime manages goroutines using a scheduler. The scheduler distributes goroutines across available OS threads, allowing efficient use of multiple CPU cores.
+* **Creating Goroutines:** You create a goroutine by adding the keyword `go` before a function or method call.
 
-**1. Rate Limiting:**
+   ```go
+   go myFunction() // Starts myFunction as a goroutine
+   ```
 
-* **`RateLimit` struct:**
-    * Defines the structure for rate limiting configuration.
-    * `AllowedModels`: List of allowed models for this rate limit. A single ""*"" allows all models.
-    * `Limit`: Maximum number of requests allowed within the `Interval`.
-    * `Interval`: Time window for the rate limit.
-    * `ConcurrentRequests`: Maximum concurrent requests allowed.
-    * `ConcurrentRequestsInterval`: Time window for the concurrency limit.
-* **`NewRateLimitWithPercentageConcurrency` function:**
-    * Creates a new `RateLimit` instance, calculating the `ConcurrentRequests` based on a percentage of the daily request limit.
-* **`IsValid` method:**
-    * Checks if the `RateLimit` configuration is valid (non-nil, positive values for limits and intervals).
-* **`EvaluateAllowedModels` method:**
-    * Determines the allowed models by intersecting the actor's allowed models with a master allowlist.
-    * Returns the intersection, ensuring only models from the master allowlist are considered.
+**How Goroutines Work in the Code:**
 
-**2. Concurrency Limiting:**
+In the provided code, a goroutine is used within the `updateOnErrorLimiter.TryAcquire` method:
 
-* **`concurrencyLimiter` struct:**
-    * Implements concurrency limiting for an actor.
-    * `logger`: Logger instance for recording events.
-    * `actor`: The actor to which the concurrency limit applies.
-    * `feature`: The feature being rate limited.
-    * `redis`: Redis store for tracking rate limit counters.
-    * `concurrentRequests`: Maximum concurrent requests allowed.
-    * `concurrentInterval`: Time window for the concurrency limit.
-    * `nextLimiter`: The next limiter in the chain (potentially a rate limiter).
-    * `nowFunc`: Function to get the current time (for testing).
-* **`TryAcquire` method:**
-    * Attempts to acquire a concurrency slot.
-    * Uses a `limiter.StaticLimiter` backed by Redis to enforce the concurrency limit.
-    * If successful, calls the `TryAcquire` method of the `nextLimiter`.
-    * Returns an `ErrConcurrencyLimitExceeded` error if the concurrency limit is reached.
-* **`Usage` method:**
-    * Delegates to the `Usage` method of the `nextLimiter`.
+```go
+go func() {
+    // ... code to update the actor ...
+}() 
+```
 
-**3. Error Handling:**
+1. **Asynchronous Update:** When `TryAcquire` encounters an access error (like rate limiting), it starts a goroutine to update the actor's information in the background. This prevents the main request from being blocked while the update happens.
+2. **Non-blocking:** The `go` keyword starts the goroutine and immediately continues to the next line of code. The main function doesn't wait for the goroutine to finish.
+3. **Transient Update:** The update is performed in a separate goroutine using `context.WithoutCancel(ctx)`. This means the update will continue even if the original request context is canceled.
 
-* **`ErrConcurrencyLimitExceeded` struct:**
-    * Represents an error when the concurrency limit is exceeded.
-    * Provides methods for generating error messages and HTTP responses.
-* **`updateOnErrorLimiter` struct:**
-    * Wraps another limiter and attempts to update the actor's information if an access error occurs.
-    * This allows for dynamic updates to an actor's permissions.
+**Key Points:**
 
-**In summary:**
+* Goroutines are essential for concurrent programming in Go.
+* The Go scheduler manages goroutines efficiently, making them suitable for high-concurrency scenarios.
+* The provided code uses a goroutine to handle actor updates asynchronously, improving responsiveness.",,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_022/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The file `limit.go` implements rate limiting and concurrency limiting for actors in a system likely related to Cody Gateway. 
 
-The `limit.go` file provides mechanisms for both rate limiting and concurrency limiting requests made by actors. It uses Redis to store rate limit counters and allows for flexible configuration of limits and intervals. The code also includes error handling and mechanisms for updating actor information in case of access issues.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_001/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Sure, based on the provided `Animal` interface, here is an implementation of a `Dog` class:
+Here's a breakdown:
+
+1. **Rate Limiting:**
+    - It defines a `RateLimit` struct to store rate limit configurations:
+        - `AllowedModels`: List of allowed models for this rate limit.
+        - `Limit`: Maximum number of requests allowed within the `Interval`.
+        - `Interval`: Time window for the rate limit.
+        - `ConcurrentRequests`: Maximum concurrent requests allowed.
+        - `ConcurrentRequestsInterval`: Time window for the concurrency limit.
+    - `NewRateLimitWithPercentageConcurrency`: Creates a `RateLimit` with concurrency limits calculated as a percentage of the daily rate limit.
+    - `IsValid`: Checks if the `RateLimit` configuration is valid.
+    - `EvaluateAllowedModels`: Determines the allowed models based on a master allowlist and the actor's allowed models.
+
+2. **Concurrency Limiting:**
+    - It defines a `concurrencyLimiter` struct to manage concurrent requests:
+        - Uses Redis to track concurrent requests.
+        - `TryAcquire`: Attempts to acquire a concurrency slot. Returns an error if the limit is exceeded.
+        - `Usage`: Returns the current usage and reset time of the concurrency limiter.
+
+3. **Error Handling:**
+    - `ErrConcurrencyLimitExceeded`: Represents an error when the concurrency limit is exceeded.
+    - Provides methods to handle and respond to concurrency limit errors.
+
+4. **Actor Updates on Errors:**
+    - `updateOnErrorLimiter`: A limiter wrapper that attempts to update the actor's information if rate limit or access errors occur. This is useful if an actor's permissions have changed and need to be refreshed.
+
+**Overall, `limit.go` provides a mechanism to control and limit the usage of resources by actors in the system, preventing abuse and ensuring fair access.**",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_001/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, here's an implementation of a `Dog` class that implements the `Animal` interface:
 
 ```typescript
 interface Animal {
@@ -371,135 +421,152 @@ class Dog implements Animal {
         this.age = age;
     }
 
-    bark() {
+    bark(): void {
         console.log(""Woof! Woof!"");
     }
 }
 ```
 
-This `Dog` class implements the `Animal` interface and includes a `bark` method.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_002/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, `Squirrel` is an interface that represents a code intelligence API. It has a method `symbolInformation` which takes a file name as a string argument and returns an object that conforms to the `CodeIntelligence` interface. The `CodeIntelligence` interface includes a property `symbols`, which is an array of strings.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_003/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I have access to the following code:
+This `Dog` class includes the properties `name` and `age` as required by the `Animal` interface and adds a `bark` method specific to `Dog`.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_002/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, `Squirrel` is an interface that represents a code intelligence API. It has a method `symbolInformation` which takes a file name as a string argument and returns an object of type `CodeIntelligence`. The `CodeIntelligence` interface contains a property `symbols`, which is an array of strings.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_003/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I have access to the content of the file `mocked_context/README.md`, which includes the following information:
 
-1. `squirrel.ts`:
-    ```typescript
-    interface CodeIntelligence {
-        symbols: string[]
-    }
-    /**
-     * Squirrel is a code intelligence API.
-     */
-    interface Squirrel {
-        symbolInformation(file: string): CodeIntelligence
-    }
+```markdown
+# Cody Agent
+
+The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact
+with Cody via stdout/stdin. This package is intended to be used by
+non-ECMAScript clients such as the JetBrains and NeoVim plugins.
+```
+
+This is the only code I have access to based on the provided context.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_004/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"In Go, slices are a key data structure that provide a more powerful and flexible interface to sequences of elements than arrays. Here’s a detailed explanation of how slices work in Go:
+
+### Definition and Declaration
+
+A slice is a descriptor for a contiguous segment of an underlying array and provides much more powerful and flexible operations than arrays. A slice is defined by three components:
+- **Pointer**: Points to the first element of the array that is accessible through the slice.
+- **Length**: The number of elements in the slice.
+- **Capacity**: The number of elements in the underlying array, starting from the element the slice points to.
+
+You can declare a slice in several ways:
+
+1. **Using a slice literal**:
+    ```go
+    s := []int{1, 2, 3, 4, 5}
     ```
 
-2. `animal.ts`:
-    ```typescript
-    interface Animal {
-        name: string;
-        age: number;
-    }
-    ```",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_004/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"In Go, slices are a flexible and powerful way to work with sequences of elements. They are more versatile than arrays and are used extensively in Go programming. Here’s a brief overview of how slices work in Go:
+2. **Using the `make` function**:
+    ```go
+    s := make([]int, 5) // creates a slice of length 5 and capacity 5
+    s := make([]int, 5, 10) // creates a slice of length 5 and capacity 10
+    ```
 
-### Definition and Initialization
+3. **Slicing an array or another slice**:
+    ```go
+    arr := [5]int{1, 2, 3, 4, 5}
+    s := arr[1:4] // creates a slice [2, 3, 4]
+    ```
 
-A slice is a descriptor for a contiguous segment of an array and provides much more powerful and flexible operations than arrays. A slice is defined by three components:
-- A pointer to the underlying array.
-- The length of the segment.
-- The capacity of the segment (the maximum length the slice can grow to).
+### Operations on Slices
 
-You can create a slice in several ways:
+1. **Accessing elements**:
+    ```go
+    s := []int{1, 2, 3, 4, 5}
+    fmt.Println(s[0]) // prints 1
+    ```
 
-1. **From an array:**
-   ```go
-   arr := [5]int{1, 2, 3, 4, 5}
-   slice := arr[1:4] // slice now contains [2, 3, 4]
-   ```
+2. **Modifying elements**:
+    ```go
+    s := []int{1, 2, 3, 4, 5}
+    s[0] = 10
+    fmt.Println(s) // prints [10, 2, 3, 4, 5]
+    ```
 
-2. **Using the `make` function:**
-   ```go
-   slice := make([]int, 5) // creates a slice of length 5 and capacity 5
-   ```
+3. **Appending elements**:
+    ```go
+    s := []int{1, 2, 3}
+    s = append(s, 4, 5)
+    fmt.Println(s) // prints [1, 2, 3, 4, 5]
+    ```
 
-3. **Composite literal:**
-   ```go
-   slice := []int{1, 2, 3, 4, 5}
-   ```
+4. **Copying slices**:
+    ```go
+    src := []int{1, 2, 3}
+    dst := make([]int, len(src))
+    copy(dst, src)
+    fmt.Println(dst) // prints [1, 2, 3]
+    ```
 
-### Slicing
+### Slicing a Slice
 
-You can create a new slice from an existing slice or array using the slicing syntax `slice[low:high]`:
-
+You can create a new slice from an existing slice:
 ```go
-arr := [5]int{1, 2, 3, 4, 5}
-slice := arr[1:4] // slice now contains [2, 3, 4]
+s := []int{1, 2, 3, 4, 5}
+s1 := s[1:4] // creates a slice [2, 3, 4]
 ```
 
 ### Length and Capacity
 
-- **Length**: The number of elements in the slice.
-- **Capacity**: The number of elements in the underlying array, starting from the first element in the slice.
-
-You can get the length and capacity using the built-in `len` and `cap` functions:
+- **Length**: The number of elements in the slice, accessible using `len` function.
+- **Capacity**: The number of elements in the underlying array, starting from the element the slice points to, accessible using `cap` function.
 
 ```go
-fmt.Println(len(slice)) // Output: 3
-fmt.Println(cap(slice)) // Output: 4
-```
+s := []int{1, 2, 3, 4, 5}
+fmt.Println(len(s)) // prints 5
+fmt.Println(cap(s)) // prints 5
 
-### Modifying Slices
-
-Slices are reference types, meaning that when you modify the contents of a slice, you are modifying the underlying array:
-
-```go
-slice[0] = 10
-fmt.Println(arr) // Output: [1, 10, 3, 4, 5]
-```
-
-### Appending to Slices
-
-You can append elements to a slice using the built-in `append` function. If the slice has enough capacity, the underlying array is reused. If not, a new array is allocated:
-
-```go
-slice = append(slice, 6)
-fmt.Println(slice) // Output: [2, 3, 4, 6]
-```
-
-### Copying Slices
-
-You can copy the contents of one slice to another using the `copy` function:
-
-```go
-src := []int{1, 2, 3}
-dst := make([]int, len(src))
-copy(dst, src)
-fmt.Println(dst) // Output: [1, 2, 3]
+s1 := s[1:4]
+fmt.Println(len(s1)) // prints 3
+fmt.Println(cap(s1)) // prints 4
 ```
 
 ### Zero Value
 
-The zero value of a slice is `nil`. A `nil` slice has a length and capacity of 0 and no underlying array:
+The zero value of a slice is `nil`. A `nil` slice has a length and capacity of 0 and has no underlying array.
 
 ```go
-var slice []int
-fmt.Println(slice == nil) // Output: true
-fmt.Println(len(slice))   // Output: 0
-fmt.Println(cap(slice))   // Output: 0
+var s []int
+fmt.Println(s == nil) // prints true
+fmt.Println(len(s)) // prints 0
+fmt.Println(cap(s)) // prints 0
 ```
 
-### Summary
+### Example from the Codebase
 
-Slices in Go provide a powerful way to work with sequences of elements, offering flexibility and efficiency. They are built on top of arrays but provide more functionality, such as dynamic resizing and easy slicing. Understanding slices is crucial for effective Go programming.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_005/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided regex `/n/a|e|i|o|u/` is designed to match any of the following characters: `a`, `e`, `i`, `o`, or `u`. Here's a breakdown of the regex:
+In the provided codebase context, the `slices` package is used, which likely provides utility functions for working with slices. For example, the `slices.Contains` function is used to check if a slice contains a specific element:
 
-- `a|e|i|o|u`: This part of the regex uses the alternation operator `|` to match any one of the characters `a`, `e`, `i`, `o`, or `u`.
+```go
+if slices.Contains(prefixedMasterAllowlist, val) {
+    result = append(result, val)
+}
+```
 
-The `/n` at the end seems to be a typo or misplaced. In JavaScript, regex patterns are enclosed within forward slashes `/.../`, and `/n` at the end does not have any special meaning in this context.
+This line checks if `val` is in `prefixedMasterAllowlist` and, if so, appends it to the `result` slice.
 
-So, the effective regex pattern is `/a|e|i|o|u/`, which matches any single vowel character (lowercase) in the input string.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_006/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To style a checkbox using light purple in CSS, you can use the `:checked` pseudo-class and the `::before` or `::after` pseudo-elements to customize the appearance. Here's an example of how you can achieve this:
+### Conclusion
+
+Slices in Go are a powerful abstraction over arrays, providing dynamic resizing, easy slicing, and a rich set of operations. They are widely used in Go programming for their flexibility and efficiency.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_005/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The provided regex `/n/a|e|i|o|u/` is intended to match any of the following patterns:
+
+1. The string ""n/a"".
+2. The character 'e'.
+3. The character 'i'.
+4. The character 'o'.
+5. The character 'u'.
+
+However, the regex is not correctly formatted for most regex engines. The correct format should be:
+
+```regex
+/n\/a|e|i|o|u/
+```
+
+In this corrected version:
+- `n\/a` matches the string ""n/a"".
+- `e`, `i`, `o`, and `u` match the respective characters.
+
+The trailing `/n` in your original regex seems to be a typo or an error. If it was intended to be a flag, it should be placed after the closing `/`, but `/n` is not a valid regex flag in most regex engines.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_006/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"To style a checkbox using light purple in CSS, you can use the `:checked` pseudo-class and the `::before` or `::after` pseudo-elements to customize the appearance. Here's an example of how you can achieve this:
 
 ```html
 <!DOCTYPE html>
@@ -564,81 +631,53 @@ In this example:
 5. When the checkbox is checked, the `::after` pseudo-element becomes visible (`opacity: 1`).
 
 You can adjust the colors, sizes, and other styles as needed to fit your design requirements.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_007/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To upgrade your Python version, you can follow these steps depending on your operating system:
+yaml,chat,gpt-4o,chat,question_007/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"To upgrade your Python version, you can follow these steps:
 
-### On Windows:
-1. **Download the Installer:**
-   - Go to the [official Python website](https://www.python.org/downloads/).
-   - Download the latest version of Python.
+1. **Check the current Python version**:
+   Open a terminal or command prompt and run:
+   ```sh
+   python --version
+   ```
+   or
+   ```sh
+   python3 --version
+   ```
 
-2. **Run the Installer:**
-   - Open the downloaded installer.
-   - Make sure to check the box that says ""Add Python to PATH"".
-   - Click on ""Upgrade Now"" to upgrade your existing Python installation.
+2. **Download the latest Python installer**:
+   Go to the [official Python website](https://www.python.org/downloads/) and download the installer for the latest version of Python.
 
-### On macOS:
-1. **Using Homebrew:**
-   - Open Terminal.
-   - Update Homebrew:
-     ```sh
-     brew update
-     ```
-   - Upgrade Python:
-     ```sh
-     brew upgrade python
-     ```
-
-2. **Using the Installer:**
-   - Go to the [official Python website](https://www.python.org/downloads/).
-   - Download the latest version of Python.
-   - Open the downloaded installer and follow the instructions to install the new version.
-
-### On Linux:
-1. **Using a Package Manager:**
-   - For Debian-based systems (like Ubuntu):
+3. **Install the new Python version**:
+   - **Windows**: Run the downloaded installer and follow the instructions. Make sure to check the box that says ""Add Python to PATH"" during the installation process.
+   - **macOS**: Open the downloaded `.pkg` file and follow the installation instructions.
+   - **Linux**: You can use a package manager to install the latest version. For example, on Ubuntu, you can run:
      ```sh
      sudo apt update
-     sudo apt install python3
+     sudo apt install python3.x
      ```
-   - For Red Hat-based systems (like Fedora):
-     ```sh
-     sudo dnf install python3
-     ```
+     Replace `3.x` with the version number you want to install.
 
-2. **Using `pyenv`:**
-   - Install `pyenv` if you haven't already:
-     ```sh
-     curl https://pyenv.run | bash
-     ```
-   - Add `pyenv` to your shell:
-     ```sh
-     export PATH=""$HOME/.pyenv/bin:$PATH""
-     eval ""$(pyenv init --path)""
-     eval ""$(pyenv init -)""
-     eval ""$(pyenv virtualenv-init -)""
-     ```
-   - Install the desired Python version:
-     ```sh
-     pyenv install <version>
-     ```
-   - Set the new version as the global default:
-     ```sh
-     pyenv global <version>
-     ```
+4. **Verify the installation**:
+   After the installation is complete, verify that the new version is installed by running:
+   ```sh
+   python --version
+   ```
+   or
+   ```sh
+   python3 --version
+   ```
 
-Replace `<version>` with the specific version number you want to install, such as `3.9.7`.
+5. **Update `pip`** (optional but recommended):
+   After upgrading Python, you should also upgrade `pip` to the latest version:
+   ```sh
+   python -m pip install --upgrade pip
+   ```
+   or
+   ```sh
+   python3 -m pip install --upgrade pip
+   ```
 
-After upgrading, you can verify the installed version by running:
-```sh
-python --version
-```
-or
-```sh
-python3 --version
-```
-
-These steps should help you upgrade your Python version on your respective operating system.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_008/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To understand what a repository (repo) does, you typically need to look at several key files and directories within it. Here are some steps you can follow to get a good overview:
+If you have any specific requirements or encounter any issues during the upgrade process, feel free to ask for further assistance!",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_008/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"To understand what a repository (repo) does, you typically need to look at several key files and directories within it. Here are some steps you can follow to get a good overview:
 
 1. **README.md**: This file usually contains a high-level description of the project, its purpose, and how to get started with it. It's often the first place to look.
 
@@ -653,19 +692,19 @@ yaml,chat,gpt-4o,chat,question_008/question.yaml,30830dc3a92fa839defa950e85843c1
 6. **Comments and Docstrings**: Inline comments and docstrings within the code can provide additional context and explanations.
 
 If you provide me with a link to the repository or specific files within it, I can help you analyze them and give you a more detailed explanation of what the repo does.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_009/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Sure, I'd be happy to help! Please provide the code you'd like me to describe.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_010/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, it seems like you are working with a Go codebase that includes a server struct and a JSON-RPC server implementation for interacting with Cody. However, the context is quite limited. 
+yaml,chat,gpt-4o,chat,question_009/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Sure, I'd be happy to help! Please provide the code you'd like me to describe.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_010/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, it appears that you have a Go file defining a `server` struct and a README file describing the `@sourcegraph/cody-agent` package. However, there isn't enough information to provide a detailed description of your entire codebase.
 
-To describe your code more accurately, I would need more information or specific files you want to be described. Given the current context:
+If you need a description of the specific code snippets provided:
 
-1. **server struct**:
-   - The `server` struct in `chunker_test.go` embeds `grpc_testing.UnimplementedTestServiceServer`. This suggests that it is part of a gRPC service implementation, likely for testing purposes.
+1. **Go File (`mocked_context/chunker_test.go`):**
+   - The `server` struct embeds `grpc_testing.UnimplementedTestServiceServer`, which suggests that it's part of a gRPC service implementation, likely used for testing purposes.
 
-2. **Cody Agent**:
-   - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. It is designed for use by non-ECMAScript clients such as JetBrains and NeoVim plugins.
+2. **README File (`mocked_context/README.md`):**
+   - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. It's designed for use by non-ECMAScript clients, such as JetBrains and NeoVim plugins.
 
-If you need a more detailed description or have specific parts of the codebase you want to be described, please provide additional context or specify the files or components you are interested in.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_011/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher is a tool or service that monitors a specified directory (or directories) for changes. These changes can include the creation, modification, or deletion of files and subdirectories within the monitored directory. Directory watchers are commonly used in various applications and development workflows for tasks such as:
+If you need more detailed information or have specific questions about your code, please provide additional context or files.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_011/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher is a tool or service that monitors a specified directory (or directories) for changes. These changes can include the creation, modification, or deletion of files and subdirectories within the monitored directory. Directory watchers are commonly used in various applications and development workflows for tasks such as:
 
 1. **Automated Testing**: Running tests automatically when code files are changed.
 2. **Live Reloading**: Automatically reloading a web page or application when source files are modified.
@@ -708,7 +747,7 @@ if __name__ == ""__main__"":
 ```
 
 In this example, the `MyHandler` class defines actions to take when files are modified, created, or deleted. The `Observer` watches the specified directory and triggers the appropriate handler methods when changes are detected.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_012/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To determine if your codebase is clean, I would need to analyze it for various factors such as readability, maintainability, adherence to coding standards, presence of documentation, and absence of bugs or security vulnerabilities. Here are a few steps you can take to assess the cleanliness of your codebase:
+yaml,chat,gpt-4o,chat,question_012/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"To determine if your codebase is clean, I would need to analyze it for various factors such as readability, maintainability, adherence to coding standards, presence of documentation, and absence of bugs or security vulnerabilities. Here are a few steps you can take to assess the cleanliness of your codebase:
 
 1. **Code Review**: Conduct thorough code reviews with your team to ensure that the code is readable, well-documented, and follows best practices.
 
@@ -725,37 +764,50 @@ yaml,chat,gpt-4o,chat,question_012/question.yaml,30830dc3a92fa839defa950e85843c1
 7. **Continuous Integration**: Set up a continuous integration (CI) pipeline to automatically run tests and checks on every commit. Tools like Jenkins, GitHub Actions, and CircleCI can help with this.
 
 If you provide access to your codebase or specific parts of it, I can help you analyze it further and provide more detailed feedback.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_013/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code snippet from `chunker_test.go`, it appears that the file is related to testing a gRPC service. However, the snippet itself does not provide enough information to determine where the gRPC chunker is specifically tested.
+yaml,chat,gpt-4o,chat,question_013/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code snippet from `mocked_context/chunker_test.go`, it defines a `server` struct that embeds `grpc_testing.UnimplementedTestServiceServer`. However, there is no information or context about where the gRPC chunker is tested within this file or any other files in the codebase.
 
-To locate the tests for the gRPC chunker, you would need to look through the `chunker_test.go` file for any test functions that are testing chunking functionality. These test functions typically start with the `Test` prefix and might include terms like ""chunker"" or ""chunking"" in their names.
+To determine where the gRPC chunker is tested, you would need to look for test functions within `chunker_test.go` or other test files that specifically test the chunker functionality. These test functions typically start with `Test` and may include terms like `chunker`, `chunk`, or related keywords in their names.
 
-If you have access to the entire `chunker_test.go` file, you can search for relevant test functions. If you need further assistance with specific parts of the file, please provide more context or additional code snippets.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_014/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, I don't have access to any specific information or files related to your PyTorch setup or environment. Additionally, the file `question_014/external-services.ts` is empty and does not provide any relevant details.
-
-However, I can guide you on how to upgrade your PyTorch version to 1.0.0. Here are the general steps you can follow:
+If you have access to the entire `chunker_test.go` file or other relevant test files, you can search for such test functions to find where the gRPC chunker is being tested.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_014/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I can help guide you through the process of upgrading your PyTorch version to 1.0.0. However, I don't have direct access to your codebase or the ability to execute commands on your system. Here are the steps you can follow to upgrade your PyTorch version:
 
 1. **Uninstall the current version of PyTorch:**
-   ```bash
-   pip uninstall torch
+   First, you need to uninstall the current version of PyTorch. You can do this using pip or conda, depending on how you installed it.
+
+   Using pip:
+   ```sh
+   pip uninstall torch torchvision
+   ```
+
+   Using conda:
+   ```sh
+   conda remove pytorch torchvision -c pytorch
    ```
 
 2. **Install PyTorch 1.0.0:**
-   You can install a specific version of PyTorch using pip. For PyTorch 1.0.0, you can use the following command:
-   ```bash
-   pip install torch==1.0.0
+   Next, you need to install PyTorch 1.0.0. You can find the installation command on the [PyTorch website](https://pytorch.org/get-started/previous-versions/). Here are the commands for different platforms:
+
+   Using pip:
+   ```sh
+   pip install torch==1.0.0 torchvision==0.2.1
+   ```
+
+   Using conda:
+   ```sh
+   conda install pytorch=1.0.0 torchvision=0.2.1 -c pytorch
    ```
 
 3. **Verify the installation:**
-   After installation, you can verify the version of PyTorch installed by running:
+   After installing, you can verify the installation by running the following Python code:
    ```python
    import torch
    print(torch.__version__)
    ```
 
-For more detailed instructions or if you need to install additional components like CUDA support, you can refer to the official [PyTorch installation guide](https://pytorch.org/get-started/previous-versions/).
+   This should output `1.0.0`.
 
-If you have any specific requirements or need further assistance, please provide more details.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_015/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To identify conflicting packages, we need to look at the import statements and see if there are any packages that might be causing issues due to name conflicts or version incompatibilities. Here are the import statements from the provided code:
+If you encounter any issues or need further assistance, feel free to ask!",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_015/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"To identify conflicting packages, we need to look at the imports and usage within the provided file. Here are the imported packages in `mocked_context/limit.go`:
 
 ```go
 import (
@@ -777,329 +829,121 @@ import (
 )
 ```
 
-Let's break down the imports:
+To identify conflicts, we need to check for:
 
-1. **Standard Library Packages:**
-   - `context`
-   - `fmt`
-   - `net/http`
-   - `strconv`
-   - `time`
+1. **Duplicate Imports**: Same package imported multiple times.
+2. **Version Conflicts**: Different versions of the same package imported.
+3. **Namespace Conflicts**: Different packages imported with the same alias.
 
-2. **Third-Party Packages:**
-   - `slices` (This is a Go 1.18+ package for working with slices)
-   - `github.com/sourcegraph/log`
-   - `go.opentelemetry.io/otel/attribute`
-   - `oteltrace ""go.opentelemetry.io/otel/trace""`
+From the provided context, there are no obvious duplicate imports or alias conflicts. However, without additional files or more context, it's challenging to identify version conflicts directly.
 
-3. **Internal Packages:**
-   - `github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter`
-   - `github.com/sourcegraph/sourcegraph/internal/codygateway`
-   - `github.com/sourcegraph/sourcegraph/internal/trace`
-   - `github.com/sourcegraph/sourcegraph/lib/errors`
+Here are some steps you can take to further investigate:
 
-### Potential Conflicts
+1. **Check for Duplicate Imports**: Ensure no package is imported more than once.
+2. **Check for Version Conflicts**: If using Go modules, inspect the `go.mod` file for multiple versions of the same package.
+3. **Namespace Conflicts**: Ensure no two packages are imported with the same alias.
 
-1. **Third-Party Package Versions:**
-   - Ensure that the versions of `go.opentelemetry.io/otel` and `github.com/sourcegraph/log` are compatible with each other and with the rest of your codebase. Version conflicts can sometimes cause issues.
+If you have access to the `go.mod` file or other parts of the codebase, you can look for these issues there. If you can provide more specific details or additional files, I can help you further pinpoint the conflict.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_016/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Sure, let's take a second look at the `limit.go` file.
 
-2. **Internal Package Naming:**
-   - The internal packages (`limiter`, `codygateway`, `trace`, `errors`) should be checked to ensure there are no duplicate or conflicting names within the `github.com/sourcegraph/sourcegraph` repository. For example, if there are multiple `limiter` packages in different directories, it could cause confusion.
+The `limit.go` file defines a rate-limiting mechanism for actors using the Cody Gateway. Here are the key components and their functionalities:
 
-3. **Standard Library vs. Third-Party Packages:**
-   - The `slices` package is part of the Go standard library starting from Go 1.18. Ensure that you are using the correct version of Go that includes this package.
+### Key Components
 
-### Steps to Identify Conflicts
+1. **RateLimit Struct**
+   - **Fields**:
+     - `AllowedModels`: A list of allowed models in the format ""$PROVIDER/$MODEL_NAME"".
+     - `Limit`: The maximum number of requests allowed.
+     - `Interval`: The time duration for which the limit is applicable.
+     - `ConcurrentRequests`: The maximum number of concurrent requests allowed.
+     - `ConcurrentRequestsInterval`: The time duration for the concurrency limit.
+   - **Methods**:
+     - `NewRateLimitWithPercentageConcurrency`: Creates a new `RateLimit` with a concurrency limit based on a percentage of the daily limit.
+     - `IsValid`: Checks if the rate limit configuration is valid.
+     - `EvaluateAllowedModels`: Returns the intersection of a master allowlist and the actor's allowlist.
 
-1. **Check Go Modules:**
-   - Look at your `go.mod` file to see the versions of the third-party packages being used. Ensure there are no version conflicts.
+2. **concurrencyLimiter Struct**
+   - **Fields**:
+     - `logger`: Logger for logging purposes.
+     - `actor`: The actor for whom the rate limit is being enforced.
+     - `feature`: The feature being rate-limited.
+     - `redis`: Redis store for rate-limiting data.
+     - `concurrentRequests`: The maximum number of concurrent requests allowed.
+     - `concurrentInterval`: The time duration for the concurrency limit.
+     - `nextLimiter`: The next limiter in the chain.
+     - `nowFunc`: Function to get the current time.
+   - **Methods**:
+     - `TryAcquire`: Tries to acquire a rate limit slot.
+     - `Usage`: Gets the current usage of the rate limit.
 
-2. **Search for Duplicate Packages:**
-   - Search your codebase for duplicate package names that might be imported from different paths.
+3. **ErrConcurrencyLimitExceeded Struct**
+   - **Fields**:
+     - `feature`: The feature being rate-limited.
+     - `limit`: The concurrency limit.
+     - `retryAfter`: The time after which the limit can be retried.
+   - **Methods**:
+     - `Error`: Generates a simple error string.
+     - `Summary`: Generates a detailed error summary.
+     - `WriteResponse`: Writes an HTTP response indicating the rate limit has been exceeded.
 
-3. **Run Dependency Management Tools:**
-   - Use tools like `go mod tidy` to clean up any unnecessary dependencies and `go mod verify` to ensure that your dependencies are correctly downloaded and verified.
+4. **updateOnErrorLimiter Struct**
+   - **Fields**:
+     - `logger`: Logger for logging purposes.
+     - `actor`: The actor for whom the rate limit is being enforced.
+     - `nextLimiter`: The next limiter in the chain.
+   - **Methods**:
+     - `TryAcquire`: Tries to acquire a rate limit slot and updates the actor on certain access errors.
+     - `Usage`: Gets the current usage of the rate limit.
 
-4. **Check for Deprecated Packages:**
-   - Ensure none of the packages you are using have been deprecated or replaced with newer versions.
+### Summary
 
-By following these steps, you should be able to identify any conflicting packages that might be causing issues in your codebase. If you provide more specific details about the errors or issues you are encountering, I can give more targeted advice.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_016/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Sure, let's take a closer look at the `limit.go` file. Here is the content again for reference:
+The `limit.go` file provides a comprehensive rate-limiting mechanism for actors using the Cody Gateway. It includes functionality for defining rate limits, checking their validity, evaluating allowed models, and handling concurrency limits. Additionally, it provides mechanisms for handling errors and updating actors' access permissions dynamically.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_017/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, there is no explicit information regarding why this project uses the MIT license. The context includes details about the `RateLimit` struct and related functionality in `limit.go`, as well as a brief description of the `@sourcegraph/cody-agent` package in the `README.md`. However, it does not provide any rationale or discussion about the choice of the MIT license.
 
-```go
-package actor
-
-import (
-	""context""
-	""fmt""
-	""net/http""
-	""slices""
-	""strconv""
-	""time""
-
-	""github.com/sourcegraph/log""
-	""go.opentelemetry.io/otel/attribute""
-	oteltrace ""go.opentelemetry.io/otel/trace""
-
-	""github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter""
-	""github.com/sourcegraph/sourcegraph/internal/codygateway""
-	""github.com/sourcegraph/sourcegraph/internal/trace""
-	""github.com/sourcegraph/sourcegraph/lib/errors""
-)
-
-type RateLimit struct {
-	// AllowedModels is a set of models in Cody Gateway's model configuration
-	// format, ""$PROVIDER/$MODEL_NAME"". A single-item slice with value '*' means
-	// that all models in the 'master allowlist' are allowed.
-	//
-	// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)
-	// instead.
-	AllowedModels []string `json:""allowedModels""`
-
-	Limit    int64         `json:""limit""`
-	Interval time.Duration `json:""interval""`
-
-	// ConcurrentRequests, ConcurrentRequestsInterval are generally applied
-	// with NewRateLimitWithPercentageConcurrency.
-	ConcurrentRequests         int           `json:""concurrentRequests""`
-	ConcurrentRequestsInterval time.Duration `json:""concurrentRequestsInterval""`
-}
-
-func NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {
-	// The actual type of time.Duration is int64, so we can use it to compute the
-	// ratio of the rate limit interval to a day (24 hours).
-	ratioToDay := float32(interval) / float32(24*time.Hour)
-	// Then use the ratio to compute the rate limit for a day.
-	dailyLimit := float32(limit) / ratioToDay
-	// Finally, compute the concurrency limit with the given percentage of the daily limit.
-	concurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)
-	// Just in case a poor choice of percentage results in a concurrency limit less than 1.
-	if concurrencyLimit < 1 {
-		concurrencyLimit = 1
-	}
-
-	return RateLimit{
-		AllowedModels: allowedModels,
-		Limit:         limit,
-		Interval:      interval,
-
-		ConcurrentRequests:         concurrencyLimit,
-		ConcurrentRequestsInterval: concurrencyConfig.Interval,
-	}
-}
-
-func (r *RateLimit) IsValid() bool {
-	return r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0
-}
-
-// EvaluateAllowedModels returns the intersection of a 'master' allowlist and
-// the actor's allowlist, where only values on the 'master' allowlist are returned.
-// The provided allowlist MUST be prefixed with the provider name (e.g. ""anthropic/"").
-//
-// If the actor's allowlist is a single value '*', then the master allowlist is
-// returned (i.e. all models are allowed).
-func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
-	if len(r.AllowedModels) == 1 && r.AllowedModels[0] == ""*"" {
-		return prefixedMasterAllowlist // all models allowed
-	}
-
-	var result []string
-	for _, val := range r.AllowedModels {
-		if slices.Contains(prefixedMasterAllowlist, val) {
-			result = append(result, val)
-		}
-	}
-	return result
-}
-
-type concurrencyLimiter struct {
-	logger  log.Logger
-	actor   *Actor
-	feature codygateway.Feature
-
-	// redis must be a prefixed store
-	redis limiter.RedisStore
-
-	concurrentRequests int
-	concurrentInterval time.Duration
-
-	nextLimiter limiter.Limiter
-
-	nowFunc func() time.Time
-}
-
-func (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
-	commit, err := (limiter.StaticLimiter{
-		LimiterName:        ""actor.concurrencyLimiter"",
-		Identifier:         l.actor.ID,
-		Redis:              l.redis,
-		Limit:              int64(l.concurrentRequests),
-		Interval:           l.concurrentInterval,
-		UpdateRateLimitTTL: true, // always adjust
-		NowFunc:            l.nowFunc,
-	}).TryAcquire(ctx)
-	if err != nil {
-		if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
-			retryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)
-			if err != nil {
-				return nil, errors.Wrap(err, ""failed to get TTL for rate limit counter"")
-			}
-			return nil, ErrConcurrencyLimitExceeded{
-				feature:    l.feature,
-				limit:      l.concurrentRequests,
-				retryAfter: retryAfter,
-			}
-		}
-		return nil, errors.Wrap(err, ""check concurrent limit"")
-	}
-	if err = commit(ctx, 1); err != nil {
-		trace.Logger(ctx, l.logger).Error(""failed to commit concurrency limit consumption"", log.Error(err))
-	}
-
-	return l.nextLimiter.TryAcquire(ctx)
-}
-
-func (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {
-	return l.nextLimiter.Usage(ctx)
-}
-
-type ErrConcurrencyLimitExceeded struct {
-	feature    codygateway.Feature
-	limit      int
-	retryAfter time.Time
-}
-
-// Error generates a simple string that is fairly static for use in logging.
-// This helps with categorizing errors. For more detailed output use Summary().
-func (e ErrConcurrencyLimitExceeded) Error() string {
-	return fmt.Sprintf(""%q: concurrency limit exceeded"", e.feature)
-}
-
-func (e ErrConcurrencyLimitExceeded) Summary() string {
-	return fmt.Sprintf(""you have exceeded the concurrency limit of %d requests for %q. Retry after %s"",
-		e.limit, e.feature, e.retryAfter.Truncate(time.Second))
-}
-
-func (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {
-	// Rate limit exceeded, write well known headers and return correct status code.
-	w.Header().Set(""x-ratelimit-limit"", strconv.Itoa(e.limit))
-	w.Header().Set(""x-ratelimit-remaining"", ""0"")
-	w.Header().Set(""retry-after"", e.retryAfter.Format(time.RFC1123))
-	// Use Summary instead of Error for more informative text
-	http.Error(w, e.Summary(), http.StatusTooManyRequests)
-}
-
-// updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain
-// access errors.
-type updateOnErrorLimiter struct {
-	logger log.Logger
-	actor  *Actor
-
-	nextLimiter limiter.Limiter
-}
-
-func (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
-	commit, err := u.nextLimiter.TryAcquire(ctx)
-	// If we have an access issue, try to update the actor in case they have
-	// been granted updated access.
-	if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
-		oteltrace.SpanFromContext(ctx).
-			SetAttributes(attribute.Bool(""update-on-error"", true))
-		// Do update transiently, outside request hotpath
-		go func() {
-			if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
-				!IsErrActorRecentlyUpdated(updateErr) {
-				u.logger.Warn(""unexpected error updating actor"",
-					log.Error(updateErr),
-					log.NamedError(""originalError"", err))
-			}
-		}()
-	}
-	return commit, err
-}
-
-func (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {
-	return u.nextLimiter.Usage(ctx)
-}
-```
-
-This file defines several types and functions related to rate limiting and concurrency control for actors in the Cody Gateway system. Here are the main components:
-
-1. **RateLimit struct**: Defines the rate limit configuration, including allowed models, limit, interval, and concurrency settings.
-
-2. **NewRateLimitWithPercentageConcurrency function**: Creates a new `RateLimit` instance with concurrency settings based on a percentage of the daily limit.
-
-3. **IsValid method**: Checks if the `RateLimit` instance is valid.
-
-4. **EvaluateAllowedModels method**: Evaluates the allowed models based on a master allowlist and the actor's allowlist.
-
-5. **concurrencyLimiter struct**: Defines a concurrency limiter with methods to try acquiring a slot and to get usage information.
-
-6. **TryAcquire method**: Attempts to acquire a concurrency slot, handling errors and updating rate limits as necessary.
-
-7. **Usage method**: Retrieves usage information from the next limiter.
-
-8. **ErrConcurrencyLimitExceeded struct**: Defines an error type for concurrency limit exceeded scenarios, with methods to generate error messages and write HTTP responses.
-
-9. **updateOnErrorLimiter struct**: Defines a limiter that updates the actor's access if certain errors occur.
-
-10. **TryAcquire method**: Attempts to acquire a slot and updates the actor's access if necessary.
-
-11. **Usage method**: Retrieves usage information from the next limiter.
-
-If you have any specific questions or need further details about any part of this file, please let me know!",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_017/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided codebase context does not include any information about the project's licensing decisions or rationale for using the MIT license. To understand why this project uses the MIT license, you would typically need to refer to project documentation, commit messages, or discussions among the project maintainers that explain the choice of license. If such information is not available in the codebase, you might consider reaching out to the project maintainers directly for clarification.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_018/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"To find the location of the `tensor` function in the `zoekt` repository, you can use Sourcegraph's search functionality. Here’s how you can do it:
+To understand why the MIT license was chosen, you would typically need to look for documentation, comments, or discussions (e.g., in a `LICENSE` file, project documentation, or repository issues) that explain the licensing decision. If such information is not available in the provided context, it would be necessary to consult the project's maintainers or other relevant documentation.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_018/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"To locate the `tensor` function in the Zoekt repository, you can use Sourcegraph's search capabilities. Here's how you can do it:
 
 1. **Open Sourcegraph**: Navigate to your Sourcegraph instance.
 2. **Search Query**: Use the search bar to enter the following query:
    ```
    repo:zoekt function:tensor
    ```
-   This query will search for the definition of the `tensor` function within the `zoekt` repository.
+   This will search for the definition of the `tensor` function within the Zoekt repository.
 
-3. **Review Results**: Look through the search results to find the file and location where the `tensor` function is defined.
+3. **Review Results**: Look through the search results to find the exact location of the `tensor` function.
 
-If you have access to the `zoekt` repository locally, you can also use command-line tools like `grep` or `rg` (ripgrep) to search for the function definition:
+If you do not have access to Sourcegraph, you can also use command-line tools like `grep` to search through the codebase locally. For example:
 
 ```sh
 grep -r ""func tensor"" /path/to/zoekt/repo
 ```
 
-or
+This command will recursively search for the `tensor` function definition in the Zoekt repository directory.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_019/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"It looks like you mentioned `src/agent.go`, but you haven't provided the content of that file. To explain the logic and how agents interact with ranking in `src/agent.go`, I would need to see the relevant code from that file.
 
-```sh
-rg ""func tensor"" /path/to/zoekt/repo
+If you can provide the content or specific sections of `src/agent.go`, I can help explain the logic and interactions in detail.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_020/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The `README.md` file provides an overview of the `@sourcegraph/cody-agent` package. It explains that this package implements a JSON-RPC server to facilitate interaction with Cody through standard input and output (stdout/stdin). The package is designed for use by clients that are not written in ECMAScript, such as plugins for JetBrains and NeoVim.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_021/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Goroutines are a fundamental feature in Go that allow you to run functions concurrently. They are lightweight, managed by the Go runtime, and provide a simple way to achieve concurrency in Go programs. Here's a detailed explanation of how goroutines work:
+
+### Creating a Goroutine
+
+To start a new goroutine, you use the `go` keyword followed by a function call. For example:
+
+```go
+go someFunction()
 ```
 
-These commands will recursively search for the `tensor` function definition in the specified directory.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_019/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I don't have access to the contents of `src/agent.go` based on the provided context. If you can share the relevant portions of `src/agent.go`, I can help explain the logic and how agents interact with ranking.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_020/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `README.md` file for the `@sourcegraph/cody-agent` package provides a brief overview of the package's purpose and functionality. Specifically, it explains that the package implements a JSON-RPC server to facilitate interaction with Cody through standard input and output (stdout/stdin). This setup is designed to be used by clients that are not based on ECMAScript, such as plugins for JetBrains and NeoVim.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_021/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Goroutines are a fundamental feature of the Go programming language that allow for concurrent execution of functions. They are lightweight threads managed by the Go runtime. Here’s a detailed explanation of how goroutines work:
+This line of code will start `someFunction` in a new goroutine, allowing it to run concurrently with the calling function.
 
-### Basics of Goroutines
+### Characteristics of Goroutines
 
-1. **Creation**:
-   - A goroutine is created using the `go` keyword followed by a function call. For example:
-     ```go
-     go myFunction()
-     ```
-   - This spawns a new goroutine that runs concurrently with the calling (main) goroutine.
-
-2. **Concurrency**:
-   - Goroutines run in the same address space, which means they share memory. This makes communication between them efficient but also requires synchronization to avoid race conditions.
-
-3. **Scheduling**:
-   - The Go runtime includes a scheduler that manages the execution of goroutines. It multiplexes thousands of goroutines onto a smaller number of OS threads.
-   - The scheduler uses a technique called M:N scheduling, where M goroutines are scheduled on N OS threads.
-
-4. **Communication**:
-   - Goroutines can communicate with each other using channels, which are typed conduits for sending and receiving values.
-   - Channels provide a way to synchronize goroutines and share data safely.
+1. **Lightweight**: Goroutines are much lighter than traditional threads. The initial stack size of a goroutine is small (a few kilobytes), and it grows and shrinks as needed.
+2. **Managed by the Go Runtime**: The Go runtime manages the scheduling of goroutines. It multiplexes thousands of goroutines onto a smaller number of OS threads.
+3. **Non-blocking**: When a goroutine performs a blocking operation, such as waiting for I/O, the Go runtime can schedule another goroutine to run on the same OS thread.
 
 ### Example
 
-Here’s a simple example to illustrate goroutines:
+Here's a simple example of using goroutines:
 
 ```go
 package main
@@ -1109,131 +953,127 @@ import (
 	""time""
 )
 
-func printNumbers() {
-	for i := 1; i <= 5; i++ {
-		fmt.Println(i)
+func sayHello() {
+	for i := 0; i < 5; i++ {
+		fmt.Println(""Hello"")
 		time.Sleep(100 * time.Millisecond)
 	}
 }
 
 func main() {
-	go printNumbers() // Start printNumbers in a new goroutine
+	go sayHello() // Start sayHello in a new goroutine
 
-	// Main goroutine continues to execute
-	for i := 'a'; i <= 'e'; i++ {
-		fmt.Printf(""%c\n"", i)
-		time.Sleep(150 * time.Millisecond)
+	for i := 0; i < 5; i++ {
+		fmt.Println(""World"")
+		time.Sleep(200 * time.Millisecond)
 	}
-
-	// Wait for a while to let the other goroutine finish
-	time.Sleep(1 * time.Second)
 }
 ```
 
-In this example:
-- The `printNumbers` function is executed in a new goroutine.
-- The main goroutine continues to execute and prints letters.
-- Both goroutines run concurrently, and their outputs are interleaved.
+In this example, `sayHello` runs concurrently with the `main` function. The output will interleave ""Hello"" and ""World"" because both functions are running concurrently.
 
 ### Synchronization
 
-To synchronize goroutines or wait for them to finish, you can use synchronization primitives like `sync.WaitGroup` or channels. Here’s an example using `sync.WaitGroup`:
+Goroutines often need to communicate or synchronize with each other. Go provides several mechanisms for this:
 
-```go
-package main
+1. **Channels**: Channels are a way for goroutines to communicate with each other and synchronize their execution. You can send values from one goroutine to another using channels.
+   
+   ```go
+   package main
 
-import (
-	""fmt""
-	""sync""
-	""time""
-)
+   import ""fmt""
 
-func printNumbers(wg *sync.WaitGroup) {
-	defer wg.Done() // Notify the WaitGroup that this goroutine is done
-	for i := 1; i <= 5; i++ {
-		fmt.Println(i)
-		time.Sleep(100 * time.Millisecond)
-	}
-}
+   func main() {
+       ch := make(chan string)
 
-func main() {
-	var wg sync.WaitGroup
+       go func() {
+           ch <- ""Hello from goroutine""
+       }()
 
-	wg.Add(1) // Increment the WaitGroup counter
-	go printNumbers(&wg)
+       msg := <-ch
+       fmt.Println(msg)
+   }
+   ```
 
-	// Main goroutine continues to execute
-	for i := 'a'; i <= 'e'; i++ {
-		fmt.Printf(""%c\n"", i)
-		time.Sleep(150 * time.Millisecond)
-	}
+2. **WaitGroups**: The `sync.WaitGroup` type provides a way to wait for a collection of goroutines to finish executing.
 
-	wg.Wait() // Wait for all goroutines to finish
-}
-```
+   ```go
+   package main
+
+   import (
+       ""fmt""
+       ""sync""
+   )
+
+   func worker(id int, wg *sync.WaitGroup) {
+       defer wg.Done()
+       fmt.Printf(""Worker %d starting\n"", id)
+       // Simulate work
+       fmt.Printf(""Worker %d done\n"", id)
+   }
+
+   func main() {
+       var wg sync.WaitGroup
+
+       for i := 1; i <= 3; i++ {
+           wg.Add(1)
+           go worker(i, &wg)
+       }
+
+       wg.Wait()
+   }
+   ```
 
 ### Error Handling
 
-Goroutines do not return values directly and do not propagate panics to the calling goroutine. To handle errors, you can use channels to communicate error states back to the main goroutine.
+Error handling in goroutines can be tricky because errors need to be communicated back to the main goroutine or another goroutine. This is often done using channels.
 
-### Goroutines in the Provided Codebase Context
+### Example from Provided Codebase
 
-In the provided codebase context, goroutines are used in the `updateOnErrorLimiter` struct:
+In the provided codebase, there is an example of using a goroutine to update an actor outside the request hotpath:
 
 ```go
 go func() {
-	if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
-		!IsErrActorRecentlyUpdated(updateErr) {
-		u.logger.Warn(""unexpected error updating actor"",
-			log.Error(updateErr),
-			log.NamedError(""originalError"", err))
-	}
+    if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
+        !IsErrActorRecentlyUpdated(updateErr) {
+        u.logger.Warn(""unexpected error updating actor"",
+            log.Error(updateErr),
+            log.NamedError(""originalError"", err))
+    }
 }()
 ```
 
-Here, a goroutine is created to update the actor outside the request hotpath. This allows the main execution to continue without waiting for the update to complete, thus improving performance and responsiveness.
+Here, the `Update` method of the `actor` is called in a new goroutine. This allows the update to happen concurrently without blocking the main execution flow.
 
 ### Summary
 
-- Goroutines are lightweight, concurrent functions managed by the Go runtime.
+- Goroutines are lightweight, managed by the Go runtime, and provide a simple way to achieve concurrency.
 - They are created using the `go` keyword.
-- Communication and synchronization between goroutines are typically done using channels and synchronization primitives like `sync.WaitGroup`.
-- Goroutines share memory, so proper synchronization is necessary to avoid race conditions.
-- The Go runtime scheduler efficiently manages the execution of goroutines.
-
-Goroutines are a powerful feature of Go, enabling efficient and scalable concurrent programming.",,,,,,,,,,,
-yaml,chat,gpt-4o,chat,question_022/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file in the provided codebase context defines structures and functions related to rate limiting and concurrency control for actors in the Cody Gateway system. Here's a breakdown of its components and functionality:
+- Synchronization and communication between goroutines can be achieved using channels and other synchronization primitives like `sync.WaitGroup`.
+- Error handling in goroutines often involves communicating errors back to other goroutines using channels.",,,,,,,,,,,
+yaml,chat,gpt-4o,chat,question_022/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file defines structures and functions related to rate limiting and concurrency control for actors in the context of Cody Gateway. Here's a breakdown of its main components and functionality:
 
 1. **RateLimit Structure**:
-   - The `RateLimit` struct defines the rate limiting configuration for an actor. It includes fields for allowed models, limit, interval, and concurrent request settings.
-   - `NewRateLimitWithPercentageConcurrency` is a constructor function that creates a `RateLimit` instance with concurrency limits based on a percentage of the daily limit.
-   - `IsValid` is a method that checks if the `RateLimit` instance is valid.
-   - `EvaluateAllowedModels` is a method that returns the intersection of a master allowlist and the actor's allowlist, allowing only models that are in both lists.
+   - Defines the rate limit configuration for an actor, including allowed models, limit, interval, and concurrency settings.
+   - `NewRateLimitWithPercentageConcurrency`: A constructor function that creates a `RateLimit` instance with concurrency limits based on a percentage of the daily limit.
+   - `IsValid`: A method to check if the rate limit configuration is valid.
+   - `EvaluateAllowedModels`: A method to determine the intersection of a master allowlist and the actor's allowlist.
 
-2. **concurrencyLimiter Structure**:
-   - The `concurrencyLimiter` struct is responsible for enforcing concurrency limits for an actor.
-   - It includes fields for logging, actor information, feature, Redis store, concurrency settings, and a reference to the next limiter in the chain.
-   - `TryAcquire` is a method that attempts to acquire a concurrency slot for the actor. If the limit is exceeded, it returns an error with retry information.
-   - `Usage` is a method that returns the current usage of the concurrency limit.
+2. **Concurrency Limiter**:
+   - `concurrencyLimiter`: A structure that implements concurrency control using a Redis store.
+   - `TryAcquire`: A method to attempt to acquire a concurrency slot. If the limit is exceeded, it returns an error with retry information.
+   - `Usage`: A method to get the current usage of the concurrency limit.
 
-3. **ErrConcurrencyLimitExceeded Structure**:
-   - The `ErrConcurrencyLimitExceeded` struct represents an error when the concurrency limit is exceeded.
-   - It includes fields for the feature, limit, and retry-after time.
-   - `Error` and `Summary` methods provide error messages.
-   - `WriteResponse` is a method that writes an HTTP response indicating that the rate limit has been exceeded.
+3. **Error Handling**:
+   - `ErrConcurrencyLimitExceeded`: A custom error type for when the concurrency limit is exceeded. It includes methods to generate error messages and write HTTP responses.
 
-4. **updateOnErrorLimiter Structure**:
-   - The `updateOnErrorLimiter` struct is a wrapper around another limiter that attempts to update the actor's information if certain access errors occur.
-   - `TryAcquire` is a method that tries to acquire a slot and updates the actor if access errors are encountered.
-   - `Usage` is a method that returns the current usage of the limiter.
+4. **Update on Error Limiter**:
+   - `updateOnErrorLimiter`: A structure that wraps another limiter and attempts to update the actor's access if certain errors occur.
+   - `TryAcquire`: A method that tries to acquire a slot and updates the actor's access if needed.
+   - `Usage`: A method to get the current usage of the wrapped limiter.
 
-Overall, the `limit.go` file provides mechanisms to enforce rate limits and concurrency controls for actors, ensuring that they adhere to specified limits and handling errors appropriately.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_001/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"```typescript
-interface Animal {
-    name: string;
-    age: number;
-}
-
+Overall, the file provides mechanisms to enforce rate limits and concurrency controls, handle errors, and update actor access as needed.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_001/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"```typescript
 class Dog implements Animal {
   name: string;
   age: number;
@@ -1250,40 +1090,50 @@ class Dog implements Animal {
   }
 }
 ```",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_002/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,Squirrel is a code intelligence API.,,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_003/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I have access to the following code:
+yaml,chat,gemini-1.5-flash-latest,chat,question_002/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,Squirrel is a code intelligence API.,,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_003/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, I have access to the `README.md` file for the `@sourcegraph/cody-agent` package. This file describes the package's purpose and intended use. 
 
-**File: question_003/squirrel.ts**
+However, I do not have access to the actual code of the package itself. The `README.md` only provides high-level information about the package's functionality.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_004/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The code you provided doesn't contain any information about how slices work in Go. It does use slices, but it doesn't explain their implementation. 
 
-```typescript
-interface CodeIntelligence {
-    symbols: string[]
-}
-/**
- * Squirrel is a code intelligence API.
- */
-interface Squirrel {
-    symbolInformation(file: string): CodeIntelligence
-}
+To answer your question, here's a breakdown of how slices work in Go:
 
-```
+**Slices are dynamic arrays:**
 
-**File: question_003/animal.ts**
+* They are a reference type, meaning they hold a pointer to an underlying array.
+* They have a length and a capacity.
+* Length is the number of elements currently in the slice.
+* Capacity is the maximum number of elements the slice can hold without reallocation.
 
-```typescript
-interface Animal {
-    name: string;
-    age: number;
-}
+**Creating slices:**
 
-```",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_004/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The code you provided is written in TypeScript, not Go.  Go does not have slices in the same way that TypeScript does. 
+* **Literal syntax:** `[]type{elements}`
+   ```go
+   numbers := []int{1, 2, 3}
+   ```
+* **Make function:** `make([]type, length, capacity)`
+   ```go
+   names := make([]string, 5, 10) // length 5, capacity 10
+   ```
+* **From an existing array:** `array[start:end]`
+   ```go
+   letters := []string{""a"", ""b"", ""c"", ""d""}
+   subLetters := letters[1:3] // subLetters is [""b"", ""c""]
+   ```
 
-**Go Slices:**
+**Slice operations:**
 
-* **Dynamically sized arrays:** Slices in Go are like references to underlying arrays, but they can grow or shrink dynamically.
-* **Zero-based indexing:**  Elements in a slice are accessed using zero-based indexing, just like arrays.
-* **Built-in functions:** Go provides built-in functions for working with slices, such as `append`, `len`, and `cap`.
+* **Appending:** `append(slice, elements...)`
+* **Concatenating:** `append(slice1, slice2...)`
+* **Slicing:** `slice[start:end]`
+* **Iterating:** `for i, element := range slice`
+* **Copying:** `copy(dst, src)`
+
+**Important points:**
+
+* **Resizing:** When appending elements to a slice, if the capacity is exceeded, the slice will be reallocated with a larger capacity, and the underlying array will be copied.
+* **Zero values:** When creating a slice, elements are initialized with their zero values (e.g., 0 for integers, """" for strings).
+* **Sharing underlying array:** When slicing an existing array, the new slice shares the same underlying array. Modifying the new slice will also affect the original array.
 
 **Example:**
 
@@ -1293,46 +1143,41 @@ package main
 import ""fmt""
 
 func main() {
-    // Create a slice of integers
-    numbers := []int{1, 2, 3, 4, 5}
+	// Create a slice with length 3 and capacity 5
+	numbers := make([]int, 3, 5)
+	numbers[0] = 1
+	numbers[1] = 2
+	numbers[2] = 3
 
-    // Access elements by index
-    fmt.Println(numbers[0]) // Output: 1
+	fmt.Println(""numbers:"", numbers) // Output: numbers: [1 2 3]
 
-    // Append a new element
-    numbers = append(numbers, 6)
-    fmt.Println(numbers) // Output: [1 2 3 4 5 6]
+	// Append an element
+	numbers = append(numbers, 4)
+	fmt.Println(""numbers:"", numbers) // Output: numbers: [1 2 3 4]
 
-    // Get the length of the slice
-    fmt.Println(len(numbers)) // Output: 6
+	// Slice the array
+	subNumbers := numbers[1:3]
+	fmt.Println(""subNumbers:"", subNumbers) // Output: subNumbers: [2 3]
+
+	// Modify the subNumbers slice
+	subNumbers[0] = 10
+	fmt.Println(""numbers:"", numbers) // Output: numbers: [1 10 3 4]
 }
 ```
 
-**Key Differences from TypeScript:**
+This example demonstrates how slices are dynamic, can be resized, and how slicing creates a new slice that shares the underlying array.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_005/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"This regex doesn't do anything useful. It's likely a placeholder or an incomplete attempt at a regex. Here's why:
 
-* **No explicit type:** Go slices don't have an explicit type like TypeScript arrays. The type is inferred from the elements.
-* **No `slice` keyword:** Go doesn't have a `slice` keyword. You create a slice using the `[]` syntax.
-* **Built-in functions:** Go provides built-in functions for slice operations, while TypeScript relies on methods.
+* **Missing quantifier:** The `n` at the end is not followed by a quantifier like `*`, `+`, or `?` to indicate how many times it should match. Without a quantifier, it will only match a single ""n"".
+* **Unclear purpose:** The characters `n/a|e|i|o|u` are separated by pipes (`|`), which means it will match any one of those characters. However, the `//n` at the end is unclear. 
 
-Let me know if you have any other questions about Go slices or the code you provided.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_005/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"This regex doesn't do anything useful in the context of the provided code. It's not a valid regular expression. 
+**Possible intentions:**
 
-Here's why:
+* **Matching vowels:** The `e|i|o|u` part could be intended to match vowels. However, the `n/a` and the `//n` make it unclear what the overall goal is.
+* **Incomplete regex:** This might be a partial regex that was never finished.
 
-* **Missing delimiters:** Regular expressions need delimiters to define their start and end. Common delimiters are `/` or `#`.
-* **Invalid syntax:** The `//n` part is invalid. It seems like an attempt to escape the `n` character, but the syntax is incorrect.
-* **No quantifiers:** The regex doesn't specify how many times the characters should appear. 
-
-It's possible this was a typo or an incomplete attempt at a regex. 
-
-If you're looking for a regex to match vowels, a more correct version would be:
-
-```
-/[aeiou]/
-```
-
-This regex matches any single occurrence of the vowels 'a', 'e', 'i', 'o', or 'u'.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_006/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"```css
+**To make this regex useful, you would need to clarify the intended purpose and complete it with appropriate quantifiers and other regex elements.**",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_006/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"```css
 /* Basic checkbox style */
 input[type=""checkbox""] {
   -webkit-appearance: none;
@@ -1412,19 +1257,16 @@ input[type=""checkbox""]:checked::before {
 ```
 
 This code will create a light purple checkbox with a white checkmark when checked. You can customize it further to match your specific design needs.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_007/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I can't help you with that. The code you provided is in Go, not Python. I can only help you with questions related to the code I have access to. 
+yaml,chat,gemini-1.5-flash-latest,chat,question_007/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I can't answer that question. The code you provided is in Go, not Python.  To upgrade your Python version, you'll need to provide me with more context about your Python environment and operating system. 
 
-To upgrade your Python version, you'll need to follow instructions specific to your operating system and Python installation method. 
+For example, tell me:
 
-Here are some general steps you might need to take:
+* **What operating system are you using?** (e.g., macOS, Windows, Linux)
+* **What version of Python are you currently using?** (e.g., Python 3.8)
+* **How did you install Python?** (e.g., using a package manager like Homebrew or apt-get, or by downloading an installer)
 
-* **Check your current version:** Use `python --version` or `python3 --version` in your terminal to see what version you have installed.
-* **Download the new version:** Go to the official Python website (https://www.python.org/downloads/) and download the installer for the version you want.
-* **Install the new version:** Run the installer and follow the instructions.
-* **Set your default version:** You may need to update your environment variables or use a tool like `pyenv` to make the new version your default.
-
-Remember, the specific steps will vary depending on your setup.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_008/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the repository URL or some context about the repository you're asking about. I need more information to understand what the repository does. 
+Once I have this information, I can provide you with specific instructions on how to upgrade your Python version.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_008/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the repository URL or some context about the repository you're asking about. I need more information to understand what the repository does. 
 
 For example, you could tell me:
 
@@ -1433,7 +1275,7 @@ For example, you could tell me:
 * **A brief description of the repository:** e.g., ""A JavaScript library for building user interfaces""
 
 Once I have this information, I can help you understand what the repository does.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_009/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the code you would like me to describe! I need to see the code to understand what it does and how it works. 
+yaml,chat,gemini-1.5-flash-latest,chat,question_009/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the code you would like me to describe! I need to see the code to understand what it does and how it works. 
 
 Tell me:
 
@@ -1442,12 +1284,464 @@ Tell me:
 * **Is there anything specific you want me to focus on?** (e.g., a particular function, a specific data structure, etc.)
 
 The more information you give me, the better I can understand and describe your code.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_010/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The code defines a struct named `server` that implements the `grpc_testing.UnimplementedTestServiceServer` interface. This interface is likely part of a gRPC testing framework, and the `server` struct is likely a placeholder for a real server implementation. 
+yaml,chat,gemini-1.5-flash-latest,chat,question_010/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"```
+package mocked_context
 
-The code snippet doesn't provide any details about the server's functionality or how it interacts with the `grpc_testing` framework. 
+import (
+	""context""
+	""fmt""
+	""io""
+	""net/http""
+	""net/http/httptest""
+	""net/url""
+	""os""
+	""path/filepath""
+	""strings""
+	""testing""
 
-To understand the code better, you would need to look at the `grpc_testing` package documentation and the implementation of the `server` struct.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_011/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher, also known as a file system watcher, is a program or component that monitors a specific directory or set of directories for changes. These changes can include:
+	""github.com/stretchr/testify/assert""
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/credentials/insecure""
+	""google.golang.org/grpc/test/bufconn""
+
+	""github.com/sourcegraph/cody-agent/internal/grpc_testing""
+	""github.com/sourcegraph/cody-agent/internal/protocol""
+	""github.com/sourcegraph/cody-agent/internal/protocol/v1""
+	""github.com/sourcegraph/cody-agent/internal/testutil""
+	""github.com/sourcegraph/cody-agent/internal/util""
+	""github.com/sourcegraph/cody-agent/internal/util/log""
+	""github.com/sourcegraph/cody-agent/internal/util/retry""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/mockserver""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/mockserver/mockservertest""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/testgrpc""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/testjsonrpc""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/testlog""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/testnet""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/testproto""
+	""github.com/sourcegraph/cody-agent/internal/util/testutil/testutil""
+)
+
+type server struct {
+	grpc_testing.UnimplementedTestServiceServer
+}
+
+func (s *server) Echo(ctx context.Context, req *grpc_testing.EchoRequest) (*grpc_testing.EchoResponse, error) {
+	return &grpc_testing.EchoResponse{Message: req.Message}, nil
+}
+
+func TestGRPC(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	lis := bufconn.Listen(1024*1024)
+	defer lis.Close()
+
+	s := &server{}
+	grpcServer := grpc.NewServer()
+	grpc_testing.RegisterTestServiceServer(grpcServer, s)
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			t.Fatalf(""failed to serve: %v"", err)
+		}
+	}()
+
+	conn, err := grpc.DialContext(ctx, ""bufnet"", grpc.WithContextDialer(bufconn.Dialer(lis)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+	defer conn.Close()
+
+	client := grpc_testing.NewTestServiceClient(conn)
+
+	// Test echo
+	resp, err := client.Echo(ctx, &grpc_testing.EchoRequest{Message: ""hello""})
+	require.NoError(t, err)
+	assert.Equal(t, ""hello"", resp.Message)
+}
+
+func TestJSONRPC(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC response.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create a response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Result:  ""hello"",
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	resp, err := client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.NoError(t, err)
+
+	// Assert that the response is correct.
+	assert.Equal(t, int64(1), resp.ID)
+	assert.Equal(t, v1.Version, resp.Version)
+	assert.Equal(t, ""hello"", resp.Result)
+}
+
+func TestJSONRPC_Error(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create an error response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Error: &protocol.Error{
+				Code:    protocol.ErrorCodeInternalError,
+				Message: ""internal error"",
+			},
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""internal error"", err.Error())
+}
+
+func TestJSONRPC_InvalidRequest(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create an error response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Error: &protocol.Error{
+				Code:    protocol.ErrorCodeInvalidRequest,
+				Message: ""invalid request"",
+			},
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""invalid request"", err.Error())
+}
+
+func TestJSONRPC_MethodNotFound(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create an error response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Error: &protocol.Error{
+				Code:    protocol.ErrorCodeMethodNotFound,
+				Message: ""method not found"",
+			},
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""method not found"", err.Error())
+}
+
+func TestJSONRPC_ParseError(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create an error response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Error: &protocol.Error{
+				Code:    protocol.ErrorCodeParseError,
+				Message: ""parse error"",
+			},
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""parse error"", err.Error())
+}
+
+func TestJSONRPC_InvalidParams(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create an error response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Error: &protocol.Error{
+				Code:    protocol.ErrorCodeInvalidParams,
+				Message: ""invalid params"",
+			},
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""invalid params"", err.Error())
+}
+
+func TestJSONRPC_InternalError(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		// Unmarshal the request.
+		var req protocol.Request
+		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+
+		// Create an error response.
+		resp := protocol.Response{
+			ID:      req.ID,
+			Version: v1.Version,
+			Error: &protocol.Error{
+				Code:    protocol.ErrorCodeInternalError,
+				Message: ""internal error"",
+			},
+		}
+
+		// Marshal the response.
+		data, err := testjsonrpc.Marshal(resp)
+		require.NoError(t, err)
+
+		// Write the response.
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""internal error"", err.Error())
+}
+
+func TestJSONRPC_ServerUnavailable(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	// Create a mock server that returns a JSON-RPC error.
+	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+	}))
+	defer mockServer.Close()
+
+	// Create a client that connects to the mock server.
+	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+	require.NoError(t, err)
+	defer client.Close()
+
+	// Send a request to the mock server.
+	_, err = client.Request(ctx, protocol.Request{
+		ID:      1,
+		Version: v1.Version,
+		Method:  ""echo"",
+		Params:  []interface{}{""hello""},
+	})
+	require.Error(t, err)
+	assert.Equal(t, ""server unavailable"", err.Error())
+}
+
+func TestJSONRPC_Timeout(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.
+```",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_011/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher, also known as a file system watcher, is a program or component that monitors a specific directory or set of directories for changes. These changes can include:
 
 * **File creation:** When a new file is added to the directory.
 * **File deletion:** When a file is removed from the directory.
@@ -1487,7 +1781,7 @@ Directory watchers are used in various applications, including:
 * **Performance:** Continuous monitoring can impact system performance, especially for large directories or high-frequency changes.
 * **Resource consumption:** Directory watchers can consume system resources, such as memory and CPU.
 * **Security:** Directory watchers should be implemented with security in mind to prevent unauthorized access or manipulation.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_012/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I need a little more information to help you with that!  Please tell me:
+yaml,chat,gemini-1.5-flash-latest,chat,question_012/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I need a little more information to help you with that!  Please tell me:
 
 * **What language is your codebase written in?** (e.g., Python, JavaScript, Java, C++)
 * **Where is your codebase located?** (e.g., GitHub repository, local directory)
@@ -1503,52 +1797,34 @@ I can also help you:
 * **Provide guidance on best practices for clean code.**
 
 Let's get started!",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_013/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided code snippet only defines a `server` struct that implements the `grpc_testing.UnimplementedTestServiceServer` interface. It doesn't contain any code related to testing a gRPC chunker. 
+yaml,chat,gemini-1.5-flash-latest,chat,question_013/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The provided code snippet only defines a `server` struct that implements the `grpc_testing.UnimplementedTestServiceServer` interface. It doesn't contain any code related to a ""grpc chunker"". 
 
-To answer your question, we need more context.  Specifically, we need to see:
+To answer your question, we need more context. Please provide the following:
 
-* **The implementation of the `server` struct:**  Does it handle any gRPC requests that involve chunking?
-* **The test files:** Are there any test files that specifically test the chunking functionality?
-* **The `grpc_testing` package:** What methods and functions does it provide for testing gRPC services?
+1. **What is the purpose of the `server` struct?** Is it used for testing a specific service or functionality?
+2. **Where is the ""grpc chunker"" code located?** Is it in a separate file or within the same file as the `server` struct?
+3. **What are the specific tests you want to perform on the ""grpc chunker""?** 
 
-Please provide more code or context so I can help you find where the gRPC chunker is tested.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_014/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I can't directly modify your codebase or install software on your system. I'm a language model, not a system administrator. 
+Once you provide this information, I can help you identify the relevant test code or suggest how to write tests for the ""grpc chunker"".",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_014/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the codebase context. I need to see the current code and environment setup to determine if upgrading PyTorch to 1.0.0 is possible and how to do it. 
 
-However, I can help you with the process of upgrading PyTorch to version 1.0.0. 
+Once you provide the codebase context, I can help you:
 
-To upgrade PyTorch, you'll need to follow the instructions provided on the PyTorch website. Here's a general outline of the steps involved:
+* **Identify potential conflicts:** I can analyze your code for dependencies that might be incompatible with PyTorch 1.0.0.
+* **Suggest upgrade steps:** I can provide you with a step-by-step guide on how to upgrade PyTorch, taking into account your specific environment and dependencies.
+* **Help you resolve issues:** If you encounter any problems during the upgrade process, I can assist you in troubleshooting and finding solutions.
 
-1. **Check your current PyTorch version:**
-   - Run `pip show torch` in your terminal to see the currently installed version.
+Let's get started! Please share your codebase context.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_015/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Please provide me with the error message or the specific issue you are facing. I need more information to identify any conflicting packages. 
 
-2. **Uninstall the existing PyTorch version:**
-   - Run `pip uninstall torch` in your terminal.
+For example, tell me:
 
-3. **Install PyTorch 1.0.0:**
-   - Follow the instructions on the PyTorch website for installing the specific version you need (e.g., using `pip install torch==1.0.0`).
+* **What is the error message you are seeing?**
+* **What are you trying to do when the error occurs?**
+* **What are the specific packages involved?**
 
-4. **Verify the installation:**
-   - Run `pip show torch` again to confirm that PyTorch 1.0.0 is installed.
-
-**Important Notes:**
-
-* **Compatibility:** Make sure PyTorch 1.0.0 is compatible with your system's operating system, Python version, and other dependencies.
-* **Virtual Environments:** It's highly recommended to use virtual environments to isolate your project's dependencies and avoid conflicts.
-* **Documentation:** Refer to the official PyTorch documentation for detailed instructions and troubleshooting tips.
-
-Let me know if you have any specific questions about the upgrade process or need help finding the relevant documentation.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_015/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The code you provided doesn't show any conflicting packages. It's a single file (`limit.go`) within the `actor` package. 
-
-To identify conflicting packages, I would need to see the entire codebase or at least the relevant parts of other packages that interact with the `actor` package. 
-
-Please provide more context, such as:
-
-* **Error messages:** Are you encountering any specific errors related to package conflicts?
-* **Other packages:** Which other packages are you using in your project?
-* **Code snippets:** Can you share snippets of code from other packages that interact with the `actor` package?
-
-With more information, I can help you identify potential package conflicts.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_016/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"```go
+Once I have this information, I can help you identify any potential conflicts.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_016/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"```go
 package actor
 
 import (
@@ -1745,68 +2021,64 @@ func (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error)
 }
 ```
 
-The code defines a `RateLimit` struct and related functions for managing rate limits and concurrency limits for actors in a system. Here's a breakdown:
+I've reviewed the code in `limit.go` and here are some observations:
 
-**RateLimit Struct:**
+**General Observations:**
 
-* `AllowedModels`: A list of models that the actor is allowed to use. A value of `""*""` indicates that all models are allowed.
-* `Limit`: The maximum number of requests allowed within the specified interval.
-* `Interval`: The time interval for the rate limit.
-* `ConcurrentRequests`: The maximum number of concurrent requests allowed.
-* `ConcurrentRequestsInterval`: The time interval for the concurrency limit.
+* **Rate Limiting and Concurrency Control:** The code implements rate limiting and concurrency control mechanisms for actors. It uses a `RateLimit` struct to define limits and intervals, and a `concurrencyLimiter` struct to enforce these limits.
+* **Redis Integration:** The code utilizes a Redis store (`limiter.RedisStore`) for storing and managing rate limit counters.
+* **Error Handling:** The code handles various errors related to rate limiting and concurrency, including `limiter.NoAccessError`, `limiter.RateLimitExceededError`, and `ErrConcurrencyLimitExceeded`.
+* **Retry After:** The `ErrConcurrencyLimitExceeded` error provides a `retryAfter` timestamp to inform clients when they can retry their requests.
+* **Update on Error:** The `updateOnErrorLimiter` struct implements a mechanism to update an actor's permissions if a rate limit or access error occurs. This allows for dynamic updates to an actor's access based on changes in their permissions.
 
-**Functions:**
+**Specific Points:**
 
-* `NewRateLimitWithPercentageConcurrency`: Creates a new `RateLimit` instance with a concurrency limit calculated as a percentage of the daily rate limit.
-* `IsValid`: Checks if the `RateLimit` instance is valid (interval and limit are positive, and there are allowed models).
-* `EvaluateAllowedModels`: Returns the intersection of the actor's allowed models and a master allowlist. This ensures that only models in the master allowlist are allowed, even if the actor has a more permissive allowlist.
+* **`NewRateLimitWithPercentageConcurrency`:** This function calculates a concurrency limit based on a percentage of the daily rate limit. It ensures that the concurrency limit is at least 1.
+* **`EvaluateAllowedModels`:** This method determines the allowed models for an actor by intersecting their allowlist with a master allowlist. It handles the case where the actor's allowlist is a wildcard ('*'), indicating that all models are allowed.
+* **`concurrencyLimiter`:** This struct implements the concurrency limit logic. It uses a `limiter.StaticLimiter` to track concurrent requests and a `nextLimiter` to handle further rate limiting.
+* **`ErrConcurrencyLimitExceeded`:** This error type represents a concurrency limit violation. It provides methods for generating error messages and writing responses to clients.
+* **`updateOnErrorLimiter`:** This struct wraps a limiter and updates an actor's permissions if a rate limit or access error occurs. It uses a goroutine to perform the update asynchronously.
 
-**ConcurrencyLimiter:**
+**Potential Improvements:**
 
-* This struct implements a limiter for concurrent requests.
-* It uses a `limiter.RedisStore` to track the number of concurrent requests.
-* It has a `TryAcquire` method that attempts to acquire a permit for a concurrent request. If the limit is exceeded, it returns an `ErrConcurrencyLimitExceeded` error.
-* It has a `Usage` method that returns the current usage of the concurrency limit.
+* **Documentation:** Adding more detailed comments and documentation would enhance the code's readability and maintainability.
+* **Testing:** Implementing unit tests for the rate limiting and concurrency control logic would ensure its correctness and robustness.
+* **Error Handling:** Consider adding more specific error handling for different scenarios, such as handling errors during Redis operations.
+* **Performance:** Optimizing the code for performance, especially in high-traffic scenarios, could be beneficial.
 
-**ErrConcurrencyLimitExceeded:**
+Overall, the code provides a solid foundation for implementing rate limiting and concurrency control for actors. However, further improvements in documentation, testing, and performance optimization could enhance its quality and reliability.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_017/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The provided codebase context doesn't contain any information about the license used. It only describes the purpose and intended use of the `@sourcegraph/cody-agent` package. 
 
-* This error type represents a concurrency limit violation.
-* It provides a simple error message and a more detailed summary.
-* It also has a `WriteResponse` method that writes the appropriate HTTP headers and status code for a rate limit exceeded response.
+To determine why the project uses the MIT license, you would need to look at the project's `LICENSE` file or other relevant documentation.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_018/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I can't help you with that. I don't have access to the ""zoekt"" repository or any information about its codebase. I can only access the code you provided in the `mocked_context/watcher.go` file. 
 
-**updateOnErrorLimiter:**
+To find the location of the ""tensor"" function in the zoekt repository, you'll need to:
 
-* This struct wraps a limiter and updates the actor if the limiter returns an access error.
-* This allows the actor to be updated with new permissions if they have been granted.
+1. **Access the zoekt repository:** You can find it on GitHub or wherever it's hosted.
+2. **Search the codebase:** Use the repository's search functionality or a code editor with search capabilities to find the function definition. 
 
-**Overall, this code provides a robust mechanism for managing rate limits and concurrency limits for actors in a system. It uses Redis for storage and provides error handling and reporting for limit violations.**",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_017/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The provided codebase context does not contain any information about the license used for the project. Therefore, I cannot answer your question.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_018/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I can't directly access the ""zoekt repo"" or any external codebases. My knowledge is limited to the code snippet you provided. 
+Let me know if you have any other questions about the code in `mocked_context/watcher.go`.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_019/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I do not have access to the file `src/agent.go`. Therefore, I cannot explain the logic within it, including how agents interact with ranking. 
 
-To find the location of a ""tensor"" function, I need more information:
+Please provide the content of `src/agent.go` so I can assist you.",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_020/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,"no text reply. Got {
+  ""model"": ""google/gemini-1.5-flash-latest"",
+  ""speaker"": ""assistant"",
+  ""error"": {
+    ""isChatErrorGuard"": ""isChatErrorGuard"",
+    ""name"": ""PollyError"",
+    ""message"": ""[Polly] Request failed due to an unknown error.""
+  }
+}",,,,,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_021/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The code you provided doesn't directly explain how goroutines work. It uses them, but it doesn't delve into their underlying mechanics. 
 
-* **Which repository is ""zoekt""?**  Is it a specific GitHub repository, or a local project?
-* **What is the ""tensor"" function?** Is it a specific function name, or a function with a similar purpose?
+Here's a breakdown of how goroutines work in Go:
 
-Once you provide this information, I can help you find the location of the function.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_019/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I do not have access to the file `src/agent.go`.  The code you provided is from `watcher.go` and does not contain information about agents or ranking. 
+**Goroutines: Lightweight Threads**
 
-To help me understand your question, please provide the code from `src/agent.go`.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_020/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `@sourcegraph/cody-agent` package is a JSON-RPC server that allows non-ECMAScript clients to interact with Cody. This means that clients written in languages other than JavaScript, such as those used in JetBrains and NeoVim plugins, can communicate with Cody using this package.
-
-The package uses standard input (stdin) and standard output (stdout) for communication. This allows it to be integrated into various environments and applications without requiring specific network configurations.
-
-In summary, the `@sourcegraph/cody-agent` package provides a bridge between Cody and non-JavaScript clients, enabling them to leverage Cody's capabilities for tasks like code completion, documentation generation, and more.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_021/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The code you provided doesn't directly explain how goroutines work. It uses them, but the focus is on rate limiting and actor management. 
-
-To understand goroutines, you need to look at the Go language itself. Here's a breakdown:
-
-**Goroutines in Go:**
-
-* **Lightweight Threads:** Goroutines are lightweight, concurrent execution units managed by the Go runtime. They are much cheaper to create and manage than traditional operating system threads.
-* **Concurrency, Not Parallelism:** Goroutines enable concurrency, meaning multiple tasks can be in progress at the same time. However, they don't necessarily run in parallel on multiple CPU cores. The Go runtime schedules goroutines onto available cores.
-* **Channels for Communication:** Goroutines communicate with each other using channels, which are typed communication conduits. This allows them to exchange data and synchronize their execution.
-* **`go` Keyword:** You create a goroutine by using the `go` keyword before a function call. For example: `go myFunction(arg1, arg2)`. This starts the function `myFunction` in a separate goroutine.
+* **Concurrency, not Parallelism:** Goroutines are lightweight, user-level threads managed by the Go runtime. They enable concurrent execution of code, meaning multiple tasks can run seemingly simultaneously. However, they don't necessarily run in parallel on multiple CPU cores. The Go runtime schedules goroutines onto available threads.
+* **Stack Management:** Goroutines have a small, dynamically growing stack. This means they use memory efficiently compared to traditional threads, which have a fixed stack size.
+* **Channels for Communication:** Goroutines communicate with each other using channels, which are typed communication pipes. This allows them to exchange data and synchronize their actions.
 
 **Example:**
 
@@ -1821,73 +2093,38 @@ import (
 func worker(id int, jobs <-chan int, results chan<- int) {
 	for j := range jobs {
 		fmt.Printf(""Worker %d started job %d\n"", id, j)
-		time.Sleep(time.Second)
-		fmt.Printf(""Worker %d finished job %d\n"", id, j)
-		results <- j * 2
-	}
-}
+		time
+```",,,,,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_022/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file defines the logic for rate limiting and concurrency limiting for actors in the Cody Gateway system. 
 
-func main() {
-	jobs := make(chan int, 10)
-	results := make(chan int, 10)
-
-	for w := 1; w <= 3; w++ {
-		go worker(w, jobs, results)
-	}
-
-	for j := 1; j <= 5; j++ {
-		jobs <- j
-	}
-	close(jobs)
-
-	for j := 1; j <= 5; j++ {
-		fmt.Printf(""Result: %d\n"", <-results)
-	}
-}
-```
-
-**In this example:**
-
-1. Three worker goroutines are created.
-2. Jobs are sent to the `jobs` channel.
-3. Workers receive jobs from the `jobs` channel, process them, and send results to the `results` channel.
-4. The main goroutine receives results from the `results` channel.
-
-**Key Points:**
-
-* Goroutines are a powerful tool for writing concurrent programs in Go.
-* They are lightweight and efficient, making it easy to create and manage many concurrent tasks.
-* Channels provide a safe and reliable way for goroutines to communicate with each other.
-
-Let me know if you have any more questions about goroutines or the code you provided.",,,,,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_022/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file defines rate limiting and concurrency limiting mechanisms for actors in the Cody Gateway system. Here's a breakdown of its key components:
+Here's a breakdown of its key components:
 
 **Rate Limiting:**
 
-* **`RateLimit` struct:** Represents a rate limit configuration with:
+* **`RateLimit` struct:** Represents a rate limit configuration with properties like:
     * `AllowedModels`: A list of allowed models for the actor.
     * `Limit`: The maximum number of requests allowed within the specified interval.
-    * `Interval`: The time interval for the rate limit.
+    * `Interval`: The duration of the rate limit window.
     * `ConcurrentRequests`: The maximum number of concurrent requests allowed.
-    * `ConcurrentRequestsInterval`: The time interval for the concurrency limit.
-* **`NewRateLimitWithPercentageConcurrency`:** Creates a `RateLimit` instance with a concurrency limit calculated as a percentage of the daily rate limit.
-* **`IsValid`:** Checks if a `RateLimit` configuration is valid.
-* **`EvaluateAllowedModels`:** Determines the allowed models for an actor based on the intersection of the actor's allowlist and a master allowlist.
+    * `ConcurrentRequestsInterval`: The interval for the concurrency limit.
+* **`NewRateLimitWithPercentageConcurrency` function:** Creates a `RateLimit` object with concurrency limit calculated as a percentage of the daily rate limit.
+* **`IsValid` method:** Checks if a `RateLimit` object is valid.
+* **`EvaluateAllowedModels` method:** Determines the allowed models based on the actor's allowlist and a master allowlist.
 
 **Concurrency Limiting:**
 
-* **`concurrencyLimiter` struct:** Implements a concurrency limiter using a Redis store.
-    * `TryAcquire`: Attempts to acquire a concurrency limit token. If successful, returns a commit function to record the consumption of the token.
-    * `Usage`: Returns the current usage of the concurrency limit.
-* **`ErrConcurrencyLimitExceeded`:** Represents an error indicating that the concurrency limit has been exceeded.
-* **`WriteResponse`:** Writes an HTTP response with appropriate headers and status code for a concurrency limit exceeded error.
+* **`concurrencyLimiter` struct:** Implements concurrency limiting using a Redis store.
+* **`TryAcquire` method:** Attempts to acquire a concurrency limit token. If the limit is exceeded, it returns an `ErrConcurrencyLimitExceeded` error.
+* **`Usage` method:** Returns the current usage of the concurrency limit.
+* **`ErrConcurrencyLimitExceeded` error:** Represents an error when the concurrency limit is exceeded.
 
 **Other Components:**
 
-* **`updateOnErrorLimiter` struct:** Wraps a limiter and updates the actor if the limiter returns an access error. This allows for dynamic updates to the actor's permissions.
+* **`updateOnErrorLimiter` struct:** Wraps a limiter and updates the actor on access errors.
+* **`IsErrActorRecentlyUpdated` function:** Checks if an error indicates that the actor was recently updated.
 
-**Overall, `limit.go` implements rate limiting and concurrency limiting mechanisms to control the usage of Cody Gateway resources by actors. It ensures that actors do not exceed their allocated limits and provides mechanisms for handling errors related to these limits.**",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_001/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, I can implement a Dog class that adheres to the Animal interface. Here's an implementation:
+**Overall, the `limit.go` file implements rate limiting and concurrency limiting mechanisms to control the usage of Cody Gateway resources by actors.**",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_001/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, I can implement a Dog class that adheres to the Animal interface. Here's an implementation:
 
 ```typescript
 class Dog implements Animal {
@@ -1910,9 +2147,9 @@ class Dog implements Animal {
 This implementation does the following:
 
 1. The `Dog` class implements the `Animal` interface, which requires `name` and `age` properties.
-2. In addition to the required properties, I've added a `breed` property specific to dogs.
+2. We've added an additional `breed` property specific to dogs.
 3. The constructor initializes all three properties.
-4. I've also added a `bark()` method as a dog-specific behavior.
+4. We've also added a `bark()` method as a dog-specific behavior.
 
 You can use this class like this:
 
@@ -1924,41 +2161,46 @@ console.log(myDog.breed); // Output: Labrador
 myDog.bark(); // Output: Buddy says: Woof!
 ```
 
-This implementation satisfies the `Animal` interface while adding dog-specific features.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_002/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, Squirrel is defined as an interface that represents a code intelligence API. Specifically:
+This implementation satisfies the `Animal` interface while adding dog-specific properties and methods.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_002/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, Squirrel is defined as an interface that represents a code intelligence API. Specifically:
 
-1. The interface is named `Squirrel`.
+1. The `Squirrel` interface is declared with a comment that states: ""Squirrel is a code intelligence API.""
 
-2. It is described in a comment as ""Squirrel is a code intelligence API.""
-
-3. The `Squirrel` interface declares one method:
+2. The `Squirrel` interface has one method defined:
    - `symbolInformation(file: string): CodeIntelligence`
-     This method takes a `file` parameter of type string and returns a `CodeIntelligence` object.
 
-4. The `CodeIntelligence` interface is also defined, which contains a `symbols` property that is an array of strings.
+3. This method takes a `file` parameter of type string and returns a `CodeIntelligence` object.
 
-So, Squirrel appears to be an API interface for retrieving code intelligence information, specifically symbol information from files. However, the implementation details of this API are not provided in the given context.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_003/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, I have access to the following code:
+4. The `CodeIntelligence` interface is also defined in the provided context, containing a single property:
+   - `symbols: string[]`
 
-1. From the file `question_003/squirrel.ts`:
-   - An interface `CodeIntelligence` with a property `symbols` of type `string[]`
-   - An interface `Squirrel` with a method `symbolInformation` that takes a `file` parameter of type `string` and returns a `CodeIntelligence` object
+So, Squirrel appears to be an API interface for retrieving code intelligence information, specifically symbol information from files. It allows you to pass a file name and receive symbol information for that file in return.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_003/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, I have access to information about the `@sourcegraph/cody-agent` package. Specifically, the context tells me that:
 
-2. From the file `question_003/animal.ts`:
-   - An interface `Animal` with two properties:
-     - `name` of type `string`
-     - `age` of type `number`
+1. This package implements a JSON-RPC server.
+2. The purpose of this server is to interact with Cody.
+3. The interaction happens via stdout/stdin.
+4. This package is intended for use by non-ECMAScript clients.
+5. Examples of such clients include JetBrains and NeoVim plugins.
 
-These are the only pieces of code that I have been explicitly provided access to in the given context. I don't have any information about other files or code that might exist in the codebase.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_004/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I cannot answer your question about how slices work in Go based on the provided codebase context. The code snippet you've shared is written in TypeScript, not Go, and it doesn't contain any information about Go slices.
+I don't have access to any actual code implementation, just this high-level description from the README.md file. The context doesn't provide any specific code snippets or detailed implementation information.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_004/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, I don't have specific information about how slices work in Go. The code snippets don't include a detailed explanation or implementation of Go slices.
 
-The provided code defines TypeScript interfaces for what appears to be a code intelligence API called ""Squirrel"". It doesn't contain any Go-related code or information about Go's slice data structure.
+However, I can point out that the `limit.go` file does use the `slices` package in one instance:
 
-If you have a specific question about the TypeScript code provided or the Squirrel interface, I'd be happy to help with that. But for information about Go slices, we would need to refer to Go documentation or a Go codebase.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_005/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I cannot provide an explanation for that regex because it is not present in the given codebase context. The file `question_005/squirrel.ts` does not contain any regular expressions. 
+```go
+if slices.Contains(prefixedMasterAllowlist, val) {
+    result = append(result, val)
+}
+```
 
-The provided code defines TypeScript interfaces for a code intelligence API called Squirrel, but it does not include any regex patterns. If you have a specific regex you'd like explained, please provide it directly, and I'd be happy to help explain its function.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_006/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Certainly! Here's an example of how you can style a checkbox using light purple in CSS:
+This suggests that Go has a `slices` package with a `Contains` function, which is used to check if a slice contains a specific value. The `append` function is also used here to add elements to a slice.
+
+Beyond this, I don't have enough information from the given context to provide a comprehensive explanation of how slices work in Go. If you need more details about Go slices, you would need to refer to Go's official documentation or other Go-specific resources.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_005/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't see any regex pattern matching `/n/a|e|i|o|u//n` in the provided codebase context. The context doesn't contain any information about regular expressions or this specific pattern. 
+
+If you have a specific regex pattern you'd like me to explain, please provide it directly, and I'd be happy to help interpret it. However, based solely on the given codebase context, I cannot make any assumptions or provide information about a regex that isn't present in the provided files.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_006/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Certainly! Here's an example of how you can style a checkbox using light purple in CSS:
 
 ```css
 /* Hide the default checkbox */
@@ -2024,12 +2266,10 @@ You can adjust the colors, sizes, and other properties to fit your specific desi
 - `#8a66e8` for a slightly darker purple on hover
 
 Feel free to change these to any shade of purple (or any other color) that you prefer!",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_007/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have any information about upgrading Python versions based on the provided codebase context. The code snippet you've shared is in Go, not Python, and it doesn't contain any information related to Python version upgrades.
+yaml,chat,claude-3.5-sonnet,chat,question_007/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have any information about upgrading Python versions based on the provided codebase context. The code snippet you shared is written in Go and defines a struct called `server` that embeds an unimplemented gRPC test service. This code is not related to Python or version upgrades.
 
-The provided code defines a struct called `server` that embeds an unimplemented gRPC test service server. This is not related to Python or version upgrades.
-
-If you need help upgrading your Python version, I'd recommend checking Python's official documentation or asking a question specifically about Python version upgrades, as the current context doesn't provide any relevant information for that topic.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_008/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have access to any specific repository or code that you might be referring to. Without more context or information about the repository you're asking about, I can't provide an accurate answer about what it does.
+To get accurate information about upgrading your Python version, you would need to consult Python-specific documentation or resources. The provided Go code snippet does not contain any relevant information for that task.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_008/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have access to any specific repository or code that you might be referring to. Without more context or information about the repository you're asking about, I can't provide an accurate answer about what it does.
 
 To help you, I would need more details such as:
 
@@ -2039,19 +2279,16 @@ To help you, I would need more details such as:
 4. Any documentation or README files associated with the repository
 
 If you can provide any of this information, I'd be happy to take a look and explain what the repository does to the best of my ability.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_009/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have any code to describe at the moment. You haven't shared any code with me in this conversation yet. If you'd like me to describe or analyze some code, please provide the code snippet or file you want me to look at, and I'll be happy to help!",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_010/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have enough context to describe your code accurately. The provided codebase snippets are very limited and don't contain enough information to give a comprehensive description.
+yaml,chat,claude-3.5-sonnet,chat,question_009/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have any code to describe at the moment. You haven't shared any code with me in this conversation yet. If you'd like me to describe or analyze some code, please provide the code snippet or file you want me to look at, and I'll be happy to help!",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_010/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have enough context to describe your code based on the limited information provided. The codebase snippets you've shared don't contain any code related to Zoekt or a description of your specific code.
 
-From the given context, I can only say:
+The context you've provided includes:
 
-1. There's a struct named `server` that embeds `grpc_testing.UnimplementedTestServiceServer`. This suggests it's part of a gRPC server implementation, likely for testing purposes.
+1. A small Go struct definition for a server that implements an unimplemented gRPC test service.
+2. A README for a Cody Agent package, which implements a JSON-RPC server for non-ECMAScript clients to interact with Cody.
 
-2. There's a README file that describes a package called `@sourcegraph/cody-agent`, which implements a JSON-RPC server for interacting with Cody via stdout/stdin. This package is meant for non-ECMAScript clients like JetBrains and NeoVim plugins.
-
-However, these two pieces of information don't seem directly related, and there's not enough code or context to provide a meaningful description of your specific codebase.
-
-If you want a more detailed description of your code, you would need to provide more context, such as additional code snippets, file structures, or specific questions about particular parts of your codebase.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_011/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher, also known as a file system watcher or folder monitor, is a software component or utility that monitors a specified directory (folder) for changes. Its primary purpose is to detect and respond to various file system events that occur within the watched directory. Here are some key functions and uses of a directory watcher:
+Neither of these snippets relates to Zoekt or provides enough information to describe your specific code. If you have a particular piece of code you'd like described, or if you have questions about the Cody Agent or the gRPC server snippet, please provide more details or context, and I'll be happy to help.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_011/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"A directory watcher, also known as a file system watcher or folder monitor, is a software component or utility that monitors a specified directory (folder) for changes. Its primary purpose is to detect and respond to various file system events that occur within the watched directory. Here are some key functions and uses of a directory watcher:
 
 1. Detect changes: It can identify when files or subdirectories are created, modified, deleted, or renamed within the watched directory.
 
@@ -2088,7 +2325,7 @@ Directory watchers are available in many programming languages and operating sys
 - Windows: ReadDirectoryChangesW function
 
 When implementing a directory watcher, it's important to consider factors like performance, cross-platform compatibility, and handling of edge cases (e.g., rapid successive changes or large numbers of files).",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_012/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have access to your specific codebase or any information about its structure or contents. As an AI assistant, I can only respond based on the information you provide in our conversation. 
+yaml,chat,claude-3.5-sonnet,chat,question_012/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have access to your specific codebase or any information about its structure or contents. As an AI assistant, I can only respond based on the information you provide in our conversation. 
 
 To determine if a codebase is ""clean"", developers typically look at factors like:
 
@@ -2111,45 +2348,46 @@ If you'd like an assessment of your codebase, you could:
 4. Share specific parts of your code for feedback
 
 If you have any specific questions about code cleanliness or want to discuss particular aspects of clean code, I'd be happy to help!",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_013/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, I don't have enough information to determine where the gRPC chunker is tested. The snippet you've shared only shows a partial definition of a `server` struct that embeds an unimplemented gRPC test service.
+yaml,chat,claude-3.5-sonnet,chat,question_013/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the limited context provided from the file ""mocked_context/chunker_test.go"", I don't have enough information to determine where the gRPC chunker is tested. The snippet you've shown only defines a struct called `server` that embeds `grpc_testing.UnimplementedTestServiceServer`, but it doesn't contain any actual test code for a gRPC chunker.
 
-To accurately answer where the gRPC chunker is tested, I would need to see more of the test file contents or other relevant files in the codebase. The file name ""chunker_test.go"" suggests that this file might contain tests related to a chunker, but without seeing the actual test functions or more context, I can't confirm if or where the gRPC chunker is specifically tested.
+To accurately answer where the gRPC chunker is tested, I would need to see more of the file contents or other relevant files in the codebase. The file name ""chunker_test.go"" suggests it might contain tests related to chunking, but without seeing the actual test functions or more context, I can't confirm this or provide specific details about where and how the chunker is tested.
 
-If you have more information or code from this file or other relevant files, please provide it, and I'll be able to give you a more accurate answer about where the gRPC chunker is tested.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_014/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have enough information or context to assist with upgrading PyTorch to version 1.0.0. The provided codebase context is empty, and there's no information about your current PyTorch setup or environment.
+If you can provide more context from this file or other relevant files, I'd be happy to help you locate the chunker tests.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_014/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't actually have access to any codebase context or specific information about your current PyTorch setup. As an AI assistant, I don't have direct access to your system or files. 
 
-Additionally, as an AI assistant, I don't have the ability to directly modify or upgrade software on your system. However, I can provide some general guidance:
+However, I can provide some general guidance on upgrading PyTorch:
 
-1. PyTorch upgrades are typically done through package managers like pip or conda, depending on your setup.
+1. PyTorch 1.0.0 is quite an old version (released in 2018). Are you sure you want to upgrade to that specific version? The latest stable version as of now is much newer.
 
-2. The official PyTorch website (https://pytorch.org/) usually provides installation instructions for different versions, including 1.0.0.
+2. If you do want to upgrade to a specific version, you can typically do so using pip:
 
-3. Before upgrading, it's important to check compatibility with your current projects and dependencies.
+   ```
+   pip install torch==1.0.0
+   ```
 
-4. It's always a good practice to backup your work before making significant version changes.
+3. It's generally recommended to use a virtual environment when working with Python packages to avoid conflicts.
 
-If you need specific help with upgrading PyTorch, you would need to provide more information about your current setup, including:
+4. The official PyTorch website (pytorch.org) usually provides installation instructions for different versions, operating systems, and package managers.
 
-- Your current PyTorch version
-- Your operating system
-- The package manager you're using (pip, conda, etc.)
-- Any specific issues you're encountering
+5. Before upgrading, make sure to check the compatibility of PyTorch with your other dependencies and your CUDA version if you're using GPU acceleration.
 
-With this information, I could provide more tailored advice. However, for the most up-to-date and accurate instructions, I recommend referring to the official PyTorch documentation or installation guide for version 1.0.0.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_015/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but there are no conflicting packages visible in the provided code snippet. The file `limit.go` is part of the `actor` package, and there are no other package declarations in this file that would cause a conflict.
+If you need more specific help, you would need to provide details about your current setup, including your current PyTorch version, your operating system, whether you're using CPU or GPU, and any specific issues you're encountering. Also, if there's a particular guide on the PyTorch site you're referring to, it would be helpful to have a link to that guide.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_015/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but there are no conflicting packages visible in the provided code snippet. The file `limit.go` is part of the `actor` package, and there are no other package declarations that would cause conflicts.
 
-The code imports various packages, but importing packages does not cause conflicts. The file seems to be a well-structured Go file with a single package declaration:
+The code imports various packages, but these are external dependencies and standard library imports, not conflicting package declarations. 
 
-```go
-package actor
-```
+If you're experiencing a package conflict issue, it's not apparent from this single file. The problem might be in other files that haven't been shared, or there might be a misunderstanding about the nature of the issue. 
 
-If you're experiencing a package conflict, it's likely not visible in this particular file. The conflict might be occurring in other files or parts of the codebase that are not shown here. To identify package conflicts, we would need to see multiple files with conflicting package declarations or incorrect import statements.
+To identify package conflicts, we would typically need to see:
 
-If you're encountering a specific error or issue related to package conflicts, please provide more details about the error message or the specific problem you're facing, and if possible, share the relevant parts of other files where you suspect the conflict might be occurring.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_016/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Certainly! I'll take another look at the `limit.go` file for you.
+1. Multiple files with conflicting package declarations
+2. Import statements that might be causing naming conflicts
+3. Build errors or compiler messages indicating package conflicts
 
-The `limit.go` file is part of the `actor` package and contains several important structures and functions related to rate limiting and concurrency control. Here's a summary of the key components:
+None of these are present in the provided code. If you're encountering a specific error or issue, please provide more details about the problem you're facing, and if possible, share any error messages or additional relevant code.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_016/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Certainly! I'll take another look at the `limit.go` file for you.
+
+The `limit.go` file is part of the `actor` package and contains several important structures and functions related to rate limiting and concurrency control. Here's a summary of its key components:
 
 1. `RateLimit` struct: Defines rate limiting parameters including allowed models, limit, interval, and concurrent request settings.
 
@@ -2163,26 +2401,29 @@ The `limit.go` file is part of the `actor` package and contains several importan
 
 6. `updateOnErrorLimiter` struct: Wraps another limiter and updates the actor's information if certain errors occur.
 
-The file includes implementations for rate limiting, concurrency control, and error handling related to these limits. It also provides methods for trying to acquire permissions within these limits and for writing appropriate HTTP responses when limits are exceeded.
+The file includes implementations for rate limiting, concurrency control, and error handling related to these limits. It also provides methods for trying to acquire permissions within these limits and for reporting usage.
 
-Is there any specific aspect of this file you'd like me to focus on or explain in more detail?",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_017/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have any information in the provided codebase context about the project's license or why a specific license was chosen. The given code snippets and README don't mention anything about licensing. Without additional context or information about the project's licensing, I cannot make any statements about why this project uses the MIT license or if it even uses the MIT license at all.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_018/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I cannot answer your question based solely on the provided code snippet. The given code is from a file named `watcher.go` in a package called `conf`, and it does not contain any information about a tensor function or the Zoekt repository.
+Is there any specific part of this file you'd like me to focus on or explain in more detail?",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_017/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have any information about the licensing of this project in the provided codebase context. The given files (limit.go and README.md) do not contain any mention of the MIT license or any other license information. Without additional context about the project's licensing, I cannot make any statements about why a particular license might be used.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_018/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have access to the zoekt repository or any information about a tensor function based on the provided code snippet. The given code is from a file named `watcher.go` in a package called `conf`, and it doesn't contain any references to zoekt or tensor functions.
 
-The code snippet you've shared is related to configuration watching and restarting services based on configuration changes. It doesn't contain any references to Zoekt or tensor functions.
+The provided code snippet is about configuration watching and restarting services when certain configuration values change. It doesn't contain any information related to your question about zoekt or tensor functions.
 
-To find the location of a tensor function in the Zoekt repository, you would need to:
+To find the location of a tensor function in the zoekt repository, you would need to:
 
-1. Access the Zoekt repository
-2. Search through its codebase for tensor-related functionality
+1. Access the zoekt repository
+2. Search through the codebase for files or functions related to tensors
+3. Look for function definitions or imports that might be related to tensor operations
 
-Without access to the Zoekt repository or any additional context about its structure, I cannot provide the specific location of a tensor function. If you have access to the Zoekt repository, you might want to search for files with names related to tensors or look in directories that handle search or indexing functionality, as these are areas where tensor operations might be used in a search engine like Zoekt.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_019/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I cannot explain the logic in src/agent.go or how agents interact with ranking based on the provided codebase context. The context you've given is from a file named ""watcher.go"" in the ""question_019"" directory, and it doesn't contain any information about agents or ranking.
+Without access to the zoekt repository or more context about the specific tensor function you're looking for, I can't provide a more specific answer to your question.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_019/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but I don't have access to a file named ""src/agent.go"" in the provided codebase context. The only file shown is ""mocked_context/watcher.go"", which doesn't contain any information about agents or ranking.
 
-The provided code snippet is about a function called `GetServiceConnectionValueAndRestartOnChange` which deals with service connection configuration and restarting on changes. It doesn't contain any information related to agents or ranking.
+The provided code snippet is about configuration watching and restarting services when certain critical values change. It doesn't contain any logic related to agents or ranking.
 
-To answer your question accurately, I would need access to the content of src/agent.go and any other relevant files that describe agent interactions and ranking logic. Without that information, I can't make any statements about the requested topic.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_020/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context from the README.md file, I can explain the following:
+To accurately answer your question about agents and ranking, I would need access to the relevant ""src/agent.go"" file or any other related files. Without that information, I can't provide an explanation of the logic you're asking about.
+
+If you have access to the ""src/agent.go"" file, please provide its contents, and I'll be happy to explain the logic related to agents and ranking.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_020/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context from the README.md file, I can explain the following:
 
 1. The file is describing a package called ""@sourcegraph/cody-agent"".
 
@@ -2194,14 +2435,10 @@ yaml,chat,claude-3.5-sonnet,chat,question_020/question.yaml,30830dc3a92fa839defa
 
 5. The primary intention of this package is to be used by non-ECMAScript clients. ECMAScript is the standardized version of JavaScript, so this implies the package is meant for use with programming languages or environments other than JavaScript/TypeScript.
 
-6. Specifically, the README mentions two examples of intended users:
-   - JetBrains plugins
-   - NeoVim plugins
+6. Specifically, it mentions that this package is intended for use with JetBrains and NeoVim plugins. JetBrains produces a range of Integrated Development Environments (IDEs), while NeoVim is a text editor.
 
-This suggests that the package is designed to allow these development environments to integrate with Cody, likely to provide AI-assisted coding features within these IDEs or text editors.
-
-That's all the information I can confidently provide based on the given context. The README doesn't provide any additional details about Cody's specific capabilities, how to set up or use the package, or any other technical specifics.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_021/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"I apologize, but the provided code snippet does not contain any specific information about how goroutines work in general. The code does use a goroutine in one place, but it doesn't explain the general concept or mechanics of goroutines.
+In summary, this README.md is introducing a package that allows non-JavaScript tools, particularly JetBrains IDEs and NeoVim, to communicate with Cody (a Sourcegraph tool) using a JSON-RPC server that operates over standard input and output.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_021/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code, there is no specific implementation or explanation of how goroutines work in general. The code does use a goroutine in one place, but it doesn't explain the general workings of goroutines.
 
 The only usage of a goroutine in this code is in the `TryAcquire` method of the `updateOnErrorLimiter` struct:
 
@@ -2216,23 +2453,23 @@ go func() {
 }()
 ```
 
-This launches a goroutine to perform an asynchronous update of the actor. However, this code doesn't explain how goroutines work in general. It's just an example of using a goroutine to perform a task concurrently.
+This goroutine is used to perform an asynchronous update of the actor when certain errors occur. It's launched with the `go` keyword, which starts a new goroutine, but the code doesn't provide any general explanation of how goroutines work in Go.
 
-To properly answer the question ""how do goroutines work?"", we would need additional information or documentation about Go's concurrency model, which is not present in the provided code snippet.",,,,,,,,,,,
-yaml,chat,claude-3.5-sonnet,chat,question_022/question.yaml,30830dc3a92fa839defa950e85843c1970e5689e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code in limit.go, this file defines several structures and functions related to rate limiting and concurrency control for an actor-based system, likely in the context of a service called Cody Gateway. Here's a summary of what limit.go does:
+To answer the question ""how do goroutines work?"" would require information beyond what's provided in this specific code snippet. The code simply uses a goroutine but doesn't explain the mechanics or inner workings of goroutines in Go.",,,,,,,,,,,
+yaml,chat,claude-3.5-sonnet,chat,question_022/question.yaml,daec07e3dfb5c75fd03e94affabdf98e8547983e,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code in limit.go, this file defines several structures and functions related to rate limiting and concurrency control for an actor-based system, likely in the context of a service called Cody Gateway. Here's a summary of what limit.go does:
 
-1. Defines a `RateLimit` struct that includes fields for allowed models, rate limits, intervals, and concurrent request limits.
+1. Defines a `RateLimit` struct that includes fields for allowed models, limit values, intervals, and concurrent request limits.
 
-2. Provides a `NewRateLimitWithPercentageConcurrency` function to create a new `RateLimit` with calculated concurrency limits based on a daily rate.
+2. Provides a `NewRateLimitWithPercentageConcurrency` function to create a new `RateLimit` with calculated concurrency limits based on a daily percentage.
 
 3. Implements an `IsValid` method for `RateLimit` to check if the rate limit configuration is valid.
 
 4. Defines an `EvaluateAllowedModels` method to determine which models an actor is allowed to use based on a master allowlist.
 
-5. Implements a `concurrencyLimiter` struct and associated methods to enforce concurrent request limits using Redis.
+5. Implements a `concurrencyLimiter` struct and associated methods to enforce concurrent request limits using Redis as a backend.
 
 6. Defines an `ErrConcurrencyLimitExceeded` error type to handle cases where concurrency limits are exceeded, including methods to generate error messages and write HTTP responses.
 
 7. Implements an `updateOnErrorLimiter` struct that wraps another limiter and attempts to update the actor's information if certain access errors occur.
 
-Overall, this file provides the necessary structures and functions to implement and enforce rate limiting and concurrency control for actors in the Cody Gateway system, including error handling and the ability to update actor information when limits are exceeded.",,,,,,,,,,,
+These components work together to provide rate limiting and concurrency control mechanisms for the Cody Gateway service, allowing for fine-grained control over resource usage and access to different models for different actors.",,,,,,,,,,,

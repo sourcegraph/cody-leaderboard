@@ -1,12 +1,464 @@
  question: \@zoekt describe my code.
 # CHAT
-# CHAT_REPLY The code defines a struct named `server` that implements the `grpc_testing.UnimplementedTestServiceServer` interface. This interface is likely part of a gRPC testing framework, and the `server` struct is likely a placeholder for a real server implementation. 
+# CHAT_REPLY ```
+# CHAT_REPLY package mocked_context
 # CHAT_REPLY 
-# CHAT_REPLY The code snippet doesn't provide any details about the server's functionality or how it interacts with the `grpc_testing` framework. 
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"io"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"net/http/httptest"
+# CHAT_REPLY 	"net/url"
+# CHAT_REPLY 	"os"
+# CHAT_REPLY 	"path/filepath"
+# CHAT_REPLY 	"strings"
+# CHAT_REPLY 	"testing"
 # CHAT_REPLY 
-# CHAT_REPLY To understand the code better, you would need to look at the `grpc_testing` package documentation and the implementation of the `server` struct.
+# CHAT_REPLY 	"github.com/stretchr/testify/assert"
+# CHAT_REPLY 	"github.com/stretchr/testify/require"
+# CHAT_REPLY 	"google.golang.org/grpc"
+# CHAT_REPLY 	"google.golang.org/grpc/credentials/insecure"
+# CHAT_REPLY 	"google.golang.org/grpc/test/bufconn"
+# CHAT_REPLY 
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/grpc_testing"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/protocol"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/protocol/v1"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/testutil"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/log"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/retry"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/mockserver"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/mockserver/mockservertest"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/testgrpc"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/testjsonrpc"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/testlog"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/testnet"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/testproto"
+# CHAT_REPLY 	"github.com/sourcegraph/cody-agent/internal/util/testutil/testutil"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY type server struct {
+# CHAT_REPLY 	grpc_testing.UnimplementedTestServiceServer
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (s *server) Echo(ctx context.Context, req *grpc_testing.EchoRequest) (*grpc_testing.EchoResponse, error) {
+# CHAT_REPLY 	return &grpc_testing.EchoResponse{Message: req.Message}, nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestGRPC(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 	lis := bufconn.Listen(1024*1024)
+# CHAT_REPLY 	defer lis.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	s := &server{}
+# CHAT_REPLY 	grpcServer := grpc.NewServer()
+# CHAT_REPLY 	grpc_testing.RegisterTestServiceServer(grpcServer, s)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		if err := grpcServer.Serve(lis); err != nil {
+# CHAT_REPLY 			t.Fatalf("failed to serve: %v", err)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufconn.Dialer(lis)), grpc.WithTransportCredentials(insecure.NewCredentials()))
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer conn.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	client := grpc_testing.NewTestServiceClient(conn)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test echo
+# CHAT_REPLY 	resp, err := client.Echo(ctx, &grpc_testing.EchoRequest{Message: "hello"})
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	assert.Equal(t, "hello", resp.Message)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC response.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create a response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Result:  "hello",
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	resp, err := client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Assert that the response is correct.
+# CHAT_REPLY 	assert.Equal(t, int64(1), resp.ID)
+# CHAT_REPLY 	assert.Equal(t, v1.Version, resp.Version)
+# CHAT_REPLY 	assert.Equal(t, "hello", resp.Result)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_Error(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create an error response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Error: &protocol.Error{
+# CHAT_REPLY 				Code:    protocol.ErrorCodeInternalError,
+# CHAT_REPLY 				Message: "internal error",
+# CHAT_REPLY 			},
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "internal error", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_InvalidRequest(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create an error response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Error: &protocol.Error{
+# CHAT_REPLY 				Code:    protocol.ErrorCodeInvalidRequest,
+# CHAT_REPLY 				Message: "invalid request",
+# CHAT_REPLY 			},
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "invalid request", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_MethodNotFound(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create an error response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Error: &protocol.Error{
+# CHAT_REPLY 				Code:    protocol.ErrorCodeMethodNotFound,
+# CHAT_REPLY 				Message: "method not found",
+# CHAT_REPLY 			},
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "method not found", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_ParseError(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create an error response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Error: &protocol.Error{
+# CHAT_REPLY 				Code:    protocol.ErrorCodeParseError,
+# CHAT_REPLY 				Message: "parse error",
+# CHAT_REPLY 			},
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "parse error", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_InvalidParams(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create an error response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Error: &protocol.Error{
+# CHAT_REPLY 				Code:    protocol.ErrorCodeInvalidParams,
+# CHAT_REPLY 				Message: "invalid params",
+# CHAT_REPLY 			},
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "invalid params", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_InternalError(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		body, err := io.ReadAll(r.Body)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Unmarshal the request.
+# CHAT_REPLY 		var req protocol.Request
+# CHAT_REPLY 		require.NoError(t, testjsonrpc.Unmarshal(body, &req))
+# CHAT_REPLY 
+# CHAT_REPLY 		// Create an error response.
+# CHAT_REPLY 		resp := protocol.Response{
+# CHAT_REPLY 			ID:      req.ID,
+# CHAT_REPLY 			Version: v1.Version,
+# CHAT_REPLY 			Error: &protocol.Error{
+# CHAT_REPLY 				Code:    protocol.ErrorCodeInternalError,
+# CHAT_REPLY 				Message: "internal error",
+# CHAT_REPLY 			},
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Marshal the response.
+# CHAT_REPLY 		data, err := testjsonrpc.Marshal(resp)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Write the response.
+# CHAT_REPLY 		_, err = w.Write(data)
+# CHAT_REPLY 		require.NoError(t, err)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "internal error", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_ServerUnavailable(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a mock server that returns a JSON-RPC error.
+# CHAT_REPLY 	mockServer := mockserver.New(t, mockservertest.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 		w.WriteHeader(http.StatusServiceUnavailable)
+# CHAT_REPLY 	}))
+# CHAT_REPLY 	defer mockServer.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a client that connects to the mock server.
+# CHAT_REPLY 	client, err := testjsonrpc.NewClient(ctx, mockServer.URL)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 	defer client.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Send a request to the mock server.
+# CHAT_REPLY 	_, err = client.Request(ctx, protocol.Request{
+# CHAT_REPLY 		ID:      1,
+# CHAT_REPLY 		Version: v1.Version,
+# CHAT_REPLY 		Method:  "echo",
+# CHAT_REPLY 		Params:  []interface{}{"hello"},
+# CHAT_REPLY 	})
+# CHAT_REPLY 	require.Error(t, err)
+# CHAT_REPLY 	assert.Equal(t, "server unavailable", err.Error())
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func TestJSONRPC_Timeout(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.
+# CHAT_REPLY ```
 
  files:
-   - chunker_test.go
-   - README.md
+   - ../mocked_context/chunker_test.go
+   - ../mocked_context/README.md
  
