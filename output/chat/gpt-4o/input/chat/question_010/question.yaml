@@ -2,19 +2,37 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY Based on the provided context, it appears that you have a Go file defining a `server` struct and a README file describing the `@sourcegraph/cody-agent` package. However, there isn't enough information to provide a detailed description of your entire codebase.
+# CHAT_REPLY Based on the provided context, it seems that the codebase includes several components related to code intelligence, rate limiting, and a JSON-RPC server for interacting with Cody. Here is a brief description of the files you provided:
 # CHAT_REPLY 
-# CHAT_REPLY If you need a description of the specific code snippets provided:
+# CHAT_REPLY 1. **squirrel.ts**:
+# CHAT_REPLY    - Defines an interface `CodeIntelligence` with a property `symbols` which is an array of strings.
+# CHAT_REPLY    - Defines an interface `Squirrel` with a method `symbolInformation` that takes a file name as a string and returns `CodeIntelligence`.
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Go File (`mocked_context/chunker_test.go`):**
-# CHAT_REPLY    - The `server` struct embeds `grpc_testing.UnimplementedTestServiceServer`, which suggests that it's part of a gRPC service implementation, likely used for testing purposes.
+# CHAT_REPLY 2. **animal.ts**:
+# CHAT_REPLY    - Defines an interface `Animal` with properties `name` (string) and `age` (number).
 # CHAT_REPLY 
-# CHAT_REPLY 2. **README File (`mocked_context/README.md`):**
-# CHAT_REPLY    - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. It's designed for use by non-ECMAScript clients, such as JetBrains and NeoVim plugins.
+# CHAT_REPLY 3. **agent.go**:
+# CHAT_REPLY    - Contains a package declaration for `agent`.
+# CHAT_REPLY    - Includes a brief comment indicating that `Agent` is an agent, but no further implementation details are provided.
 # CHAT_REPLY 
-# CHAT_REPLY If you need more detailed information or have specific questions about your code, please provide additional context or files.
+# CHAT_REPLY 4. **limit.go**:
+# CHAT_REPLY    - Contains a package declaration for `actor`.
+# CHAT_REPLY    - Defines a `RateLimit` struct with various fields related to rate limiting, such as `AllowedModels`, `Limit`, `Interval`, and concurrency-related fields.
+# CHAT_REPLY    - Provides methods for creating a new rate limit with concurrency, validating the rate limit, and evaluating allowed models.
+# CHAT_REPLY    - Defines a `concurrencyLimiter` struct with methods for acquiring and using concurrency limits.
+# CHAT_REPLY    - Defines an `ErrConcurrencyLimitExceeded` struct for handling concurrency limit errors, including methods for generating error messages and writing HTTP responses.
+# CHAT_REPLY    - Defines an `updateOnErrorLimiter` struct with methods for acquiring limits and handling usage, including updating the actor on certain access errors.
+# CHAT_REPLY 
+# CHAT_REPLY 5. **README.md**:
+# CHAT_REPLY    - Describes the `@sourcegraph/cody-agent` package, which implements a JSON-RPC server to interact with Cody via stdout/stdin.
+# CHAT_REPLY    - Indicates that the package is intended for use by non-ECMAScript clients such as JetBrains and NeoVim plugins.
+# CHAT_REPLY 
+# CHAT_REPLY This summary provides an overview of the codebase based on the provided context. If you have any specific questions or need further details, please let me know!
 
  files:
-   - ../mocked_context/chunker_test.go
-   - ../mocked_context/README.md
+   - ../mocked/enhanced_context/squirrel.ts
+   - ../mocked/enhanced_context/animal.ts
+   - ../mocked/enhanced_context/agent.go
+   - ../mocked/enhanced_context/limit.go
+   - ../mocked/enhanced_context/README.md
  

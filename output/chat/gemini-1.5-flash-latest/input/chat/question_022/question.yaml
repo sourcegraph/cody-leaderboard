@@ -2,36 +2,19 @@
 # CHAT
 # CHAT_QUESTION what does @limit.go do?
 
-# CHAT_REPLY The `limit.go` file defines the logic for rate limiting and concurrency limiting for actors in the Cody Gateway system. 
+# CHAT_REPLY The `limit.go` file defines functions that handle limiting the number of displayed results in a search. 
 # CHAT_REPLY 
 # CHAT_REPLY Here's a breakdown of its key components:
 # CHAT_REPLY 
-# CHAT_REPLY **Rate Limiting:**
+# CHAT_REPLY * **`SortAndTruncateFiles`:** This function sorts the search results (`FileMatch` objects) and then applies truncation based on the search options. It uses the `DisplayTruncator` function to enforce the limits.
+# CHAT_REPLY * **`DisplayTruncator`:** This is a function type that takes a slice of `FileMatch` objects and returns a truncated slice along with a boolean indicating whether there are more results to be displayed.
+# CHAT_REPLY * **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` based on the search options. It checks for limits on the number of documents and matches to be displayed. If there are no limits, it returns a function that simply returns the input slice.
+# CHAT_REPLY * **`limitMatches`:** This function limits the number of matches within each `FileMatch` object. It uses either `limitChunkMatches` or `limitLineMatches` depending on whether the search is for chunk matches or line matches.
+# CHAT_REPLY * **`limitChunkMatches`:** This function limits the number of `ChunkMatches` within a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of the `ChunkMatch` objects to ensure consistency.
+# CHAT_REPLY * **`limitLineMatches`:** This function limits the number of `LineMatches` within a `FileMatch`. It simply truncates the `LineFragments` field of the `LineMatch` objects.
 # CHAT_REPLY 
-# CHAT_REPLY * **`RateLimit` struct:** Represents a rate limit configuration with properties like:
-# CHAT_REPLY     * `AllowedModels`: A list of allowed models for the actor.
-# CHAT_REPLY     * `Limit`: The maximum number of requests allowed within the specified interval.
-# CHAT_REPLY     * `Interval`: The duration of the rate limit window.
-# CHAT_REPLY     * `ConcurrentRequests`: The maximum number of concurrent requests allowed.
-# CHAT_REPLY     * `ConcurrentRequestsInterval`: The interval for the concurrency limit.
-# CHAT_REPLY * **`NewRateLimitWithPercentageConcurrency` function:** Creates a `RateLimit` object with concurrency limit calculated as a percentage of the daily rate limit.
-# CHAT_REPLY * **`IsValid` method:** Checks if a `RateLimit` object is valid.
-# CHAT_REPLY * **`EvaluateAllowedModels` method:** Determines the allowed models based on the actor's allowlist and a master allowlist.
-# CHAT_REPLY 
-# CHAT_REPLY **Concurrency Limiting:**
-# CHAT_REPLY 
-# CHAT_REPLY * **`concurrencyLimiter` struct:** Implements concurrency limiting using a Redis store.
-# CHAT_REPLY * **`TryAcquire` method:** Attempts to acquire a concurrency limit token. If the limit is exceeded, it returns an `ErrConcurrencyLimitExceeded` error.
-# CHAT_REPLY * **`Usage` method:** Returns the current usage of the concurrency limit.
-# CHAT_REPLY * **`ErrConcurrencyLimitExceeded` error:** Represents an error when the concurrency limit is exceeded.
-# CHAT_REPLY 
-# CHAT_REPLY **Other Components:**
-# CHAT_REPLY 
-# CHAT_REPLY * **`updateOnErrorLimiter` struct:** Wraps a limiter and updates the actor on access errors.
-# CHAT_REPLY * **`IsErrActorRecentlyUpdated` function:** Checks if an error indicates that the actor was recently updated.
-# CHAT_REPLY 
-# CHAT_REPLY **Overall, the `limit.go` file implements rate limiting and concurrency limiting mechanisms to control the usage of Cody Gateway resources by actors.**
+# CHAT_REPLY In essence, `limit.go` implements the logic for displaying a limited number of search results to the user, ensuring that the results are not overwhelming and that the user can easily navigate through them.
 
  files:
-   - ../mocked_context/limit.go
+   - ../mocked/codebase_context/limit.go
  

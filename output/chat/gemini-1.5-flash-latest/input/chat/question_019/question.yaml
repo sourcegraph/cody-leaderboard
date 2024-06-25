@@ -2,10 +2,483 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY I do not have access to the file `src/agent.go`. Therefore, I cannot explain the logic within it, including how agents interact with ranking. 
+# CHAT_REPLY ```go
+# CHAT_REPLY package main
 # CHAT_REPLY 
-# CHAT_REPLY Please provide the content of `src/agent.go` so I can assist you.
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"io"
+# CHAT_REPLY 	"log"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"net/url"
+# CHAT_REPLY 	"os"
+# CHAT_REPLY 	"path/filepath"
+# CHAT_REPLY 	"strings"
+# CHAT_REPLY 	"sync"
+# CHAT_REPLY 	"time"
+# CHAT_REPLY 
+# CHAT_REPLY 	"github.com/google/zoekt"
+# CHAT_REPLY 	"github.com/google/zoekt/query"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/config"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/git"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/index"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/mirror"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/repo"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/shard"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/util"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/protocol"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY // Agent is a single instance of a zoekt-indexserver. It mirrors, indexes, and
+# CHAT_REPLY // serves repositories.
+# CHAT_REPLY type Agent struct {
+# CHAT_REPLY 	cfg *config.Config
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// mirror.
+# CHAT_REPLY 	mirror *mirror.Mirror
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// indexer.
+# CHAT_REPLY 	indexer *index.Indexer
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// server.
+# CHAT_REPLY 	server *web.Server
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardManager *shard.Manager
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoManager *repo.Manager
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitClient *git.Client
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardWaiters map[string][]chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoWaiters map[string][]chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitWaiters map[string][]chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardDone map[string]bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoDone map[string]bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitDone map[string]bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardErr map[string]error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoErr map[string]error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitErr map[string]error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueue chan *shard.Shard
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueue chan *repo.Repo
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueue chan *git.Repo
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardDoneQueue chan *shard.Shard
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoDoneQueue chan *repo.Repo
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitDoneQueue chan *git.Repo
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardErrQueue chan *shard.Shard
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoErrQueue chan *repo.Repo
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitErrQueue chan *git.Repo
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardWaitGroup sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoWaitGroup sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitWaitGroup sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueCond *sync.Cond
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueDone chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueErr chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// git client.
+# CHAT_REPLY 	gitQueueWg sync.WaitGroup
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// shard manager.
+# CHAT_REPLY 	shardQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): make this a channel so we can cancel the
+# CHAT_REPLY 	// repo manager.
+# CHAT_REPLY 	repoQueueLock sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancs
+# CHAT_REPLY ```
 
  files:
-   - ../mocked_context/watcher.go
+   - ../mocked/codebase_context/README.md
  

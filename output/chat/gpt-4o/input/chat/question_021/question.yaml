@@ -2,135 +2,112 @@
 # CHAT
 # CHAT_QUESTION how do goroutines work?
 
-# CHAT_REPLY Goroutines are a fundamental feature in Go that allow you to run functions concurrently. They are lightweight, managed by the Go runtime, and provide a simple way to achieve concurrency in Go programs. Here's a detailed explanation of how goroutines work:
+# CHAT_REPLY Goroutines are a fundamental feature of the Go programming language, enabling concurrent execution of functions. They are lightweight, managed by the Go runtime, and allow you to efficiently handle multiple tasks simultaneously. Here's a basic overview of how goroutines work:
 # CHAT_REPLY 
 # CHAT_REPLY ### Creating a Goroutine
-# CHAT_REPLY 
-# CHAT_REPLY To start a new goroutine, you use the `go` keyword followed by a function call. For example:
-# CHAT_REPLY 
-# CHAT_REPLY ```go
-# CHAT_REPLY go someFunction()
-# CHAT_REPLY ```
-# CHAT_REPLY 
-# CHAT_REPLY This line of code will start `someFunction` in a new goroutine, allowing it to run concurrently with the calling function.
-# CHAT_REPLY 
-# CHAT_REPLY ### Characteristics of Goroutines
-# CHAT_REPLY 
-# CHAT_REPLY 1. **Lightweight**: Goroutines are much lighter than traditional threads. The initial stack size of a goroutine is small (a few kilobytes), and it grows and shrinks as needed.
-# CHAT_REPLY 2. **Managed by the Go Runtime**: The Go runtime manages the scheduling of goroutines. It multiplexes thousands of goroutines onto a smaller number of OS threads.
-# CHAT_REPLY 3. **Non-blocking**: When a goroutine performs a blocking operation, such as waiting for I/O, the Go runtime can schedule another goroutine to run on the same OS thread.
-# CHAT_REPLY 
-# CHAT_REPLY ### Example
-# CHAT_REPLY 
-# CHAT_REPLY Here's a simple example of using goroutines:
+# CHAT_REPLY To create a goroutine, you use the `go` keyword followed by a function call. For example:
 # CHAT_REPLY 
 # CHAT_REPLY ```go
 # CHAT_REPLY package main
 # CHAT_REPLY 
 # CHAT_REPLY import (
-# CHAT_REPLY 	"fmt"
-# CHAT_REPLY 	"time"
+# CHAT_REPLY     "fmt"
+# CHAT_REPLY     "time"
 # CHAT_REPLY )
 # CHAT_REPLY 
 # CHAT_REPLY func sayHello() {
-# CHAT_REPLY 	for i := 0; i < 5; i++ {
-# CHAT_REPLY 		fmt.Println("Hello")
-# CHAT_REPLY 		time.Sleep(100 * time.Millisecond)
-# CHAT_REPLY 	}
+# CHAT_REPLY     fmt.Println("Hello, World!")
 # CHAT_REPLY }
 # CHAT_REPLY 
 # CHAT_REPLY func main() {
-# CHAT_REPLY 	go sayHello() // Start sayHello in a new goroutine
-# CHAT_REPLY 
-# CHAT_REPLY 	for i := 0; i < 5; i++ {
-# CHAT_REPLY 		fmt.Println("World")
-# CHAT_REPLY 		time.Sleep(200 * time.Millisecond)
-# CHAT_REPLY 	}
+# CHAT_REPLY     go sayHello() // This starts a new goroutine
+# CHAT_REPLY     time.Sleep(1 * time.Second) // Sleep to allow the goroutine to complete
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY In this example, `sayHello` runs concurrently with the `main` function. The output will interleave "Hello" and "World" because both functions are running concurrently.
+# CHAT_REPLY In this example, `sayHello` is executed in a new goroutine. The `main` function continues to execute concurrently. The `time.Sleep` call is used to prevent the program from exiting before the goroutine has a chance to run.
+# CHAT_REPLY 
+# CHAT_REPLY ### Goroutine Characteristics
+# CHAT_REPLY 1. **Lightweight**: Goroutines are much lighter than traditional threads. The Go runtime manages them, and they have a small initial stack size that grows and shrinks as needed.
+# CHAT_REPLY 2. **Managed by Go Runtime**: The Go scheduler handles the execution of goroutines, distributing them across available CPU cores.
+# CHAT_REPLY 3. **Concurrency**: Goroutines enable concurrent programming, allowing multiple tasks to run simultaneously.
 # CHAT_REPLY 
 # CHAT_REPLY ### Synchronization
+# CHAT_REPLY To coordinate between goroutines, Go provides several synchronization primitives, such as channels, mutexes, and wait groups.
 # CHAT_REPLY 
-# CHAT_REPLY Goroutines often need to communicate or synchronize with each other. Go provides several mechanisms for this:
-# CHAT_REPLY 
-# CHAT_REPLY 1. **Channels**: Channels are a way for goroutines to communicate with each other and synchronize their execution. You can send values from one goroutine to another using channels.
-# CHAT_REPLY    
-# CHAT_REPLY    ```go
-# CHAT_REPLY    package main
-# CHAT_REPLY 
-# CHAT_REPLY    import "fmt"
-# CHAT_REPLY 
-# CHAT_REPLY    func main() {
-# CHAT_REPLY        ch := make(chan string)
-# CHAT_REPLY 
-# CHAT_REPLY        go func() {
-# CHAT_REPLY            ch <- "Hello from goroutine"
-# CHAT_REPLY        }()
-# CHAT_REPLY 
-# CHAT_REPLY        msg := <-ch
-# CHAT_REPLY        fmt.Println(msg)
-# CHAT_REPLY    }
-# CHAT_REPLY    ```
-# CHAT_REPLY 
-# CHAT_REPLY 2. **WaitGroups**: The `sync.WaitGroup` type provides a way to wait for a collection of goroutines to finish executing.
-# CHAT_REPLY 
-# CHAT_REPLY    ```go
-# CHAT_REPLY    package main
-# CHAT_REPLY 
-# CHAT_REPLY    import (
-# CHAT_REPLY        "fmt"
-# CHAT_REPLY        "sync"
-# CHAT_REPLY    )
-# CHAT_REPLY 
-# CHAT_REPLY    func worker(id int, wg *sync.WaitGroup) {
-# CHAT_REPLY        defer wg.Done()
-# CHAT_REPLY        fmt.Printf("Worker %d starting\n", id)
-# CHAT_REPLY        // Simulate work
-# CHAT_REPLY        fmt.Printf("Worker %d done\n", id)
-# CHAT_REPLY    }
-# CHAT_REPLY 
-# CHAT_REPLY    func main() {
-# CHAT_REPLY        var wg sync.WaitGroup
-# CHAT_REPLY 
-# CHAT_REPLY        for i := 1; i <= 3; i++ {
-# CHAT_REPLY            wg.Add(1)
-# CHAT_REPLY            go worker(i, &wg)
-# CHAT_REPLY        }
-# CHAT_REPLY 
-# CHAT_REPLY        wg.Wait()
-# CHAT_REPLY    }
-# CHAT_REPLY    ```
-# CHAT_REPLY 
-# CHAT_REPLY ### Error Handling
-# CHAT_REPLY 
-# CHAT_REPLY Error handling in goroutines can be tricky because errors need to be communicated back to the main goroutine or another goroutine. This is often done using channels.
-# CHAT_REPLY 
-# CHAT_REPLY ### Example from Provided Codebase
-# CHAT_REPLY 
-# CHAT_REPLY In the provided codebase, there is an example of using a goroutine to update an actor outside the request hotpath:
+# CHAT_REPLY #### Channels
+# CHAT_REPLY Channels are used to communicate between goroutines safely. They can be used to send and receive values.
 # CHAT_REPLY 
 # CHAT_REPLY ```go
-# CHAT_REPLY go func() {
-# CHAT_REPLY     if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
-# CHAT_REPLY         !IsErrActorRecentlyUpdated(updateErr) {
-# CHAT_REPLY         u.logger.Warn("unexpected error updating actor",
-# CHAT_REPLY             log.Error(updateErr),
-# CHAT_REPLY             log.NamedError("originalError", err))
-# CHAT_REPLY     }
-# CHAT_REPLY }()
+# CHAT_REPLY package main
+# CHAT_REPLY 
+# CHAT_REPLY import (
+# CHAT_REPLY     "fmt"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY func sayHello(done chan bool) {
+# CHAT_REPLY     fmt.Println("Hello, World!")
+# CHAT_REPLY     done <- true // Signal that the function is done
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func main() {
+# CHAT_REPLY     done := make(chan bool)
+# CHAT_REPLY     go sayHello(done)
+# CHAT_REPLY     <-done // Wait for the signal
+# CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY Here, the `Update` method of the `actor` is called in a new goroutine. This allows the update to happen concurrently without blocking the main execution flow.
+# CHAT_REPLY #### Wait Groups
+# CHAT_REPLY Wait groups are used to wait for a collection of goroutines to finish executing.
 # CHAT_REPLY 
-# CHAT_REPLY ### Summary
+# CHAT_REPLY ```go
+# CHAT_REPLY package main
 # CHAT_REPLY 
-# CHAT_REPLY - Goroutines are lightweight, managed by the Go runtime, and provide a simple way to achieve concurrency.
-# CHAT_REPLY - They are created using the `go` keyword.
-# CHAT_REPLY - Synchronization and communication between goroutines can be achieved using channels and other synchronization primitives like `sync.WaitGroup`.
-# CHAT_REPLY - Error handling in goroutines often involves communicating errors back to other goroutines using channels.
+# CHAT_REPLY import (
+# CHAT_REPLY     "fmt"
+# CHAT_REPLY     "sync"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY func sayHello(wg *sync.WaitGroup) {
+# CHAT_REPLY     defer wg.Done() // Signal that the goroutine is done
+# CHAT_REPLY     fmt.Println("Hello, World!")
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func main() {
+# CHAT_REPLY     var wg sync.WaitGroup
+# CHAT_REPLY     wg.Add(1) // Add a goroutine to the wait group
+# CHAT_REPLY     go sayHello(&wg)
+# CHAT_REPLY     wg.Wait() // Wait for all goroutines to finish
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Error Handling
+# CHAT_REPLY Error handling in goroutines can be done through channels or other synchronization mechanisms. For example, you can send errors through a channel and handle them in the main function.
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY package main
+# CHAT_REPLY 
+# CHAT_REPLY import (
+# CHAT_REPLY     "errors"
+# CHAT_REPLY     "fmt"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY func doWork(errChan chan error) {
+# CHAT_REPLY     // Simulate an error
+# CHAT_REPLY     errChan <- errors.New("something went wrong")
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func main() {
+# CHAT_REPLY     errChan := make(chan error)
+# CHAT_REPLY     go doWork(errChan)
+# CHAT_REPLY     err := <-errChan
+# CHAT_REPLY     if err != nil {
+# CHAT_REPLY         fmt.Println("Error:", err)
+# CHAT_REPLY     }
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Conclusion
+# CHAT_REPLY Goroutines are a powerful feature in Go that enable concurrent programming with ease. They are lightweight, managed by the Go runtime, and can be synchronized using channels, wait groups, and other primitives. Understanding how to use goroutines effectively can help you build efficient and scalable applications.
 
- files:
-   - ../mocked_context/limit.go
  

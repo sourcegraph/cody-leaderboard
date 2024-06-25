@@ -2,28 +2,34 @@
 # CHAT
 # CHAT_QUESTION Mind taking a second look at the file? @limit.go
 
-# CHAT_REPLY Certainly! I'll take another look at the `limit.go` file for you.
+# CHAT_REPLY Certainly! I'll take another look at the `limit.go` file and provide a summary of its key components and functionality.
 # CHAT_REPLY 
-# CHAT_REPLY The `limit.go` file is part of the `actor` package and contains several important structures and functions related to rate limiting and concurrency control. Here's a summary of its key components:
+# CHAT_REPLY The `limit.go` file contains several functions related to sorting and truncating search results in the Zoekt search engine. Here are the main components:
 # CHAT_REPLY 
-# CHAT_REPLY 1. `RateLimit` struct: Defines rate limiting parameters including allowed models, limit, interval, and concurrent request settings.
+# CHAT_REPLY 1. `SortAndTruncateFiles`: A convenience function that sorts and truncates file matches based on search options.
 # CHAT_REPLY 
-# CHAT_REPLY 2. `NewRateLimitWithPercentageConcurrency` function: Creates a new `RateLimit` with concurrent request limits based on a percentage of the daily limit.
+# CHAT_REPLY 2. `DisplayTruncator`: A type definition for a function that enforces document and match display limits.
 # CHAT_REPLY 
-# CHAT_REPLY 3. `EvaluateAllowedModels` method: Determines which models are allowed based on a master allowlist and the actor's allowlist.
+# CHAT_REPLY 3. `NewDisplayTruncator`: Creates a new DisplayTruncator based on the provided search options.
 # CHAT_REPLY 
-# CHAT_REPLY 4. `concurrencyLimiter` struct: Implements concurrent request limiting.
+# CHAT_REPLY 4. `limitMatches`: Applies limits to the number of matches in file results.
 # CHAT_REPLY 
-# CHAT_REPLY 5. `ErrConcurrencyLimitExceeded` struct: Represents an error when the concurrency limit is exceeded.
+# CHAT_REPLY 5. `limitChunkMatches`: Limits the number of ChunkMatches in a given FileMatch.
 # CHAT_REPLY 
-# CHAT_REPLY 6. `updateOnErrorLimiter` struct: Wraps another limiter and updates the actor's information if certain errors occur.
+# CHAT_REPLY 6. `limitLineMatches`: Limits the number of LineMatches in a given FileMatch.
 # CHAT_REPLY 
-# CHAT_REPLY The file includes implementations for rate limiting, concurrency control, and error handling related to these limits. It also provides methods for trying to acquire permissions within these limits and for reporting usage.
+# CHAT_REPLY The file implements logic to enforce various limits on search results, such as:
+# CHAT_REPLY - Maximum number of documents to display
+# CHAT_REPLY - Maximum number of matches to display
+# CHAT_REPLY - Chunked or line-based match limiting
 # CHAT_REPLY 
-# CHAT_REPLY Is there any specific part of this file you'd like me to focus on or explain in more detail?
+# CHAT_REPLY It also handles the truncation of content and adjusts related fields (like Ranges and SymbolInfo) when limiting matches.
+# CHAT_REPLY 
+# CHAT_REPLY The code is designed to work with the Zoekt search engine's data structures and integrates with the broader search functionality of the system.
 
  files:
-   - ../mocked_context/limit.go
-   - ../mocked_context/chunker_test.go
-   - ../mocked_context/README.md
+   - ../mocked/codebase_context/README.md
+   - ../mocked/codebase_context/limit.go
+   - ../mocked/codebase_context/eval.go
+   - ../mocked/codebase_context/vscode/src/external-services.ts
  

@@ -2,63 +2,198 @@
 # CHAT
 # CHAT_QUESTION Mind taking a second look at the file? @limit.go
 
-# CHAT_REPLY Sure, let's take a second look at the `limit.go` file.
+# CHAT_REPLY Sure, let's take a closer look at the `limit.go` file.
 # CHAT_REPLY 
-# CHAT_REPLY The `limit.go` file defines a rate-limiting mechanism for actors using the Cody Gateway. Here are the key components and their functionalities:
+# CHAT_REPLY ### File Overview
+# CHAT_REPLY 
+# CHAT_REPLY The `limit.go` file defines functions and types related to limiting and truncating search results in Zoekt. The main functionalities include sorting and truncating file matches based on search options, and enforcing document and match display limits.
 # CHAT_REPLY 
 # CHAT_REPLY ### Key Components
 # CHAT_REPLY 
-# CHAT_REPLY 1. **RateLimit Struct**
-# CHAT_REPLY    - **Fields**:
-# CHAT_REPLY      - `AllowedModels`: A list of allowed models in the format "$PROVIDER/$MODEL_NAME".
-# CHAT_REPLY      - `Limit`: The maximum number of requests allowed.
-# CHAT_REPLY      - `Interval`: The time duration for which the limit is applicable.
-# CHAT_REPLY      - `ConcurrentRequests`: The maximum number of concurrent requests allowed.
-# CHAT_REPLY      - `ConcurrentRequestsInterval`: The time duration for the concurrency limit.
-# CHAT_REPLY    - **Methods**:
-# CHAT_REPLY      - `NewRateLimitWithPercentageConcurrency`: Creates a new `RateLimit` with a concurrency limit based on a percentage of the daily limit.
-# CHAT_REPLY      - `IsValid`: Checks if the rate limit configuration is valid.
-# CHAT_REPLY      - `EvaluateAllowedModels`: Returns the intersection of a master allowlist and the actor's allowlist.
+# CHAT_REPLY 1. **SortAndTruncateFiles Function**
+# CHAT_REPLY    - This function sorts and truncates file matches based on the provided search options.
+# CHAT_REPLY    - It uses `SortFiles` to sort the files and `NewDisplayTruncator` to truncate them.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **concurrencyLimiter Struct**
-# CHAT_REPLY    - **Fields**:
-# CHAT_REPLY      - `logger`: Logger for logging purposes.
-# CHAT_REPLY      - `actor`: The actor for whom the rate limit is being enforced.
-# CHAT_REPLY      - `feature`: The feature being rate-limited.
-# CHAT_REPLY      - `redis`: Redis store for rate-limiting data.
-# CHAT_REPLY      - `concurrentRequests`: The maximum number of concurrent requests allowed.
-# CHAT_REPLY      - `concurrentInterval`: The time duration for the concurrency limit.
-# CHAT_REPLY      - `nextLimiter`: The next limiter in the chain.
-# CHAT_REPLY      - `nowFunc`: Function to get the current time.
-# CHAT_REPLY    - **Methods**:
-# CHAT_REPLY      - `TryAcquire`: Tries to acquire a rate limit slot.
-# CHAT_REPLY      - `Usage`: Gets the current usage of the rate limit.
+# CHAT_REPLY 2. **DisplayTruncator Type**
+# CHAT_REPLY    - A function type that enforces document and match display limits by truncating and mutating file matches.
+# CHAT_REPLY    - It returns truncated file matches and a boolean indicating if more matches are available.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **ErrConcurrencyLimitExceeded Struct**
-# CHAT_REPLY    - **Fields**:
-# CHAT_REPLY      - `feature`: The feature being rate-limited.
-# CHAT_REPLY      - `limit`: The concurrency limit.
-# CHAT_REPLY      - `retryAfter`: The time after which the limit can be retried.
-# CHAT_REPLY    - **Methods**:
-# CHAT_REPLY      - `Error`: Generates a simple error string.
-# CHAT_REPLY      - `Summary`: Generates a detailed error summary.
-# CHAT_REPLY      - `WriteResponse`: Writes an HTTP response indicating the rate limit has been exceeded.
+# CHAT_REPLY 3. **NewDisplayTruncator Function**
+# CHAT_REPLY    - Creates a `DisplayTruncator` based on the provided search options.
+# CHAT_REPLY    - It checks if there are any limits to enforce and returns a truncator function accordingly.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **updateOnErrorLimiter Struct**
-# CHAT_REPLY    - **Fields**:
-# CHAT_REPLY      - `logger`: Logger for logging purposes.
-# CHAT_REPLY      - `actor`: The actor for whom the rate limit is being enforced.
-# CHAT_REPLY      - `nextLimiter`: The next limiter in the chain.
-# CHAT_REPLY    - **Methods**:
-# CHAT_REPLY      - `TryAcquire`: Tries to acquire a rate limit slot and updates the actor on certain access errors.
-# CHAT_REPLY      - `Usage`: Gets the current usage of the rate limit.
+# CHAT_REPLY 4. **limitMatches Function**
+# CHAT_REPLY    - Limits the number of matches in the given file matches based on the provided limit and chunk matches option.
+# CHAT_REPLY    - It uses either `limitChunkMatches` or `limitLineMatches` based on the chunk matches option.
+# CHAT_REPLY 
+# CHAT_REPLY 5. **limitChunkMatches Function**
+# CHAT_REPLY    - Limits the number of chunk matches in a given file match.
+# CHAT_REPLY    - It adjusts the content, ranges, and symbol info fields of the chunk matches to enforce the limit.
+# CHAT_REPLY 
+# CHAT_REPLY 6. **limitLineMatches Function**
+# CHAT_REPLY    - Limits the number of line matches in a given file match.
+# CHAT_REPLY    - It truncates the line fragments to enforce the limit.
+# CHAT_REPLY 
+# CHAT_REPLY ### Detailed Code Analysis
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY package zoekt
+# CHAT_REPLY 
+# CHAT_REPLY import "log"
+# CHAT_REPLY 
+# CHAT_REPLY // SortAndTruncateFiles is a convenience around SortFiles and
+# CHAT_REPLY // DisplayTruncator. Given an aggregated files it will sort and then truncate
+# CHAT_REPLY // based on the search options.
+# CHAT_REPLY func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {
+# CHAT_REPLY 	SortFiles(files)
+# CHAT_REPLY 	truncator, _ := NewDisplayTruncator(opts)
+# CHAT_REPLY 	files, _ = truncator(files)
+# CHAT_REPLY 	return files
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // DisplayTruncator is a stateful function which enforces Document and Match
+# CHAT_REPLY // display limits by truncating and mutating before. hasMore is true until the
+# CHAT_REPLY // limits are exhausted. Once hasMore is false each subsequent call will
+# CHAT_REPLY // return an empty after and hasMore false.
+# CHAT_REPLY type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
+# CHAT_REPLY 
+# CHAT_REPLY // NewDisplayTruncator will return a DisplayTruncator which enforces the limits in
+# CHAT_REPLY // opts. If there are no limits to enforce, hasLimits is false and there is no
+# CHAT_REPLY // need to call DisplayTruncator.
+# CHAT_REPLY func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {
+# CHAT_REPLY 	docLimit := opts.MaxDocDisplayCount
+# CHAT_REPLY 	docLimited := docLimit > 0
+# CHAT_REPLY 
+# CHAT_REPLY 	matchLimit := opts.MaxMatchDisplayCount
+# CHAT_REPLY 	matchLimited := matchLimit > 0
+# CHAT_REPLY 
+# CHAT_REPLY 	done := false
+# CHAT_REPLY 
+# CHAT_REPLY 	if !docLimited && !matchLimited {
+# CHAT_REPLY 		return func(fm []FileMatch) ([]FileMatch, bool) {
+# CHAT_REPLY 			return fm, true
+# CHAT_REPLY 		}, false
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return func(fm []FileMatch) ([]FileMatch, bool) {
+# CHAT_REPLY 		if done {
+# CHAT_REPLY 			return nil, false
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if docLimited {
+# CHAT_REPLY 			if len(fm) >= docLimit {
+# CHAT_REPLY 				done = true
+# CHAT_REPLY 				fm = fm[:docLimit]
+# CHAT_REPLY 			}
+# CHAT_REPLY 			docLimit -= len(fm)
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if matchLimited {
+# CHAT_REPLY 			fm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)
+# CHAT_REPLY 			if matchLimit <= 0 {
+# CHAT_REPLY 				done = true
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		return fm, !done
+# CHAT_REPLY 	}, true
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
+# CHAT_REPLY 	var limiter func(file *FileMatch, limit int) int
+# CHAT_REPLY 	if chunkMatches {
+# CHAT_REPLY 		limiter = limitChunkMatches
+# CHAT_REPLY 	} else {
+# CHAT_REPLY 		limiter = limitLineMatches
+# CHAT_REPLY 	}
+# CHAT_REPLY 	for i := range files {
+# CHAT_REPLY 		limit = limiter(&files[i], limit)
+# CHAT_REPLY 		if limit <= 0 {
+# CHAT_REPLY 			return files[:i+1], 0
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return files, limit
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Limit the number of ChunkMatches in the given FileMatch, returning the
+# CHAT_REPLY // remaining limit, if any.
+# CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int {
+# CHAT_REPLY 	for i := range file.ChunkMatches {
+# CHAT_REPLY 		cm := &file.ChunkMatches[i]
+# CHAT_REPLY 		if len(cm.Ranges) > limit {
+# CHAT_REPLY 			// We potentially need to effect the limit upon 3 different fields:
+# CHAT_REPLY 			// Ranges, SymbolInfo, and Content.
+# CHAT_REPLY 
+# CHAT_REPLY 			// Content is the most complicated: we need to remove the last N
+# CHAT_REPLY 			// lines from it, where N is the difference between the line number
+# CHAT_REPLY 			// of the end of the old last Range and that of the new last Range.
+# CHAT_REPLY 			// This calculation is correct in the presence of both context lines
+# CHAT_REPLY 			// and multiline Ranges, taking into account that Content never has
+# CHAT_REPLY 			// a trailing newline.
+# CHAT_REPLY 			n := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber
+# CHAT_REPLY 			if n > 0 {
+# CHAT_REPLY 				for b := len(cm.Content) - 1; b >= 0; b-- {
+# CHAT_REPLY 					if cm.Content[b] == '/n' {
+# CHAT_REPLY 						n -= 1
+# CHAT_REPLY 					}
+# CHAT_REPLY 					if n == 0 {
+# CHAT_REPLY 						cm.Content = cm.Content[:b]
+# CHAT_REPLY 						break
+# CHAT_REPLY 					}
+# CHAT_REPLY 				}
+# CHAT_REPLY 				if n > 0 {
+# CHAT_REPLY 					// Should be impossible.
+# CHAT_REPLY 					log.Panicf("Failed to find enough newlines when truncating Content, %d left over, %d ranges", n, len(cm.Ranges))
+# CHAT_REPLY 				}
+# CHAT_REPLY 			}
+# CHAT_REPLY 
+# CHAT_REPLY 			cm.Ranges = cm.Ranges[:limit]
+# CHAT_REPLY 			if cm.SymbolInfo != nil {
+# CHAT_REPLY 				// When non-nil, SymbolInfo is specified to have the same length
+# CHAT_REPLY 				// as Ranges.
+# CHAT_REPLY 				cm.SymbolInfo = cm.SymbolInfo[:limit]
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if len(cm.Ranges) == limit {
+# CHAT_REPLY 			file.ChunkMatches = file.ChunkMatches[:i+1]
+# CHAT_REPLY 			limit = 0
+# CHAT_REPLY 			break
+# CHAT_REPLY 		}
+# CHAT_REPLY 		limit -= len(cm.Ranges)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return limit
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Limit the number of LineMatches in the given FileMatch, returning the
+# CHAT_REPLY // remaining limit, if any.
+# CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int {
+# CHAT_REPLY 	for i := range file.LineMatches {
+# CHAT_REPLY 		lm := &file.LineMatches[i]
+# CHAT_REPLY 		if len(lm.LineFragments) > limit {
+# CHAT_REPLY 			lm.LineFragments = lm.LineFragments[:limit]
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if len(lm.LineFragments) == limit {
+# CHAT_REPLY 			file.LineMatches = file.LineMatches[:i+1]
+# CHAT_REPLY 			limit = 0
+# CHAT_REPLY 			break
+# CHAT_REPLY 		}
+# CHAT_REPLY 		limit -= len(lm.LineFragments)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return limit
+# CHAT_REPLY }
+# CHAT_REPLY ```
 # CHAT_REPLY 
 # CHAT_REPLY ### Summary
 # CHAT_REPLY 
-# CHAT_REPLY The `limit.go` file provides a comprehensive rate-limiting mechanism for actors using the Cody Gateway. It includes functionality for defining rate limits, checking their validity, evaluating allowed models, and handling concurrency limits. Additionally, it provides mechanisms for handling errors and updating actors' access permissions dynamically.
+# CHAT_REPLY - **Sorting and Truncating**: The `SortAndTruncateFiles` function sorts and truncates file matches based on search options.
+# CHAT_REPLY - **Display Truncation**: The `DisplayTruncator` type and `NewDisplayTruncator` function handle the truncation of file matches based on document and match limits.
+# CHAT_REPLY - **Match Limiting**: The `limitMatches`, `limitChunkMatches`, and `limitLineMatches` functions enforce limits on the number of matches in file matches.
+# CHAT_REPLY 
+# CHAT_REPLY If you have any specific questions or need further details about any part of the code, feel free to ask!
 
  files:
-   - ../mocked_context/limit.go
-   - ../mocked_context/chunker_test.go
-   - ../mocked_context/README.md
+   - ../mocked/codebase_context/README.md
+   - ../mocked/codebase_context/limit.go
+   - ../mocked/codebase_context/eval.go
+   - ../mocked/codebase_context/vscode/src/external-services.ts
  
