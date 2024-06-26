@@ -2,24 +2,17 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The provided codebase context doesn't contain any information about a "directory watcher".  It's likely that this functionality is implemented in a different part of the codebase, or perhaps in a separate package. 
+# CHAT_REPLY The `DirectoryWatcher` in the provided codebase is responsible for monitoring a directory containing Zoekt shard files. It performs the following actions:
 # CHAT_REPLY 
-# CHAT_REPLY To understand what a directory watcher does, we need to look at its purpose:
+# CHAT_REPLY 1. **Initial Scan:** When initialized, it scans the directory for all `.zoekt` files and loads them into the `shardLoader`. It also keeps track of the modification timestamps of these files.
+# CHAT_REPLY 2. **File System Watching:** It uses `fsnotify` to watch for changes in the directory. This includes file creations, deletions, and modifications.
+# CHAT_REPLY 3. **Change Detection:** When a change is detected, it compares the modification timestamp of the affected file with the timestamp stored in its internal map. If the timestamp has changed, it means the file has been updated.
+# CHAT_REPLY 4. **Loading and Unloading:** For updated files, it calls the `load` method of the `shardLoader` to load the new data. For deleted files, it calls the `drop` method of the `shardLoader` to unload the data.
+# CHAT_REPLY 5. **Error Handling:** It logs any errors encountered during the watching process, but it continues to monitor the directory.
 # CHAT_REPLY 
-# CHAT_REPLY * **Monitoring Changes:** Directory watchers are used to monitor a specific directory for changes, such as the creation, modification, or deletion of files or subdirectories.
-# CHAT_REPLY * **Triggering Actions:** When a change is detected, the directory watcher can trigger a specific action, such as:
-# CHAT_REPLY     * **Re-indexing:**  In the context of a search engine like Zoekt, a directory watcher might be used to re-index files when they are modified, ensuring the search index is up-to-date.
-# CHAT_REPLY     * **Notifications:**  A directory watcher could be used to send notifications about changes to users or other systems.
-# CHAT_REPLY     * **Running Scripts:**  It could trigger the execution of scripts or other programs in response to changes.
-# CHAT_REPLY 
-# CHAT_REPLY **To find out how a directory watcher is implemented in this codebase, you would need to search for:**
-# CHAT_REPLY 
-# CHAT_REPLY * **File system monitoring libraries:** Look for imports of libraries like `fsnotify` (Go) or `chokidar` (Node.js) that provide file system monitoring capabilities.
-# CHAT_REPLY * **Event handlers:** Search for code that registers event handlers for file system events (e.g., `Create`, `Modify`, `Delete`).
-# CHAT_REPLY * **Logic for triggering actions:** Look for code that defines the actions to be taken when a file system event is detected.
-# CHAT_REPLY 
-# CHAT_REPLY Let me know if you have any other questions about the codebase.
+# CHAT_REPLY In essence, the `DirectoryWatcher` ensures that the `shardLoader` always has the latest data from the shard files in the monitored directory. This is crucial for maintaining an up-to-date search index in Zoekt.
 
+ class: code search
  files:
    - ../mocked/enhanced_context/squirrel.ts
    - ../mocked/enhanced_context/animal.ts
@@ -27,4 +20,5 @@
    - ../mocked/enhanced_context/limit.go
    - ../mocked/enhanced_context/README.md
    - ../mocked/codebase_context/README.md
+   - ../mocked/codebase_context/shards/watcher.go
  

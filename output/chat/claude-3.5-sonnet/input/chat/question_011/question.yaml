@@ -2,19 +2,34 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY I apologize, but based on the codebase context provided, there is no specific information about a "directory watcher" or its functionality. The provided context doesn't contain any code or documentation related to a directory watching feature.
+# CHAT_REPLY Based on the provided codebase context, specifically the `mocked/codebase_context/shards/watcher.go` file, the DirectoryWatcher is responsible for monitoring a directory for changes in shard files (files with the `.zoekt` extension) and managing the loading and unloading of these shards. Here's a breakdown of its main functions:
 # CHAT_REPLY 
-# CHAT_REPLY The context includes information about:
+# CHAT_REPLY 1. Initialization:
+# CHAT_REPLY    - It's created with a directory to watch and a shardLoader interface.
+# CHAT_REPLY    - It starts a goroutine that scans the directory and sets up a file system watcher.
 # CHAT_REPLY 
-# CHAT_REPLY 1. A code intelligence API called Squirrel
-# CHAT_REPLY 2. An Animal interface
-# CHAT_REPLY 3. An Agent type
-# CHAT_REPLY 4. Rate limiting and concurrency control for a Cody Gateway
-# CHAT_REPLY 5. A README for a Cody Agent package
-# CHAT_REPLY 6. A README for Zoekt, which is a fast text search engine for source code
+# CHAT_REPLY 2. Scanning:
+# CHAT_REPLY    - The `scan()` method looks for `.zoekt` files in the specified directory.
+# CHAT_REPLY    - It keeps track of the latest version of each shard.
+# CHAT_REPLY    - It compares the modification times of the files with its internal timestamps.
 # CHAT_REPLY 
-# CHAT_REPLY None of these components explicitly mention or describe a directory watcher. If there is indeed a directory watcher component in the codebase, it's not included in the provided context. To answer questions about a directory watcher, we would need additional context or code snippets related to that specific feature.
+# CHAT_REPLY 3. Loading and Unloading:
+# CHAT_REPLY    - New or modified shards are loaded using the `loader.load()` method.
+# CHAT_REPLY    - Deleted shards are unloaded using the `loader.drop()` method.
+# CHAT_REPLY 
+# CHAT_REPLY 4. Continuous Watching:
+# CHAT_REPLY    - It uses `fsnotify` to watch for file system events in the directory.
+# CHAT_REPLY    - When changes are detected, it triggers another scan.
+# CHAT_REPLY 
+# CHAT_REPLY 5. Version Management:
+# CHAT_REPLY    - It extracts version information from shard filenames and ensures only the latest versions are loaded.
+# CHAT_REPLY 
+# CHAT_REPLY 6. Graceful Shutdown:
+# CHAT_REPLY    - The `Stop()` method allows for graceful shutdown of the watcher.
+# CHAT_REPLY 
+# CHAT_REPLY The DirectoryWatcher is designed to keep the set of loaded shards up-to-date with the contents of the directory, automatically handling additions, deletions, and updates to shard files.
 
+ class: code search
  files:
    - ../mocked/enhanced_context/squirrel.ts
    - ../mocked/enhanced_context/animal.ts
@@ -22,4 +37,5 @@
    - ../mocked/enhanced_context/limit.go
    - ../mocked/enhanced_context/README.md
    - ../mocked/codebase_context/README.md
+   - ../mocked/codebase_context/shards/watcher.go
  
