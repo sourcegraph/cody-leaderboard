@@ -6,17 +6,17 @@
 # CHAT_REPLY 
 # CHAT_REPLY This file contains functions related to limiting the number of matches and file matches returned in search results. Here are some key points:
 # CHAT_REPLY 
-# CHAT_REPLY 1. `SortAndTruncateFiles` sorts the list of `FileMatch` results and then truncates it based on the `SearchOptions` (e.g. `MaxDocDisplayCount`).
+# CHAT_REPLY 1. `SortAndTruncateFiles` sorts the `FileMatch` slice and then truncates it based on the `SearchOptions` (e.g. `MaxDocDisplayCount`).
 # CHAT_REPLY 
-# CHAT_REPLY 2. `NewDisplayTruncator` returns a `DisplayTruncator` function that enforces limits on the number of documents and matches displayed. It considers options like `MaxDocDisplayCount` and `MaxMatchDisplayCount`.
+# CHAT_REPLY 2. `NewDisplayTruncator` returns a `DisplayTruncator` function that enforces limits on the number of documents and matches displayed. If no limits are set, it returns a no-op function.
 # CHAT_REPLY 
-# CHAT_REPLY 3. `limitMatches` is a helper that limits the number of `ChunkMatches` or `LineMatches` in each `FileMatch` based on the specified limit.
+# CHAT_REPLY 3. `limitMatches` is a helper that limits the number of `ChunkMatches` or `LineMatches` in each `FileMatch` based on `MaxMatchDisplayCount`.
 # CHAT_REPLY 
-# CHAT_REPLY 4. `limitChunkMatches` limits the number of `ChunkMatches` in a `FileMatch`. It handles truncating the `Content` field and `SymbolInfo` field accordingly.
+# CHAT_REPLY 4. `limitChunkMatches` truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to fit within the specified limit. It handles multi-line ranges and context lines correctly.
 # CHAT_REPLY 
-# CHAT_REPLY 5. `limitLineMatches` limits the number of `LineMatches` in a `FileMatch`.
+# CHAT_REPLY 5. `limitLineMatches` simply truncates the `LineFragments` slice of each `LineMatch` to fit within the specified limit.
 # CHAT_REPLY 
-# CHAT_REPLY The main purpose of these functions is to control the amount of data returned in search results, preventing excessive memory usage or network transfer for large result sets. By limiting the number of files, line matches, and chunk matches, the search can return a reasonable subset of the full results based on the specified options.
+# CHAT_REPLY These functions are used to prevent returning an excessive number of matches and files, which could potentially cause performance issues or consume too much memory. They allow the search to be bounded while still returning the most relevant results.
 
  files:
    - ../mocked/codebase_context/README.md

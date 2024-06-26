@@ -61,14 +61,14 @@ def chat_csv_table(name: str):
     df = pd.read_csv(name)
     st.subheader("Leaderboard")
     score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
-    score_df.columns = ["FIXTURE", "Score"]
-    score_df = score_df.sort_values(by="Score", ascending=False)
+    score_df.columns = ["FIXTURE", "LLM Judge Score"]
+    score_df = score_df.sort_values(by="LLM Judge Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
     score_df = score_df.set_index("FIXTURE")
     st.dataframe(score_df)
 
-    filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE", "CHAT_QUESTION"]]
+    filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE", "CHAT_QUESTION", "HEDGES"]]
 
     pivot_df = df.pivot(index="CHAT_QUESTION", columns="FIXTURE", values="LLM_JUDGE_SCORE")
     pivot_df = pivot_df.sort_values(by=models_by_score, ascending=False)
@@ -83,11 +83,17 @@ def chat_csv_table(name: str):
     rows = rows.sort_values(by="FIXTURE")
 
     for index, row in rows.iterrows():
+        score = 'Good' if row["LLM_JUDGE_SCORE"] > 0 else '<span style="color:red">Poor</span>'
+        hedges = 'No' if row["HEDGES"] == 0 else '<span style="color:red">Yes</span>'
+        verbose = 'No' if row["CONCISENESS_SCORE"] > 0 else '<span style="color:red">Yes</span>'
+
         st.header(row["FIXTURE"])
         st.markdown(f"""-----
+🤖 **LLM Judge Score**: {score} | 🤔 **Hedges**: {hedges} | 🕑 **Verbose**: {verbose}
+
 **Chat Reply**: {row["CHAT_REPLY"]}
 
-""")
+""", unsafe_allow_html=True)
 
 
 chatTab, fixTab, editTab, autocompleteTab = st.tabs(
