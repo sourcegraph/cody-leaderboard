@@ -74,10 +74,10 @@ def chat_csv_table(name: str):
 
     st.dataframe(pivot_df.style.map(lambda score: 'background-color: #ffdddd' if score == 0 else '', subset=pivot_df.columns))
 
-    question_class = st.selectbox("Question class", df["QUESTION_CLASS"].unique())
+    selected_question = st.selectbox("Select question", df["CHAT_QUESTION"].unique())
     filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique())
 
-    rows = df[(df["QUESTION_CLASS"] == question_class) & ((len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
+    rows = df[(df["CHAT_QUESTION"] == selected_question) & ((len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
     fixtures = rows.groupby("FIXTURE")
 
     for fixture, rows in fixtures:
