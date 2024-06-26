@@ -2,23 +2,23 @@
 # CHAT
 # CHAT_QUESTION what does @limit.go do?
 
-# CHAT_REPLY The file `limit.go` within the `zoekt` package appears to handle truncating search results based on user-defined limits. 
+# CHAT_REPLY The `limit.go` file in the provided codebase context defines functions for limiting the number of matches and files returned in a Zoekt search result. 
 # CHAT_REPLY 
 # CHAT_REPLY Here's a breakdown:
 # CHAT_REPLY 
-# CHAT_REPLY - **`SortAndTruncateFiles`**: This function takes a list of file matches and search options. It sorts the files and then applies truncation based on the provided options.
+# CHAT_REPLY * **`SortAndTruncateFiles`**: This function takes a list of `FileMatch` objects and `SearchOptions` as input. It first sorts the files (presumably based on relevance or other criteria) and then truncates the list based on the limits specified in the `SearchOptions`.
 # CHAT_REPLY 
-# CHAT_REPLY - **`DisplayTruncator`**: This is a stateful function type that enforces document and match display limits. It takes a list of file matches and returns a potentially truncated list, along with a boolean indicating if more results are available.
+# CHAT_REPLY * **`DisplayTruncator`**: This is a stateful function type that enforces document and match display limits by truncating the input list of `FileMatch` objects. It returns the truncated list and a boolean indicating whether there are more results available.
 # CHAT_REPLY 
-# CHAT_REPLY - **`NewDisplayTruncator`**: This function creates a `DisplayTruncator` based on the provided search options. It determines if any limits are set and returns the appropriate truncator function.
+# CHAT_REPLY * **`NewDisplayTruncator`**: This function creates a new `DisplayTruncator` based on the limits specified in the `SearchOptions`. If no limits are set, it returns a no-op truncator.
 # CHAT_REPLY 
-# CHAT_REPLY - **`limitMatches`**: This function applies match limits to a list of file matches. It uses either `limitChunkMatches` or `limitLineMatches` based on the `chunkMatches` option.
+# CHAT_REPLY * **`limitMatches`**: This function takes a list of `FileMatch` objects, a limit, and a boolean indicating whether to chunk matches. It applies the appropriate limiting function (`limitChunkMatches` or `limitLineMatches`) to each file in the list.
 # CHAT_REPLY 
-# CHAT_REPLY - **`limitChunkMatches`**: This function limits the number of `ChunkMatches` within each `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields accordingly.
+# CHAT_REPLY * **`limitChunkMatches`**: This function limits the number of `ChunkMatch` objects within a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to enforce the limit.
 # CHAT_REPLY 
-# CHAT_REPLY - **`limitLineMatches`**: This function limits the number of `LineMatches` within each `FileMatch` by truncating the `LineFragments` field.
+# CHAT_REPLY * **`limitLineMatches`**: This function limits the number of `LineMatch` objects within a `FileMatch`. It truncates the `LineFragments` field of each `LineMatch` to enforce the limit.
 # CHAT_REPLY 
-# CHAT_REPLY In essence, this code ensures that search results presented to the user adhere to specified display limits, preventing overwhelming outputs and potentially improving performance.
+# CHAT_REPLY In essence, this file provides the logic for ensuring that Zoekt search results don't exceed the configured display limits, preventing excessive memory usage and improving performance.
 
  files:
    - ../mocked/codebase_context/limit.go

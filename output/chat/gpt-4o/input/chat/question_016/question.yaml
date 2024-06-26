@@ -2,45 +2,22 @@
 # CHAT
 # CHAT_QUESTION Mind taking a second look at the file? @limit.go
 
-# CHAT_REPLY Sure, let's take a closer look at the `limit.go` file.
+# CHAT_REPLY Sure, let's take a closer look at the `limit.go` file. Here's a breakdown of its contents:
 # CHAT_REPLY 
-# CHAT_REPLY ### File Overview
-# CHAT_REPLY 
-# CHAT_REPLY The `limit.go` file defines functions and types related to limiting and truncating search results in Zoekt. The main functionalities include sorting and truncating file matches based on search options, and enforcing document and match display limits.
-# CHAT_REPLY 
-# CHAT_REPLY ### Key Components
-# CHAT_REPLY 
-# CHAT_REPLY 1. **SortAndTruncateFiles Function**
-# CHAT_REPLY    - This function sorts and truncates file matches based on the provided search options.
-# CHAT_REPLY    - It uses `SortFiles` to sort the files and `NewDisplayTruncator` to truncate them.
-# CHAT_REPLY 
-# CHAT_REPLY 2. **DisplayTruncator Type**
-# CHAT_REPLY    - A function type that enforces document and match display limits by truncating and mutating file matches.
-# CHAT_REPLY    - It returns truncated file matches and a boolean indicating if more matches are available.
-# CHAT_REPLY 
-# CHAT_REPLY 3. **NewDisplayTruncator Function**
-# CHAT_REPLY    - Creates a `DisplayTruncator` based on the provided search options.
-# CHAT_REPLY    - It checks if there are any limits to enforce and returns a truncator function accordingly.
-# CHAT_REPLY 
-# CHAT_REPLY 4. **limitMatches Function**
-# CHAT_REPLY    - Limits the number of matches in the given file matches based on the provided limit and chunk matches option.
-# CHAT_REPLY    - It uses either `limitChunkMatches` or `limitLineMatches` based on the chunk matches option.
-# CHAT_REPLY 
-# CHAT_REPLY 5. **limitChunkMatches Function**
-# CHAT_REPLY    - Limits the number of chunk matches in a given file match.
-# CHAT_REPLY    - It adjusts the content, ranges, and symbol info fields of the chunk matches to enforce the limit.
-# CHAT_REPLY 
-# CHAT_REPLY 6. **limitLineMatches Function**
-# CHAT_REPLY    - Limits the number of line matches in a given file match.
-# CHAT_REPLY    - It truncates the line fragments to enforce the limit.
-# CHAT_REPLY 
-# CHAT_REPLY ### Detailed Code Analysis
-# CHAT_REPLY 
+# CHAT_REPLY ### Package Declaration
 # CHAT_REPLY ```go
 # CHAT_REPLY package zoekt
+# CHAT_REPLY ```
+# CHAT_REPLY The file is part of the `zoekt` package.
 # CHAT_REPLY 
+# CHAT_REPLY ### Imports
+# CHAT_REPLY ```go
 # CHAT_REPLY import "log"
+# CHAT_REPLY ```
+# CHAT_REPLY The file imports the `log` package for logging purposes.
 # CHAT_REPLY 
+# CHAT_REPLY ### Function: SortAndTruncateFiles
+# CHAT_REPLY ```go
 # CHAT_REPLY // SortAndTruncateFiles is a convenience around SortFiles and
 # CHAT_REPLY // DisplayTruncator. Given an aggregated files it will sort and then truncate
 # CHAT_REPLY // based on the search options.
@@ -50,13 +27,21 @@
 # CHAT_REPLY 	files, _ = truncator(files)
 # CHAT_REPLY 	return files
 # CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function sorts and truncates a list of `FileMatch` objects based on the provided `SearchOptions`.
 # CHAT_REPLY 
+# CHAT_REPLY ### Type: DisplayTruncator
+# CHAT_REPLY ```go
 # CHAT_REPLY // DisplayTruncator is a stateful function which enforces Document and Match
 # CHAT_REPLY // display limits by truncating and mutating before. hasMore is true until the
 # CHAT_REPLY // limits are exhausted. Once hasMore is false each subsequent call will
 # CHAT_REPLY // return an empty after and hasMore false.
 # CHAT_REPLY type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
+# CHAT_REPLY ```
+# CHAT_REPLY `DisplayTruncator` is a function type that enforces document and match display limits.
 # CHAT_REPLY 
+# CHAT_REPLY ### Function: NewDisplayTruncator
+# CHAT_REPLY ```go
 # CHAT_REPLY // NewDisplayTruncator will return a DisplayTruncator which enforces the limits in
 # CHAT_REPLY // opts. If there are no limits to enforce, hasLimits is false and there is no
 # CHAT_REPLY // need to call DisplayTruncator.
@@ -98,7 +83,11 @@
 # CHAT_REPLY 		return fm, !done
 # CHAT_REPLY 	}, true
 # CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function returns a `DisplayTruncator` that enforces the limits specified in `SearchOptions`. If there are no limits, it returns a no-op truncator.
 # CHAT_REPLY 
+# CHAT_REPLY ### Function: limitMatches
+# CHAT_REPLY ```go
 # CHAT_REPLY func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
 # CHAT_REPLY 	var limiter func(file *FileMatch, limit int) int
 # CHAT_REPLY 	if chunkMatches {
@@ -114,7 +103,11 @@
 # CHAT_REPLY 	}
 # CHAT_REPLY 	return files, limit
 # CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function limits the number of matches in each `FileMatch` based on the provided limit and whether chunk matches are used.
 # CHAT_REPLY 
+# CHAT_REPLY ### Function: limitChunkMatches
+# CHAT_REPLY ```go
 # CHAT_REPLY // Limit the number of ChunkMatches in the given FileMatch, returning the
 # CHAT_REPLY // remaining limit, if any.
 # CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int {
@@ -163,7 +156,11 @@
 # CHAT_REPLY 	}
 # CHAT_REPLY 	return limit
 # CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function limits the number of `ChunkMatches` in a `FileMatch` and adjusts the content accordingly.
 # CHAT_REPLY 
+# CHAT_REPLY ### Function: limitLineMatches
+# CHAT_REPLY ```go
 # CHAT_REPLY // Limit the number of LineMatches in the given FileMatch, returning the
 # CHAT_REPLY // remaining limit, if any.
 # CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int {
@@ -182,14 +179,10 @@
 # CHAT_REPLY 	return limit
 # CHAT_REPLY }
 # CHAT_REPLY ```
+# CHAT_REPLY This function limits the number of `LineMatches` in a `FileMatch`.
 # CHAT_REPLY 
 # CHAT_REPLY ### Summary
-# CHAT_REPLY 
-# CHAT_REPLY - **Sorting and Truncating**: The `SortAndTruncateFiles` function sorts and truncates file matches based on search options.
-# CHAT_REPLY - **Display Truncation**: The `DisplayTruncator` type and `NewDisplayTruncator` function handle the truncation of file matches based on document and match limits.
-# CHAT_REPLY - **Match Limiting**: The `limitMatches`, `limitChunkMatches`, and `limitLineMatches` functions enforce limits on the number of matches in file matches.
-# CHAT_REPLY 
-# CHAT_REPLY If you have any specific questions or need further details about any part of the code, feel free to ask!
+# CHAT_REPLY The `limit.go` file provides functionality to sort and truncate search results based on document and match limits specified in `SearchOptions`. It includes functions to handle both chunk matches and line matches, ensuring that the results do not exceed the specified limits.
 
  files:
    - ../mocked/codebase_context/README.md

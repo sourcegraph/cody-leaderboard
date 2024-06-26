@@ -4,19 +4,19 @@
 
 # CHAT_REPLY Sure, let's take a look at limit.go:
 # CHAT_REPLY 
-# CHAT_REPLY This file contains functions related to limiting the number of matches and files returned in search results. Here are some key points:
+# CHAT_REPLY This file contains functions related to limiting the number of matches and file matches returned in search results. Here are some key points:
 # CHAT_REPLY 
-# CHAT_REPLY 1. `SortAndTruncateFiles` sorts the `FileMatch` slice and then truncates it based on the `SearchOptions`.
+# CHAT_REPLY 1. `SortAndTruncateFiles` sorts the list of `FileMatch` results and then truncates it based on the `SearchOptions` (e.g. `MaxDocDisplayCount`).
 # CHAT_REPLY 
-# CHAT_REPLY 2. `NewDisplayTruncator` returns a `DisplayTruncator` function that enforces limits on the number of documents and matches displayed. If no limits are specified, it returns a function that doesn't truncate.
+# CHAT_REPLY 2. `NewDisplayTruncator` returns a `DisplayTruncator` function that enforces limits on the number of documents and matches displayed. It considers options like `MaxDocDisplayCount` and `MaxMatchDisplayCount`.
 # CHAT_REPLY 
-# CHAT_REPLY 3. `limitMatches` limits the number of `ChunkMatches` or `LineMatches` in each `FileMatch` based on the specified limit.
+# CHAT_REPLY 3. `limitMatches` is a helper that limits the number of `ChunkMatches` or `LineMatches` in each `FileMatch` based on the specified limit.
 # CHAT_REPLY 
-# CHAT_REPLY 4. `limitChunkMatches` truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to fit within the specified limit.
+# CHAT_REPLY 4. `limitChunkMatches` limits the number of `ChunkMatches` in a `FileMatch`. It handles truncating the `Content` field and `SymbolInfo` field accordingly.
 # CHAT_REPLY 
-# CHAT_REPLY 5. `limitLineMatches` truncates the `LineFragments` field of each `LineMatch` to fit within the specified limit.
+# CHAT_REPLY 5. `limitLineMatches` limits the number of `LineMatches` in a `FileMatch`.
 # CHAT_REPLY 
-# CHAT_REPLY The main purpose of this file seems to be providing utilities to limit the search results to a reasonable size, preventing excessive memory usage or response sizes for very broad queries. It allows configuring limits on the number of files, matches per file, and even truncating the content and metadata of individual matches.
+# CHAT_REPLY The main purpose of these functions is to control the amount of data returned in search results, preventing excessive memory usage or network transfer for large result sets. By limiting the number of files, line matches, and chunk matches, the search can return a reasonable subset of the full results based on the specified options.
 
  files:
    - ../mocked/codebase_context/README.md
