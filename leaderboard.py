@@ -72,7 +72,7 @@ def chat_csv_table(name: str):
         by="FIXTURE",
     )
 
-    for index, row in rows2.iterrows():
+    for _, row in rows2.iterrows():
         st.header(row["FIXTURE"])
         st.markdown(f"""-----
 **Chat Reply**: {row["CHAT_REPLY"]}
@@ -80,8 +80,13 @@ def chat_csv_table(name: str):
 """)
 
 
-chatTab, fixTab, editTab, autocompleteTab = st.tabs(
-    ["Chat", "Fix", "Edit", "Autocomplete"]
+def unit_test_csv_table(name: str):
+    df = pd.read_csv(name)
+    st.dataframe(df[['FILEPATH', 'FIXTURE']])
+
+
+chatTab, fixTab, unitTestTab, editTab, autocompleteTab = st.tabs(
+    ["Chat", "Fix", "Unit Test", "Edit", "Autocomplete"]
 )
 
 with chatTab:
@@ -91,6 +96,10 @@ with chatTab:
 with fixTab:
     st.header("Fix Command")
     fix_csv_table("fix.csv")
+
+with unitTestTab:
+    st.header("Unit Test Command")
+    unit_test_csv_table("unit-test.csv")
 
 with editTab:
     st.header("Edit Command")
