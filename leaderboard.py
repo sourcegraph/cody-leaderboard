@@ -9,19 +9,18 @@ def fix_csv_table(name: str):
     score_df = score_df.sort_values(by="Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
-    score_df2 = score_df.set_index("FIXTURE")
-    st.dataframe(score_df2)
+    score_df = score_df.set_index("FIXTURE")
+    st.dataframe(score_df)
 
     filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE"]]
     # Pivot the DataFrame
     pivot_df = df.pivot(index="FILEPATH", columns="FIXTURE",
                         values="LLM_JUDGE_SCORE")
-    pivot_df2 = pivot_df.sort_values(by=models_by_score, ascending=False)
-    pivot_df3 = pivot_df2[models_by_score]
+    pivot_df = pivot_df.sort_values(by=models_by_score, ascending=False)
+    pivot_df = pivot_df[models_by_score]
 
     # Display the pivoted DataFrame
-    st.dataframe(pivot_df3)
-    # st.dataframe(filtered_df)
+    st.dataframe(pivot_df)
 
     # Add a selectbox to select a row
     selected_filepath = st.selectbox(
@@ -29,12 +28,12 @@ def fix_csv_table(name: str):
 
     # Display the edit diff in a code block with syntax highlighting
     rows = df[df["FILEPATH"] == selected_filepath]
-    rows2 = rows.sort_values(
+    rows = rows.sort_values(
         by="FIXTURE",
         key=lambda x: x.map(lambda fixture: models_by_score.index(fixture)),
     )
 
-    for index, row in rows2.iterrows():
+    for index, row in rows.iterrows():
         diagnostic_after = (
             "" if pd.isna(row["FIX_AFTER_DIAGNOSTIC"]
                           ) else row["FIX_AFTER_DIAGNOSTIC"]
@@ -60,19 +59,36 @@ def fix_csv_table(name: str):
 
 def chat_csv_table(name: str):
     df = pd.read_csv(name)
-    st.dataframe(df[['FILEPATH', 'FIXTURE']])
+    st.subheader("Leaderboard")
+    score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
+    score_df.columns = ["FIXTURE", "Score"]
+    score_df = score_df.sort_values(by="Score", ascending=False)
+    models_by_score = score_df["FIXTURE"].values.tolist()
 
-    # Add a selectbox to select a row
+    score_df = score_df.set_index("FIXTURE")
+    st.dataframe(score_df)
+
+    filtered_df = df[["FIXTURE", "FILEPATH",
+                      "LLM_JUDGE_SCORE", "CHAT_QUESTION"]]
+
+    pivot_df = df.pivot(index="CHAT_QUESTION",
+                        columns="FIXTURE", values="LLM_JUDGE_SCORE")
+    pivot_df = pivot_df.sort_values(by=models_by_score, ascending=False)
+    pivot_df = pivot_df[models_by_score]
+
+    st.dataframe(pivot_df.style.map(
+        lambda score: 'background-color: #ffdddd' if score == 0 else '', subset=pivot_df.columns))
+
     selected_question = st.selectbox(
-        "Select a question", df["FILEPATH"].unique())
+        "Select a question", filtered_df["CHAT_QUESTION"].unique())
+    filtered_models = st.multiselect(
+        "Filter models", filtered_df["FIXTURE"].unique())
 
-    # Display the edit diff in a code block with syntax highlighting
-    rows = df[df["FILEPATH"] == selected_question]
-    rows2 = rows.sort_values(
-        by="FIXTURE",
-    )
+    rows = df[(df["CHAT_QUESTION"] == selected_question) & (
+        (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
+    rows = rows.sort_values(by="FIXTURE")
 
-    for _, row in rows2.iterrows():
+    for index, row in rows.iterrows():
         st.header(row["FIXTURE"])
         st.markdown(f"""-----
 **Chat Reply**: {row["CHAT_REPLY"]}
