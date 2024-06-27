@@ -1,121 +1,196 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
-typescript,unit-test,gpt-4o,unit-test,code_001/add.ts,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
-import { add } from './add'
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME
+yaml,code_002,gpt-4o,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
+import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
 
-describe('add function', () => {
-  it('should correctly add two positive numbers', () => {
-    expect(add(2, 3)).to.equal(5)
+describe('UniqueContext', () => {
+  it('should correctly import ContextItem type', () => {
+    const contextItem: ContextItem = {
+      type: 'file',
+      uri: 'file:///example.ts',
+      content: 'Example content',
+    }
+    expect(contextItem).toBeDefined()
+    expect(contextItem.type).toBe('file')
   })
 
-  it('should correctly add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
+  it('should correctly import RangeData type', () => {
+    const rangeData: RangeData = {
+      startLine: 1,
+      endLine: 5,
+      startCharacter: 0,
+      endCharacter: 10,
+    }
+    expect(rangeData).toBeDefined()
+    expect(rangeData.startLine).toBe(1)
+    expect(rangeData.endLine).toBe(5)
   })
 
-  it('should correctly add two negative numbers', () => {
-    expect(add(-2, -4)).to.equal(-6)
+  it('should allow creation of ContextItem with RangeData', () => {
+    const contextItem: ContextItem = {
+      type: 'file',
+      uri: 'file:///example.ts',
+      content: 'Example content',
+      range: {
+        startLine: 1,
+        endLine: 5,
+        startCharacter: 0,
+        endCharacter: 10,
+      },
+    }
+    expect(contextItem.range).toBeDefined()
+    expect(contextItem.range?.startLine).toBe(1)
+    expect(contextItem.range?.endLine).toBe(5)
+  })
+})
+",false,true,false,,src/UniqueContext.ts,typescript,Unique Context
+yaml,code_004,gpt-4o,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class LevenshteinTest {
+
+    @Test
+    public void testLevenshteinDistanceEmptyStrings() {
+        assertEquals(0, Levenshtein.distance("""", """"));
+    }
+
+    @Test
+    public void testLevenshteinDistanceOneEmptyString() {
+        assertEquals(3, Levenshtein.distance(""abc"", """"));
+        assertEquals(3, Levenshtein.distance("""", ""abc""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceEqualStrings() {
+        assertEquals(0, Levenshtein.distance(""hello"", ""hello""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceSubstitution() {
+        assertEquals(1, Levenshtein.distance(""kitten"", ""sitten""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceInsertion() {
+        assertEquals(1, Levenshtein.distance(""sit"", ""sitt""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceDeletion() {
+        assertEquals(1, Levenshtein.distance(""sitt"", ""sit""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceMultipleOperations() {
+        assertEquals(3, Levenshtein.distance(""kitten"", ""sitting""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceCaseSensitive() {
+        assertEquals(1, Levenshtein.distance(""Hello"", ""hello""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceSpecialCharacters() {
+        assertEquals(2, Levenshtein.distance(""hello!"", ""hello?""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceLongStrings() {
+        assertEquals(5, Levenshtein.distance(""pneumonoultramicroscopicsilicovolcanoconiosis"", 
+                                             ""pneumonoultramicroscopicsilicovolcanoniosis""));
+    }
+}
+",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance
+yaml,code_003,gpt-4o,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""testing""
+)
+
+func TestQuicksort(t *testing.T) {
+	// Test cases will be added here once the Quicksort function is implemented
+}
+
+func TestQuicksortEmptySlice(t *testing.T) {
+	empty := []int{}
+	Quicksort(empty)
+	if len(empty) != 0 {
+		t.Errorf(""Expected empty slice, got slice with length %d"", len(empty))
+	}
+}
+
+func TestQuicksortSingleElement(t *testing.T) {
+	single := []int{1}
+	Quicksort(single)
+	if len(single) != 1 || single[0] != 1 {
+		t.Errorf(""Expected [1], got %v"", single)
+	}
+}
+
+func TestQuicksortAlreadySorted(t *testing.T) {
+	sorted := []int{1, 2, 3, 4, 5}
+	Quicksort(sorted)
+	for i := 0; i < len(sorted)-1; i++ {
+		if sorted[i] > sorted[i+1] {
+			t.Errorf(""Expected sorted slice, got %v"", sorted)
+			break
+		}
+	}
+}
+
+func TestQuicksortReverseSorted(t *testing.T) {
+	reverse := []int{5, 4, 3, 2, 1}
+	Quicksort(reverse)
+	for i := 0; i < len(reverse)-1; i++ {
+		if reverse[i] > reverse[i+1] {
+			t.Errorf(""Expected sorted slice, got %v"", reverse)
+			break
+		}
+	}
+}
+
+func TestQuicksortDuplicateElements(t *testing.T) {
+	duplicates := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
+	Quicksort(duplicates)
+	for i := 0; i < len(duplicates)-1; i++ {
+		if duplicates[i] > duplicates[i+1] {
+			t.Errorf(""Expected sorted slice, got %v"", duplicates)
+			break
+		}
+	}
+}
+",true,false,true,,quicksort.go,go,Quicksort
+yaml,code_006,gpt-4o,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
   })
 
-  it('should return zero when adding zero to zero', () => {
-    expect(add(0, 0)).to.equal(0)
+  it('should add a positive and a negative number', () => {
+    expect(add(5, -3)).toBe(2)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -4)).toBe(-6)
+  })
+
+  it('should handle zero as an input', () => {
+    expect(add(0, 7)).toBe(7)
+    expect(add(7, 0)).toBe(7)
+  })
+
+  it('should add fractional numbers', () => {
+    expect(add(0.1, 0.2)).toBeCloseTo(0.3)
   })
 
   it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
+    expect(add(1000000, 2000000)).toBe(3000000)
   })
 })
-",,,,,,,,,,,,,,,
-typescript,unit-test,gpt-4o,unit-test,code_002/UniqueContext.ts,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should correctly add two positive numbers', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should correctly add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-  })
-
-  it('should correctly add two negative numbers', () => {
-    expect(add(-2, -4)).to.equal(-6)
-  })
-
-  it('should return zero when adding zero to zero', () => {
-    expect(add(0, 0)).to.equal(0)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
-  })
-})
-",,,,,,,,,,,,,,,
-go,unit-test,gpt-4o,unit-test,code_003/quicksort.go,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should correctly add two positive numbers', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should correctly add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-  })
-
-  it('should correctly add two negative numbers', () => {
-    expect(add(-2, -4)).to.equal(-6)
-  })
-
-  it('should return zero when adding zero to zero', () => {
-    expect(add(0, 0)).to.equal(0)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
-  })
-})
-",,,,,,,,,,,,,,,
-java,unit-test,gpt-4o,unit-test,code_004/Levenshtein.java,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should correctly add two positive numbers', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should correctly add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-  })
-
-  it('should correctly add two negative numbers', () => {
-    expect(add(-2, -4)).to.equal(-6)
-  })
-
-  it('should return zero when adding zero to zero', () => {
-    expect(add(0, 0)).to.equal(0)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
-  })
-})
-",,,,,,,,,,,,,,,
-typescript,unit-test,claude-3.5-sonnet,unit-test,code_001/add.ts,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
+",true,false,true,,src/add.ts,typescript,Adder with sub context
+yaml,code_001,gpt-4o,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { expect } from 'chai'
 import { add } from './add'
 
 describe('add function', () => {
@@ -132,26 +207,220 @@ describe('add function', () => {
     expect(add(-3, -7)).to.equal(-10)
   })
 
-  it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-    expect(add(-8, 3)).to.equal(-5)
+  it('should handle positive and negative number combinations', () => {
+    expect(add(-5, 8)).to.equal(3)
+    expect(add(4, -9)).to.equal(-5)
+  })
+
+  it('should return zero when adding inverse numbers', () => {
+    expect(add(100, -100)).to.equal(0)
   })
 
   it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
-  })
-
-  it('should return the same number when adding zero', () => {
-    expect(add(100, 0)).to.equal(100)
-    expect(add(0, 100)).to.equal(100)
+    expect(add(0.1, 0.2)).to.be.closeTo(0.3, 0.0001)
   })
 
   it('should handle large numbers', () => {
     expect(add(1000000, 2000000)).to.equal(3000000)
   })
 })
-",,,,,,,,,,,,,,,
-typescript,unit-test,claude-3.5-sonnet,unit-test,code_002/UniqueContext.ts,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
+",false,false,true,,src/add.ts,typescript,Adder
+yaml,code_002,claude-3.5-sonnet,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
+import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  it('should correctly import ContextItem type', () => {
+    const contextItem: ContextItem = {
+      type: 'file',
+      uri: 'file:///path/to/file.ts',
+      content: 'const example = 42;',
+    }
+    expect(contextItem).toBeDefined()
+    expect(contextItem.type).toBe('file')
+  })
+
+  it('should correctly import RangeData type', () => {
+    const rangeData: RangeData = {
+      startLine: 1,
+      endLine: 5,
+      startCharacter: 0,
+      endCharacter: 10,
+    }
+    expect(rangeData).toBeDefined()
+    expect(rangeData.startLine).toBe(1)
+    expect(rangeData.endLine).toBe(5)
+  })
+
+  it('should allow creation of ContextItem with RangeData', () => {
+    const contextItem: ContextItem = {
+      type: 'file',
+      uri: 'file:///path/to/file.ts',
+      content: 'const example = 42;',
+      range: {
+        startLine: 1,
+        endLine: 1,
+        startCharacter: 0,
+        endCharacter: 20,
+      },
+    }
+    expect(contextItem.range).toBeDefined()
+    expect(contextItem.range?.startLine).toBe(1)
+    expect(contextItem.range?.endLine).toBe(1)
+  })
+})
+",false,true,false,,src/UniqueContext.ts,typescript,Unique Context
+yaml,code_004,claude-3.5-sonnet,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class LevenshteinTest {
+
+    @Test
+    public void testLevenshteinDistanceEmptyStrings() {
+        assertEquals(0, Levenshtein.levenshteinDistance("""", """"));
+    }
+
+    @Test
+    public void testLevenshteinDistanceOneEmptyString() {
+        assertEquals(3, Levenshtein.levenshteinDistance(""abc"", """"));
+        assertEquals(3, Levenshtein.levenshteinDistance("""", ""abc""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceEqualStrings() {
+        assertEquals(0, Levenshtein.levenshteinDistance(""hello"", ""hello""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceOneCharacterDifference() {
+        assertEquals(1, Levenshtein.levenshteinDistance(""kitten"", ""sitten""));
+        assertEquals(1, Levenshtein.levenshteinDistance(""sitting"", ""sittin""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceMultipleChanges() {
+        assertEquals(3, Levenshtein.levenshteinDistance(""kitten"", ""sitting""));
+        assertEquals(3, Levenshtein.levenshteinDistance(""saturday"", ""sunday""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceCaseSensitivity() {
+        assertEquals(3, Levenshtein.levenshteinDistance(""book"", ""BOOK""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceSpecialCharacters() {
+        assertEquals(2, Levenshtein.levenshteinDistance(""hello!"", ""hello?""));
+        assertEquals(1, Levenshtein.levenshteinDistance(""test-case"", ""test case""));
+    }
+}
+",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance
+yaml,code_003,claude-3.5-sonnet,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""testing""
+)
+
+func TestQuicksort(t *testing.T) {
+	// Test cases will be added here once the quicksort function is implemented
+}
+
+func TestQuicksortEmptySlice(t *testing.T) {
+	input := []int{}
+	expected := []int{}
+	Quicksort(input)
+	if !slicesEqual(input, expected) {
+		t.Errorf(""Expected %v, but got %v"", expected, input)
+	}
+}
+
+func TestQuicksortSingleElement(t *testing.T) {
+	input := []int{1}
+	expected := []int{1}
+	Quicksort(input)
+	if !slicesEqual(input, expected) {
+		t.Errorf(""Expected %v, but got %v"", expected, input)
+	}
+}
+
+func TestQuicksortAlreadySorted(t *testing.T) {
+	input := []int{1, 2, 3, 4, 5}
+	expected := []int{1, 2, 3, 4, 5}
+	Quicksort(input)
+	if !slicesEqual(input, expected) {
+		t.Errorf(""Expected %v, but got %v"", expected, input)
+	}
+}
+
+func TestQuicksortReverseSorted(t *testing.T) {
+	input := []int{5, 4, 3, 2, 1}
+	expected := []int{1, 2, 3, 4, 5}
+	Quicksort(input)
+	if !slicesEqual(input, expected) {
+		t.Errorf(""Expected %v, but got %v"", expected, input)
+	}
+}
+
+func TestQuicksortDuplicateElements(t *testing.T) {
+	input := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
+	expected := []int{1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9}
+	Quicksort(input)
+	if !slicesEqual(input, expected) {
+		t.Errorf(""Expected %v, but got %v"", expected, input)
+	}
+}
+
+func TestQuicksortNegativeNumbers(t *testing.T) {
+	input := []int{-3, 0, 2, -1, 4, -2, 1}
+	expected := []int{-3, -2, -1, 0, 1, 2, 4}
+	Quicksort(input)
+	if !slicesEqual(input, expected) {
+		t.Errorf(""Expected %v, but got %v"", expected, input)
+	}
+}
+
+func slicesEqual(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+",true,false,true,,quicksort.go,go,Quicksort
+yaml,code_006,claude-3.5-sonnet,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(5, -3)).toBe(2)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -4)).toBe(-6)
+  })
+
+  it('should handle zero as an input', () => {
+    expect(add(0, 7)).toBe(7)
+    expect(add(7, 0)).toBe(7)
+  })
+
+  it('should add fractional numbers', () => {
+    expect(add(0.1, 0.2)).toBeCloseTo(0.3)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(1000000, 2000000)).toBe(3000000)
+  })
+})
+",true,false,true,,src/add.ts,typescript,Adder with sub context
+yaml,code_001,claude-3.5-sonnet,unit-test,test.yaml,4d3b6c429838cd56605d7a9b5f398fd9bd8ddc62,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { expect } from 'chai'
 import { add } from './add'
 
 describe('add function', () => {
@@ -165,97 +434,24 @@ describe('add function', () => {
   })
 
   it('should add negative numbers correctly', () => {
-    expect(add(-3, -7)).to.equal(-10)
+    expect(add(-2, -3)).to.equal(-5)
   })
 
-  it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-    expect(add(-8, 3)).to.equal(-5)
+  it('should handle positive and negative number combinations', () => {
+    expect(add(-5, 10)).to.equal(5)
+    expect(add(7, -3)).to.equal(4)
   })
 
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
-  })
-
-  it('should return the same number when adding zero', () => {
-    expect(add(100, 0)).to.equal(100)
-    expect(add(0, 100)).to.equal(100)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
-  })
-})
-",,,,,,,,,,,,,,,
-go,unit-test,claude-3.5-sonnet,unit-test,code_003/quicksort.go,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should add two positive numbers correctly', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should handle zero as an input', () => {
-    expect(add(0, 5)).to.equal(5)
-    expect(add(10, 0)).to.equal(10)
-  })
-
-  it('should add negative numbers correctly', () => {
-    expect(add(-3, -7)).to.equal(-10)
-  })
-
-  it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-    expect(add(-8, 3)).to.equal(-5)
+  it('should return zero when adding inverse numbers', () => {
+    expect(add(5, -5)).to.equal(0)
   })
 
   it('should handle decimal numbers', () => {
     expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
   })
 
-  it('should return the same number when adding zero', () => {
-    expect(add(100, 0)).to.equal(100)
-    expect(add(0, 100)).to.equal(100)
-  })
-
   it('should handle large numbers', () => {
     expect(add(1000000, 2000000)).to.equal(3000000)
   })
 })
-",,,,,,,,,,,,,,,
-java,unit-test,claude-3.5-sonnet,unit-test,code_004/Levenshtein.java,5bbcf0dc61ce147e29a384a110e6db090f883e83,,,,0,0,0,0,,,false,,,,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should add two positive numbers correctly', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should handle zero as an input', () => {
-    expect(add(0, 5)).to.equal(5)
-    expect(add(10, 0)).to.equal(10)
-  })
-
-  it('should add negative numbers correctly', () => {
-    expect(add(-3, -7)).to.equal(-10)
-  })
-
-  it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).to.equal(2)
-    expect(add(-8, 3)).to.equal(-5)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
-  })
-
-  it('should return the same number when adding zero', () => {
-    expect(add(100, 0)).to.equal(100)
-    expect(add(0, 100)).to.equal(100)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
-  })
-})
-",,,,,,,,,,,,,,,
+",false,false,true,,src/add.ts,typescript,Adder

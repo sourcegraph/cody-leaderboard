@@ -88,7 +88,7 @@ def chat_csv_table(name: str):
         (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
     rows = rows.sort_values(by="FIXTURE")
 
-    for index, row in rows.iterrows():
+    for _, row in rows.iterrows():
         st.header(row["FIXTURE"])
         st.markdown(f"""-----
 **Chat Reply**: {row["CHAT_REPLY"]}
@@ -96,9 +96,49 @@ def chat_csv_table(name: str):
 """)
 
 
+def emojify(b: bool):
+    return "✅" if bool(b) else "❌"
+
+
 def unit_test_csv_table(name: str):
     df = pd.read_csv(name)
-    st.dataframe(df[['FILEPATH', 'FIXTURE']])
+    st.dataframe(df[['TEST_NAME', 'TEST_LANGUAGE']])
+
+    # filtered_df = df[["FIXTURE", "FILEPATH", "TEST_NAME",
+    #                   "LLM_JUDGE_SCORE", "TEST_INPUT_FILE", "TEST_FILE",
+    #                   "TEST_GENERATED", "TEST_MATCHES_EXPECTED_TEST_FILE",
+    #                   "TEST_USED_CORRECT_FRAMEWORK", "TEST_HAS_ERRORS",
+    #                   "TEST_HAS_TYPESCRIPT_ERRORS", "TEST_LANGUAGE"]]
+
+    selected_test = st.selectbox(
+        "Select a test", df["TEST_NAME"].unique())
+
+    filtered_models = st.multiselect(
+        "Filter models", df["FIXTURE"].unique())
+
+    rows = df[(df["TEST_NAME"] == selected_test) & (
+        (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
+
+    rows = rows.sort_values(by="FIXTURE")
+
+    for _, row in rows.iterrows():
+        st.header(row["FIXTURE"])
+        test_files_match = bool(row["TEST_MATCHES_EXPECTED_TEST_FILE"])
+        expected_text = f"({row['TEST_EXPECTED_FILE'].strip('/')})"
+        expected_actual_text = f"(expected: {row['TEST_EXPECTED_FILE']}, produced: {row['TEST_FILE']})"
+        st.text(
+            f'Produced expected test file: {emojify(test_files_match)} {expected_text if test_files_match else expected_actual_text}')
+
+        st.text("Imported correct framework: " +
+                emojify(row["TEST_USED_EXPECTED_TEST_FRAMEWORK"]))
+        if row["TEST_LANGUAGE"] == "typescript":
+            st.text("Is error free? " +
+                    emojify(not row["TEST_HAS_TYPESCRIPT_ERRORS"]))
+        st.code(row["TEST_GENERATED"], language=row['TEST_LANGUAGE'])
+    # pivot_df = df.pivot(index="FILEPATH",
+    #                     columns="FIXTURE", values="LLM_JUDGE_SCORE")
+    # pivot_df = pivot_df.sort_values(by=models_by_score, ascending=False)
+    # pivot_df = pivot_df[models_by_score]
 
 
 chatTab, fixTab, unitTestTab, editTab, autocompleteTab = st.tabs(
