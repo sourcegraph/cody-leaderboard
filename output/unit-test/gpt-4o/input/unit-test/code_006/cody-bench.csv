@@ -1,5 +1,5 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_006,gpt-4o,unit-test,test.yaml,0c92d0ba6fef9cc982e9a5bd07c708abe0098a4b,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+yaml,code_006,gpt-4o,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
 import { describe, it, expect } from 'vitest'
 
 describe('add', () => {
@@ -7,25 +7,17 @@ describe('add', () => {
     expect(add(2, 3)).toBe(5)
   })
 
-  it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).toBe(2)
-  })
-
   it('should add two negative numbers', () => {
-    expect(add(-2, -4)).toBe(-6)
+    expect(add(-2, -3)).toBe(-5)
   })
 
-  it('should handle zero as an input', () => {
-    expect(add(0, 7)).toBe(7)
-    expect(add(7, 0)).toBe(7)
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
   })
 
-  it('should add fractional numbers', () => {
-    expect(add(0.1, 0.2)).toBeCloseTo(0.3)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).toBe(3000000)
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
   })
 })
-",true,false,true,,src/add.ts,typescript,Adder with sub context,
+",true,true,true,,src/add.ts,typescript,Adder with sub context,/src/add.test.ts:2:37 2307 Cannot find module 'vitest' or its corresponding type declarations.

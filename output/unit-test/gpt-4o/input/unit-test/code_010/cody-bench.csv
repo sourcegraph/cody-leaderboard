@@ -1,0 +1,56 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,gpt-4o,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"import (
+	""testing""
+
+	""github.com/google/go-cmp/cmp""
+)
+
+func TestChunkPayloads(t *testing.T) {
+	tests := []struct {
+		name     string
+		payloads [][]byte
+		maxSize  int
+		want     [][]byte
+	}{
+		{
+			name:     ""single payload smaller than max size"",
+			payloads: [][]byte{[]byte(""hello"")},
+			maxSize:  10,
+			want:     [][]byte{[]byte(""hello"")},
+		},
+		{
+			name:     ""single payload equal to max size"",
+			payloads: [][]byte{make([]byte, 10)},
+			maxSize:  10,
+			want:     [][]byte{make([]byte, 10)},
+		},
+		{
+			name:     ""single payload larger than max size"",
+			payloads: [][]byte{make([]byte, 15)},
+			maxSize:  10,
+			want:     [][]byte{make([]byte, 10), make([]byte, 5)},
+		},
+		{
+			name:     ""multiple payloads"",
+			payloads: [][]byte{[]byte(""hello""), []byte(""world""), make([]byte, 15)},
+			maxSize:  10,
+			want:     [][]byte{[]byte(""hello""), []byte(""world""), make([]byte, 10), make([]byte, 5)},
+		},
+		{
+			name:     ""empty payloads"",
+			payloads: [][]byte{},
+			maxSize:  10,
+			want:     [][]byte{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ChunkPayloads(tt.payloads, tt.maxSize)
+			if diff := cmp.Diff(tt.want, got); diff != """" {
+				t.Errorf(""ChunkPayloads() mismatch (-want +got):\n%s"", diff)
+			}
+		})
+	}
+}
+",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
