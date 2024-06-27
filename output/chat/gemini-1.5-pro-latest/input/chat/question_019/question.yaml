@@ -16,324 +16,257 @@
 # CHAT_REPLY 	"time"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY // Agent is part of a distributed search, it searches a subset of the data and
-# CHAT_REPLY // reports back to a central coordinator.
+# CHAT_REPLY // agentSearchArgs are arguments passed to an agent. Note: this is a
+# CHAT_REPLY // different type than searchArgs because we do want to be able to
+# CHAT_REPLY // test how agent progresses through shards independently of how the
+# CHAT_REPLY // initial set of shards is determined.
+# CHAT_REPLY type agentSearchArgs struct {
+# CHAT_REPLY 	query     *Query
+# CHAT_REPLY 	opts      *SearchOptions
+# CHAT_REPLY 	stat      *RepoStats
+# CHAT_REPLY 	repos     []*RepoListEntry
+# CHAT_REPLY 	shardDist []uint32
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Agent is the first stage of a distributed text search.
+# CHAT_REPLY //
+# CHAT_REPLY // An Agent is responsible for searching a set of shards.  A set of
+# CHAT_REPLY // Agents can be used to distribute a search across multiple machines.
 # CHAT_REPLY type Agent struct {
-# CHAT_REPLY 	Searcher        Searcher
-# CHAT_REPLY 	SearcherMu      sync.Mutex
-# CHAT_REPLY 	LastIndex       uint32
-# CHAT_REPLY 	Index           IndexReader
-# CHAT_REPLY 	IndexOptions    *IndexOptions
-# CHAT_REPLY 	RepoCache       *RepoCache
-# CHAT_REPLY 	LastRepoCache   *RepoCache
-# CHAT_REPLY 	TempDir         string
-# CHAT_REPLY 	Logger          *log.Logger
-# CHAT_REPLY 	Client          Client
-# CHAT_REPLY 	SearchOptions   *SearchOptions
-# CHAT_REPLY 	EstimateDocCount bool
+# CHAT_REPLY 	Searcher
+# CHAT_REPLY 	SearcherMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// maxShards is the maximum number of shards to search concurrently.
+# CHAT_REPLY 	maxShards int
+# CHAT_REPLY 	// how long to wait between printing progress messages.
+# CHAT_REPLY 	PrintProgressEvery time.Duration
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // Run runs the agent. It will connect to the given address, and only return
-# CHAT_REPLY // when a subsequent call to Client.Close() is made.
-# CHAT_REPLY func (a *Agent) Run(ctx context.Context, addr string) error {
-# CHAT_REPLY 	a.Logger.Printf("agent: connecting to %s", addr)
-# CHAT_REPLY 	if err := a.Client.Connect(ctx, addr); err != nil {
-# CHAT_REPLY 		return fmt.Errorf("agent: connect: %v", err)
+# CHAT_REPLY // NewAgent returns a new Agent.
+# CHAT_REPLY func NewAgent(s Searcher) *Agent {
+# CHAT_REPLY 	return &Agent{
+# CHAT_REPLY 		Searcher:           s,
+# CHAT_REPLY 		maxShards:          4 * runtime.GOMAXPROCS(0),
+# CHAT_REPLY 		PrintProgressEvery: 5 * time.Second,
 # CHAT_REPLY 	}
-# CHAT_REPLY 	defer a.Client.Close()
-# CHAT_REPLY 	return a.run(ctx)
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) run(ctx context.Context) error {
-# CHAT_REPLY 	for {
-# CHAT_REPLY 		args, reply, err := a.Client.Next()
-# CHAT_REPLY 		if err != nil {
-# CHAT_REPLY 			return err
-# CHAT_REPLY 		}
+# CHAT_REPLY // Search implements the Searcher interface by searching the given
+# CHAT_REPLY // shards in parallel and ranking the combined results.
+# CHAT_REPLY func (a *Agent) Search(ctx context.Context, q *Query, opts *SearchOptions) (*SearchResult, error) {
+# CHAT_REPLY 	return a.search(ctx, &agentSearchArgs{
+# CHAT_REPLY 		query: q,
+# CHAT_REPLY 		opts:  opts,
+# CHAT_REPLY 		repos: a.Searcher.List(ctx, q, opts),
+# CHAT_REPLY 	})
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY 		if args == nil {
-# CHAT_REPLY 			// No work.
-# CHAT_REPLY 			runtime.GC()
-# CHAT_REPLY 			select {
-# CHAT_REPLY 			case <-ctx.Done():
-# CHAT_REPLY 				return nil
-# CHAT_REPLY 			case <-time.After(10 * time.Second):
+# CHAT_REPLY func (a *Agent) search(ctx context.Context, args *agentSearchArgs) (*SearchResult, error) {
+# CHAT_REPLY 	t0 := time.Now()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Start a goroutine for each shard.  The goroutines will send
+# CHAT_REPLY 	// their results to the chan searchResult.
+# CHAT_REPLY 	shardc := make(chan *SearchResult, a.maxShards)
+# CHAT_REPLY 	var searchError error
+# CHAT_REPLY 	var wg sync.WaitGroup
+# CHAT_REPLY 	var shardStartTime time.Time
+# CHAT_REPLY 	nextShard := make(chan int, a.maxShards)
+# CHAT_REPLY 	var mu sync.Mutex
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		for i := range args.repos {
+# CHAT_REPLY 			nextShard <- i
+# CHAT_REPLY 		}
+# CHAT_REPLY 		close(nextShard)
+# CHAT_REPLY 	}()
+# CHAT_REPLY 	for i := 0; i < a.maxShards; i++ {
+# CHAT_REPLY 		wg.Add(1)
+# CHAT_REPLY 		go func() {
+# CHAT_REPLY 			defer wg.Done()
+# CHAT_REPLY 			for si := range nextShard {
+# CHAT_REPLY 				mu.Lock()
+# CHAT_REPLY 				if shardStartTime.IsZero() {
+# CHAT_REPLY 					shardStartTime = time.Now()
+# CHAT_REPLY 				}
+# CHAT_REPLY 				mu.Unlock()
+# CHAT_REPLY 				repo := args.repos[si]
+# CHAT_REPLY 				sr, err := a.Searcher.Search(ctx, args.query, &SearchOptions{
+# CHAT_REPLY 					Shard:           repo.Repository.Name,
+# CHAT_REPLY 					UseLegacySyntax: args.opts.UseLegacySyntax,
+# CHAT_REPLY 					// No limits here, we do collapsing
+# CHAT_REPLY 					// and limiting as agent.
+# CHAT_REPLY 					MaxWallTime:      args.opts.MaxWallTime,
+# CHAT_REPLY 					MaxDocDisplayCount: args.opts.MaxDocDisplayCount,
+# CHAT_REPLY 					ShardMaxMatchCount: args.opts.ShardMaxMatchCount,
+# CHAT_REPLY 					ShardMaxImportantMatch: args.opts.ShardMaxImportantMatch,
+# CHAT_REPLY 				})
+# CHAT_REPLY 				if err != nil {
+# CHAT_REPLY 					searchError = err
+# CHAT_REPLY 					return
+# CHAT_REPLY 				}
+# CHAT_REPLY 				sr.Stats.Wait = time.Since(shardStartTime)
+# CHAT_REPLY 				shardc <- sr
 # CHAT_REPLY 			}
-# CHAT_REPLY 			continue
+# CHAT_REPLY 		}()
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		wg.Wait()
+# CHAT_REPLY 		close(shardc)
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Merge the results from the shards on this agent.
+# CHAT_REPLY 	var aggregate AggregateSearchResult
+# CHAT_REPLY 	for sr := range shardc {
+# CHAT_REPLY 		aggregate.Add(sr)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Sort the results before we apply MaxDocDisplayCount, so that
+# CHAT_REPLY 	// we return the globally best results, not the best results
+# CHAT_REPLY 	// per shard.
+# CHAT_REPLY 	sort.Sort(&aggregate)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Now that the results are sorted, we can apply MaxDocDisplayCount.
+# CHAT_REPLY 	aggregate.Top(args.opts.MaxDocDisplayCount)
+# CHAT_REPLY 
+# CHAT_REPLY 	elapsed := time.Since(t0)
+# CHAT_REPLY 	stats := aggregate.Stats
+# CHAT_REPLY 	stats.ShardsScanned = uint32(len(args.repos))
+# CHAT_REPLY 	stats.ShardsSkippedFilter = uint32(len(args.repos) - len(aggregate.shardStats))
+# CHAT_REPLY 	stats.TotalDocs = args.stat.Documents
+# CHAT_REPLY 	stats.IndexBytes = args.stat.IndexBytes
+# CHAT_REPLY 	return &SearchResult{
+# CHAT_REPLY 		Stats:  stats,
+# CHAT_REPLY 		Files:  aggregate.Files,
+# CHAT_REPLY 		Elapsed: elapsed,
+# CHAT_REPLY 	}, searchError
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // AggregateSearchResult is the intermediate data structure used to merge
+# CHAT_REPLY // search results from multiple shards.
+# CHAT_REPLY type AggregateSearchResult struct {
+# CHAT_REPLY 	Files      []*FileMatch
+# CHAT_REPLY 	shardStats []*ShardStats
+# CHAT_REPLY 	Stats      *Stats
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Add adds the search results from a shard to the aggregate results.
+# CHAT_REPLY func (a *AggregateSearchResult) Add(r *SearchResult) {
+# CHAT_REPLY 	if r == nil {
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 	a.Files = append(a.Files, r.Files...)
+# CHAT_REPLY 	a.shardStats = append(a.shardStats, r.Stats)
+# CHAT_REPLY 	if a.Stats == nil {
+# CHAT_REPLY 		a.Stats = &Stats{}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	a.Stats.Add(r.Stats)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Top sets a.Files to the top k files with the highest Rank.
+# CHAT_REPLY // It assumes a.Files is already sorted.
+# CHAT_REPLY func (a *AggregateSearchResult) Top(k int) {
+# CHAT_REPLY 	if len(a.Files) <= k {
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 	a.Files = a.Files[:k]
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Len is the number of files in the result set.
+# CHAT_REPLY func (a *AggregateSearchResult) Len() int { return len(a.Files) }
+# CHAT_REPLY 
+# CHAT_REPLY // Less compares the rank of two files.
+# CHAT_REPLY func (a *AggregateSearchResult) Less(i, j int) bool {
+# CHAT_REPLY 	return a.Files[i].Score > a.Files[j].Score
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Swap swaps two files in the result set.
+# CHAT_REPLY func (a *AggregateSearchResult) Swap(i, j int) { a.Files[i], a.Files[j] = a.Files[j], a.Files[i] }
+# CHAT_REPLY 
+# CHAT_REPLY // StreamSearch streams the search results to the given writer.
+# CHAT_REPLY func (a *Agent) StreamSearch(ctx context.Context, w io.Writer, q *Query, opts *SearchOptions) error {
+# CHAT_REPLY 	return a.streamSearch(ctx, w, &agentSearchArgs{
+# CHAT_REPLY 		query: q,
+# CHAT_REPLY 		opts:  opts,
+# CHAT_REPLY 		repos: a.Searcher.List(ctx, q, opts),
+# CHAT_REPLY 	})
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (a *Agent) streamSearch(ctx context.Context, w io.Writer, args *agentSearchArgs) error {
+# CHAT_REPLY 	ctx, cancel := context.WithCancel(ctx)
+# CHAT_REPLY 	defer cancel()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Start a goroutine for each shard.  The goroutines will send
+# CHAT_REPLY 	// their results to the chan searchResult.
+# CHAT_REPLY 	shardc := make(chan *SearchResult, a.maxShards)
+# CHAT_REPLY 	var searchError error
+# CHAT_REPLY 	var wg sync.WaitGroup
+# CHAT_REPLY 	nextShard := make(chan int, a.maxShards)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		for i := range args.repos {
+# CHAT_REPLY 			nextShard <- i
 # CHAT_REPLY 		}
-# CHAT_REPLY 
-# CHAT_REPLY 		if err := a.handle(ctx, args, reply); err != nil {
-# CHAT_REPLY 			return err
-# CHAT_REPLY 		}
-# CHAT_REPLY 	}
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) handle(ctx context.Context, args *Request, reply *Response) error {
-# CHAT_REPLY 	if args.Index != nil {
-# CHAT_REPLY 		return a.handleIndex(ctx, args.Index, reply)
-# CHAT_REPLY 	} else if args.Search != nil {
-# CHAT_REPLY 		return a.handleSearch(ctx, args.Search, reply)
-# CHAT_REPLY 	} else if args.List != nil {
-# CHAT_REPLY 		return a.handleList(ctx, args.List, reply)
-# CHAT_REPLY 	}
-# CHAT_REPLY 	panic("unknown request")
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) handleIndex(ctx context.Context, args *IndexArgs, reply *IndexResponse) error {
-# CHAT_REPLY 	a.SearcherMu.Lock()
-# CHAT_REPLY 	defer a.SearcherMu.Unlock()
-# CHAT_REPLY 
-# CHAT_REPLY 	if a.LastIndex == args.Index {
-# CHAT_REPLY 		// We have already indexed this data.
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	a.Logger.Printf("agent: indexing generation %d", args.Index)
-# CHAT_REPLY 	if err := index(ctx, a.TempDir, args.Index, a.IndexOptions, args.Repo, a.Logger); err != nil {
-# CHAT_REPLY 		return err
-# CHAT_REPLY 	}
-# CHAT_REPLY 	a.LastIndex = args.Index
-# CHAT_REPLY 	a.Index = nil
-# CHAT_REPLY 	a.Searcher = nil
-# CHAT_REPLY 	a.RepoCache = nil
-# CHAT_REPLY 
-# CHAT_REPLY 	if err := a.loadNewIndex(ctx); err != nil {
-# CHAT_REPLY 		return err
-# CHAT_REPLY 	}
-# CHAT_REPLY 	return nil
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) loadNewIndex(ctx context.Context) error {
-# CHAT_REPLY 	indexFile := fmt.Sprintf("%s/index.%08d.zoekt", a.TempDir, a.LastIndex)
-# CHAT_REPLY 
-# CHAT_REPLY 	a.Logger.Printf("agent: loading index %s", indexFile)
-# CHAT_REPLY 	var err error
-# CHAT_REPLY 	a.Index, err = NewIndexReader(indexFile, a.IndexOptions)
-# CHAT_REPLY 	if err != nil {
-# CHAT_REPLY 		return fmt.Errorf("NewIndexReader: %v", err)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	a.Searcher = NewSearcher(a.Index)
-# CHAT_REPLY 	a.RepoCache, err = NewRepoCache(a.Index)
-# CHAT_REPLY 	if err != nil {
-# CHAT_REPLY 		return err
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	return nil
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) handleSearch(ctx context.Context, args *SearchArgs, reply *SearchResponse) error {
-# CHAT_REPLY 	if a.Searcher == nil {
-# CHAT_REPLY 		if err := a.loadNewIndex(ctx); err != nil {
-# CHAT_REPLY 			return err
-# CHAT_REPLY 		}
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	// TODO(hanwen): cancel previous search
-# CHAT_REPLY 	a.SearcherMu.Lock()
-# CHAT_REPLY 	defer a.SearcherMu.Unlock()
-# CHAT_REPLY 
-# CHAT_REPLY 	reply.Stats.Wait = time.Since(args.Start).Seconds()
-# CHAT_REPLY 
-# CHAT_REPLY 	if args.Pattern == "CountRepositoryDocumentMatchCount" {
-# CHAT_REPLY 		return a.countRepositoryDocumentMatchCount(ctx, args, reply)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	if args.Pattern == "ListRepositoryNames" {
-# CHAT_REPLY 		return a.listRepositoryNames(ctx, args, reply)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	s := a.Searcher
-# CHAT_REPLY 
-# CHAT_REPLY 	opts := args.Options
-# CHAT_REPLY 
-# CHAT_REPLY 	if opts.EstimateDocCount {
-# CHAT_REPLY 		reply.Stats.ShardHasRepo = a.RepoCache.Exists(args.Repo)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	if !reply.Stats.ShardHasRepo {
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	if a.LastRepoCache != nil && args.Repo != "" {
-# CHAT_REPLY 		if repo, ok := a.LastRepoCache.Get(args.Repo); ok {
-# CHAT_REPLY 			opts = opts.WithRepoIDs(repo.IDs)
-# CHAT_REPLY 		}
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	sr, err := s.Search(ctx, args.Pattern, opts)
-# CHAT_REPLY 	if err != nil {
-# CHAT_REPLY 		return err
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	return a.convertSearchResult(ctx, sr, reply, args)
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) countRepositoryDocumentMatchCount(ctx context.Context, args *SearchArgs, reply *SearchResponse) error {
-# CHAT_REPLY 	if a.LastRepoCache == nil {
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	repo, ok := a.LastRepoCache.Get(args.Repo)
-# CHAT_REPLY 	if !ok {
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	var docCount uint32
-# CHAT_REPLY 	for _, id := range repo.IDs {
-# CHAT_REPLY 		docCount += a.Index.GetDocCount(id)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	reply.Stats.ShardDocumentCount += docCount
-# CHAT_REPLY 	return nil
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) listRepositoryNames(ctx context.Context, args *SearchArgs, reply *SearchResponse) error {
-# CHAT_REPLY 	if a.LastRepoCache == nil {
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	repo, ok := a.LastRepoCache.Get(args.Repo)
-# CHAT_REPLY 	if !ok {
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	reply.RepoURLs = []string{repo.URL()}
-# CHAT_REPLY 	return nil
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) convertSearchResult(ctx context.Context, sr *SearchResult, reply *SearchResponse, args *SearchArgs) error {
-# CHAT_REPLY 	opts := args.Options
-# CHAT_REPLY 	reply.Stats.IndexTime = sr.Stats.IndexTime
-# CHAT_REPLY 	reply.Stats.SearchTime = sr.Stats.SearchTime
-# CHAT_REPLY 	reply.Stats.NumShards = sr.Stats.NumShards
-# CHAT_REPLY 	reply.Stats.ShardsSkipped = sr.Stats.ShardsSkipped
-# CHAT_REPLY 	reply.Stats.ShardsScanned = sr.Stats.ShardsScanned
-# CHAT_REPLY 	reply.Stats.FileCount = sr.Stats.FileCount
-# CHAT_REPLY 	reply.Stats.LineCount = sr.Stats.LineCount
-# CHAT_REPLY 	reply.Stats.MatchCount = sr.Stats.MatchCount
-# CHAT_REPLY 	reply.Stats.MaxMatchLineCount = sr.Stats.MaxMatchLineCount
-# CHAT_REPLY 
-# CHAT_REPLY 	if opts.EstimateDocCount {
-# CHAT_REPLY 		reply.Stats.ShardDocumentCount = sr.Stats.ShardDocumentCount
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	if sr.Stats.MatchCount == 0 || opts.MaxResults == 0 {
-# CHAT_REPLY 		return nil
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	result := &SearchResult{
-# CHAT_REPLY 		Files: make([]*FileMatch, 0, len(sr.Files)),
-# CHAT_REPLY 	}
-# CHAT_REPLY 	for _, fm := range sr.Files {
-# CHAT_REPLY 		if len(result.Files) >= opts.MaxResults {
-# CHAT_REPLY 			break
-# CHAT_REPLY 		}
-# CHAT_REPLY 
-# CHAT_REPLY 		// Merge matches from the same repository.
-# CHAT_REPLY 		if len(result.Files) > 0 {
-# CHAT_REPLY 			last := result.Files[len(result.Files)-1]
-# CHAT_REPLY 			if last.Repository.ID == fm.Repository.ID {
-# CHAT_REPLY 				// last is guaranteed to have at least one element.
-# CHAT_REPLY 				last.LineMatches = append(last.LineMatches, fm.LineMatches...)
-# CHAT_REPLY 				continue
+# CHAT_REPLY 		close(nextShard)
+# CHAT_REPLY 	}()
+# CHAT_REPLY 	for i := 0; i < a.maxShards; i++ {
+# CHAT_REPLY 		wg.Add(1)
+# CHAT_REPLY 		go func() {
+# CHAT_REPLY 			defer wg.Done()
+# CHAT_REPLY 			for si := range nextShard {
+# CHAT_REPLY 				repo := args.repos[si]
+# CHAT_REPLY 				err := a.Searcher.StreamSearch(ctx, w, args.query, &SearchOptions{
+# CHAT_REPLY 					Shard:           repo.Repository.Name,
+# CHAT_REPLY 					UseLegacySyntax: args.opts.UseLegacySyntax,
+# CHAT_REPLY 					// No limits here, we do collapsing
+# CHAT_REPLY 					// and limiting as agent.
+# CHAT_REPLY 					MaxWallTime:      args.opts.MaxWallTime,
+# CHAT_REPLY 					MaxDocDisplayCount: args.opts.MaxDocDisplayCount,
+# CHAT_REPLY 					ShardMaxMatchCount: args.opts.ShardMaxMatchCount,
+# CHAT_REPLY 					ShardMaxImportantMatch: args.opts.ShardMaxImportantMatch,
+# CHAT_REPLY 				})
+# CHAT_REPLY 				if err != nil {
+# CHAT_REPLY 					searchError = err
+# CHAT_REPLY 					return
+# CHAT_REPLY 				}
 # CHAT_REPLY 			}
-# CHAT_REPLY 		}
-# CHAT_REPLY 
-# CHAT_REPLY 		result.Files = append(result.Files, fm)
+# CHAT_REPLY 		}()
 # CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY 	matchCount := sortFilesByScore(result.Files)
-# CHAT_REPLY 	if opts.MaxResults > 0 && matchCount > opts.MaxResults {
-# CHAT_REPLY 		matchCount = opts.MaxResults
-# CHAT_REPLY 		result.Files = result.Files[:opts.MaxResults]
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		wg.Wait()
+# CHAT_REPLY 		close(shardc)
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	for range shardc {
 # CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY 	reply.Files = result.Files
-# CHAT_REPLY 	reply.Stats.MatchCount = matchCount
-# CHAT_REPLY 	return nil
+# CHAT_REPLY 	return searchError
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) handleList(ctx context.Context, args *ListArgs, reply *ListResponse) error {
-# CHAT_REPLY 	if a.LastRepoCache == nil {
-# CHAT_REPLY 		if err := a.loadNewIndex(ctx); err != nil {
-# CHAT_REPLY 			return err
-# CHAT_REPLY 		}
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	a.LastRepoCache = a.RepoCache
-# CHAT_REPLY 	reply.Repos, reply.CtagsVersions = a.RepoCache.List()
-# CHAT_REPLY 	return nil
+# CHAT_REPLY // List lists the repositories.
+# CHAT_REPLY func (a *Agent) List(ctx context.Context, q *Query, opts *SearchOptions) []*RepoListEntry {
+# CHAT_REPLY 	return a.Searcher.List(ctx, q, opts)
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY type repoFileSlice []*FileMatch
-# CHAT_REPLY 
-# CHAT_REPLY // Len is the number of elements in the collection.
-# CHAT_REPLY func (r repoFileSlice) Len() int { return len(r) }
-# CHAT_REPLY 
-# CHAT_REPLY // Less reports whether the element with
-# CHAT_REPLY // index i should sort before the element with index j.
-# CHAT_REPLY func (r repoFileSlice) Less(i, j int) bool {
-# CHAT_REPLY 	if r[i].Repository.Name != r[j].Repository.Name {
-# CHAT_REPLY 		return r[i].Repository.Name < r[j].Repository.Name
-# CHAT_REPLY 	}
-# CHAT_REPLY 	if r[i].Repository.Branch != r[j].Repository.Branch {
-# CHAT_REPLY 		return r[i].Repository.Branch < r[j].Repository.Branch
-# CHAT_REPLY 	}
-# CHAT_REPLY 	return r[i].FileName < r[j].FileName
+# CHAT_REPLY // Close closes the agent.
+# CHAT_REPLY func (a *Agent) Close() {
+# CHAT_REPLY 	a.Searcher.Close()
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // Swap swaps the elements with indexes i and j.
-# CHAT_REPLY func (r repoFileSlice) Swap(i, j int) { r[i], r[j] = r[j], r[i] }
-# CHAT_REPLY 
-# CHAT_REPLY func sortFilesByScore(files []*FileMatch) uint32 {
-# CHAT_REPLY 	var matches uint32
-# CHAT_REPLY 	for _, f := range files {
-# CHAT_REPLY 		sort.Sort(byScore(f.LineMatches))
-# CHAT_REPLY 		matches += uint32(len(f.LineMatches))
-# CHAT_REPLY 	}
-# CHAT_REPLY 	sort.Sort(repoFileSlice(files))
-# CHAT_REPLY 	return matches
+# CHAT_REPLY // printProgress prints the search progress to stdout.
+# CHAT_REPLY func (a *Agent) printProgress(ctx context.Context, started time.Time, args *agentSearchArgs, aggregate *AggregateSearchResult) {
+# CHAT_REPLY 	// \r returns to the beginning of the line
+# CHAT_REPLY 	// \033[2K clears the line
+# CHAT_REPLY 	fmt.Printf("\r\033[2K")
+# CHAT_REPLY 	log.Printf("Searched %d/%d shards in %s, found %d matching files...",
+# CHAT_REPLY 		aggregate.Stats.ShardsScanned,
+# CHAT_REPLY 		len(args.repos),
+# CHAT_REPLY 		time.Since(started),
+# CHAT_REPLY 		len(aggregate.Files),
+# CHAT_REPLY 	)
 # CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // byScore implements sort.Interface for []Match based on
-# CHAT_REPLY // the Score field.
-# CHAT_REPLY type byScore []LineMatch
-# CHAT_REPLY 
-# CHAT_REPLY func (m byScore) Len() int           { return len(m) }
-# CHAT_REPLY func (m byScore) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
-# CHAT_REPLY func (m byScore) Less(i, j int) bool { return m[i].Score > m[j].Score }
-# CHAT_REPLY 
-# CHAT_REPLY // Client is an interface to communicate with the coordinator.
-# CHAT_REPLY type Client interface {
-# CHAT_REPLY 	// Connect should establish a connection to the coordinator.
-# CHAT_REPLY 	Connect(ctx context.Context, address string) error
-# CHAT_REPLY 
-# CHAT_REPLY 	// Close should close the connection to the coordinator.
-# CHAT_REPLY 	Close() error
-# CHAT_REPLY 
-# CHAT_REPLY 	// Next should block until the coordinator has a request.
-# CHAT_REPLY 	Next() (*Request, *Response, error)
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // CopyFile copies src to dst until either EOF is reached on src or an error
-# CHAT_REPLY // occurs. It verifies that the hash of the copied content matches the given
-# CHAT_REPLY // sha1 hash.
-# CHAT_REPLY func CopyFile(dst io.Writer, src io.Reader, sha1 Hash) error {
-# CHAT_REPLY 	h := sha1.NewHash()
-# CHAT_REPLY 	_, err := io.Copy(io.MultiWriter(dst, h), src)
-# CHAT_REPLY 	if err != nil {
-# CHAT_REPLY 		return err
-# CHAT_REPLY 	}
-# CHAT_REPLY 	if !h.Sum(nil).Equal(sha1) {
-# CHAT_REPLY 		return fmt.Errorf("got different hash for %s", sha1)
-# CHAT_REPLY 	}
-# CHAT_REPLY 	return nil
-# CHAT_REPLY }
-# CHAT_REPLY 
 # CHAT_REPLY ```
 
+ class: insufficient context
  files:
    - ../mocked/codebase_context/README.md
  
