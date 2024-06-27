@@ -1,5 +1,5 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
-yaml,chat,gemini-1.5-pro-latest,chat,question_001/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"```typescript
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
+yaml,chat,gemini-1.5-pro-latest,chat,question_001/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"```typescript
 interface Animal {
     name: string;
     age: number;
@@ -20,98 +20,60 @@ class Dog implements Animal {
         return ""Woof!"";
     }
 }
-```",implement a dog class,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_002/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"Based on the code you provided, **Squirrel is a code intelligence API**. 
+```",implement a dog class,generate code,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_002/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"Based on the code you provided, **Squirrel is a code intelligence API**. 
 
-The comment above the interface definition explicitly states its purpose:
-
+The comment above the interface definition states: 
 ```typescript
 /**
  * Squirrel is a code intelligence API.
  */
 interface Squirrel {
-    symbolInformation(file: string): CodeIntelligence
+    // ...
 }
 ```
 
-The interface itself suggests that Squirrel provides at least one method, `symbolInformation`, which takes a file path as input and returns `CodeIntelligence` containing an array of symbols found in that file.",what is squirrel?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_003/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"I have access to the code for the README.md file you provided, which describes the Zoekt codebase. This includes instructions on:
+This means Squirrel provides functionality related to understanding and analyzing code, likely offering features like:
 
-* Downloading and installing Zoekt
-* Indexing directories, Git repositories, and repo repositories
-* Searching using the web interface, JSON API, and CLI
-* Setting up Zoekt using a systemd unit file
-* Using the Zoekt search service
-* Enabling symbol search
-* Details about the Sourcegraph fork
+* **Symbol information:** The `symbolInformation` method suggests Squirrel can provide information about symbols (like variables, functions, classes) within a given file.
 
-However, I do not have access to the actual code implementation of Zoekt. The README.md file only provides information on how to use and set up Zoekt.",What code do you have access to?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_004/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"Slices in Go are a dynamically-sized, flexible data structure that provide a powerful way to work with sequences of elements. Here's a breakdown of how slices work in Go:
+This is just a glimpse based on the limited context.  To get a complete picture of Squirrel's capabilities, we'd need to see how it's used and what other methods it offers.",what is squirrel?,codebase onboarding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_003/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"I have access to the code for the Zoekt codebase, which is a fork of the Google Zoekt project and is now maintained by Sourcegraph. This includes the code for the indexing engine, the web interface, the JSON API, and the command-line interface. 
+
+Specifically, the code I have access to includes:
+
+* **Indexing:**
+    * Code for indexing directories and Git repositories.
+    * Code for indexing multiple repositories using `zoekt-repo-index`.
+* **Searching:**
+    * Code for the web interface that allows users to search the indexed code.
+    * Code for the JSON API that allows programmatic access to search results.
+    * Code for the command-line interface that allows users to search from the terminal.
+* **Service Management:**
+    * Code for `zoekt-indexserver`, which manages mirroring, indexing, and updating repositories.
+* **Other:**
+    * Code related to symbol search using Universal ctags.
+    * Sourcegraph specific additions like `zoekt-sourcegraph-indexserver` and modifications for symbol search and API exposure.
+
+However, I do not have access to the actual code files themselves. I can only access the information provided in the `README.md` file you shared.",What code do you have access to?,cody usage,,,2,,0,true,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_004/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"Slices in Go are a dynamically-sized, flexible data structure that provide a powerful way to work with sequences of elements. Here's a breakdown of how slices work in Go:
 
 **Understanding Slices**
 
-* **Dynamically Sized:** Unlike arrays, which have a fixed length defined at compile time, slices can grow or shrink dynamically during runtime.
-* **Reference Type:** Slices are reference types. This means when you pass a slice to a function or assign it to another variable, you're actually passing a reference to the underlying array data.
-* **Underlying Array:** Every slice is backed by an array. When you create a slice, Go automatically creates an array to store the elements, and the slice maintains a reference to that array.
+* **Dynamic Arrays:** Think of slices as dynamic arrays built on top of arrays. They abstract away the fixed-size limitation of arrays, allowing you to add or remove elements easily.
+* **Underlying Array:**  A slice doesn't store the elements directly. Instead, it points to an underlying array that holds the data. When you create a slice, Go automatically creates or allocates memory for this array behind the scenes.
+* **Structure:** A slice is represented by a data structure containing three things:
+    * **Pointer:** A pointer to the first element of the underlying array.
+    * **Length:** The number of elements currently accessible in the slice.
+    * **Capacity:** The total number of elements the underlying array can hold before needing to resize.
 
-**Key Components of a Slice**
+**Key Characteristics**
 
-A slice is composed of three main components:
+* **Dynamic Resizing:** Slices grow dynamically as you add elements. Go handles the resizing of the underlying array when necessary.
+* **Pass by Reference:** When you pass a slice to a function, you're passing a reference to the slice header (pointer, length, capacity).  Modifications made to the slice inside the function will affect the original slice.
+* **Zero Value:** The zero value of a slice is `nil`. A `nil` slice has a length and capacity of 0 and doesn't point to an underlying array.
 
-1. **Pointer:** A pointer to the first element of the underlying array.
-2. **Length:** The number of elements currently accessible in the slice.
-3. **Capacity:** The total number of elements that the underlying array can hold before needing to be resized.
-
-**Creating Slices**
-
-* **Using `make()`:** The `make()` function is the most common way to create a slice:
-
-   ```go
-   mySlice := make([]int, 5) // Creates a slice of ints with length and capacity 5
-   ```
-
-* **Slice Literal:** Similar to array literals, but without specifying the size:
-
-   ```go
-   mySlice := []string{""apple"", ""banana"", ""cherry""}
-   ```
-
-* **Slicing an Existing Array or Slice:**
-
-   ```go
-   myArray := [5]int{1, 2, 3, 4, 5}
-   mySlice := myArray[1:4] // Creates a slice containing elements at index 1, 2, and 3
-   ```
-
-**Working with Slices**
-
-* **Accessing Elements:** Use square brackets `[]` to access elements by their index:
-
-   ```go
-   mySlice[0] = 10 
-   fmt.Println(mySlice[2])
-   ```
-
-* **Appending Elements:** The `append()` function adds elements to the end of a slice:
-
-   ```go
-   mySlice = append(mySlice, 6, 7)
-   ```
-
-* **Copying Slices:** Use the `copy()` function to copy elements from one slice to another:
-
-   ```go
-   sourceSlice := []int{1, 2, 3}
-   destSlice := make([]int, len(sourceSlice))
-   copy(destSlice, sourceSlice)
-   ```
-
-**Important Considerations**
-
-* **Capacity and Resizing:** When you append elements to a slice that is already at its capacity, Go automatically creates a new, larger array, copies the existing elements, and updates the slice's pointer. This can have performance implications for very large slices.
-* **Passing Slices to Functions:** Since slices are reference types, modifications made to a slice inside a function will affect the original slice.
-
-**Example**
+**Common Operations**
 
 ```go
 package main
@@ -119,150 +81,193 @@ package main
 import ""fmt""
 
 func main() {
-    // Create a slice of strings
-    fruits := []string{""apple"", ""banana""}
+    // Creating slices
+    numbers := []int{1, 2, 3, 4} // Slice literal
+    names := make([]string, 3)    // Using make with initial length
+    empty := []float64{}          // Empty slice
 
-    // Append an element
-    fruits = append(fruits, ""cherry"")
+    // Accessing elements
+    fmt.Println(numbers[0]) // Accessing the first element
 
-    // Print the slice
-    fmt.Println(fruits) // Output: [apple banana cherry]
+    // Slicing (creating sub-slices)
+    subslice := numbers[1:3] // Elements at index 1 and 2
 
-    // Slice the slice
-    citrus := fruits[1:3] 
-    fmt.Println(citrus) // Output: [banana cherry]
+    // Appending elements
+    numbers = append(numbers, 5, 6) 
+
+    // Copying slices
+    copy(names, []string{""Alice"", ""Bob""}) 
+
+    // Length and capacity
+    fmt.Println(len(numbers)) // Length
+    fmt.Println(cap(numbers)) // Capacity
 }
 ```
 
-Let me know if you'd like more details on a specific aspect of slices, such as slicing operations, capacity management, or common use cases.",how do slices work in go?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_005/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"This regular expression will replace all vowels (a, e, i, o, u) in a string with nothing, effectively removing them. 
+**Important Considerations**
 
-Here's how it breaks down:
+* **Capacity Management:** While Go handles resizing, frequent appends can lead to multiple memory allocations. If you have an idea of the slice's final size, initialize it with sufficient capacity using `make` to optimize performance.
+* **Nil vs. Empty:** A `nil` slice is different from an empty slice (`[]int{}`). A `nil` slice has no underlying array.
+
+Let me know if you'd like a deeper dive into specific slice operations, how to use slices with custom data types, or any other aspect of working with slices in Go!",how do slices work in go?,general coding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_005/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"This regex removes vowels (a, e, i, o, u) from any given text. 
+
+Here's how it works:
 
 * `/ /`: These are the delimiters marking the start and end of the regex.
 * `[aeiou]`: This is a character set that matches any single vowel (a, e, i, o, or u).
-* `/ /`:  These are the delimiters again.
-* `g`: This is a global flag, meaning the replacement will be applied to all occurrences of the pattern in the string, not just the first one.
+* `/g`: This is a global flag that tells the regex to replace all occurrences of the matched pattern, not just the first one.
 
-**Example:**
+So, when this regex is applied to a string, it will find all lowercase vowels and replace them with nothing, effectively deleting them from the string.",what does this regex do? \n/a|e|i|o|u/\n,general coding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"I can help you style a CSS checkbox with a light purple color. However, I need a bit more context to give you the best solution. 
 
-Input string: ""Hello World""
+Specifically, please tell me:
 
-Output after applying the regex: ""Hll Wrld""",what does this regex do? \n/a|e|i|o|u/\n,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"I can help you style a CSS checkbox with a light purple color. However, the provided code context doesn't contain any CSS. I need more information about which element you want to style. 
+* **What part of the checkbox do you want to style?** 
+    * The checkbox itself?
+    * The checkmark?
+    * A label next to the checkbox?
+* **Do you want to use a specific shade of light purple?** 
+    * If so, please provide the hex code (e.g., #C8A2C8).
+* **Are you using any CSS frameworks or libraries?** 
+    * (e.g., Bootstrap, Tailwind CSS)
 
-Please provide me with the following:
+Once I have this information, I can provide you with a tailored CSS code snippet.",style css checkbox using light purple,general coding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_007/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"I understand you're looking to upgrade your Python version. However, the provided code snippets are related to a Go project (""Cody Agent"" within a Sourcegraph codebase) and don't contain information about managing Python versions. 
 
-* **The HTML for the checkbox:**  Do you have an existing checkbox element? If so, please share the HTML code.
-* **Specific styling requirements:** Do you want to change the color of the checkbox itself, or the appearance of the checkbox when it's checked? 
-
-For example, you can tell me:
-
-* ""I want to style a checkbox like this: `<input type=""checkbox"" id=""myCheckbox"">` and make it light purple when checked."" 
-
-Once I have this information, I can provide you with the appropriate CSS code.",style css checkbox using light purple,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_007/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"I understand you're looking to upgrade your Python version. However, the provided code snippets are related to a Go project (""Cody Agent"") and don't contain information about managing Python versions. 
-
-To help you with upgrading your Python version, I need more context. Please tell me:
+To help you upgrade your Python version, I need more context. Please tell me:
 
 * **What operating system are you using?** (Windows, macOS, Linux)
 * **How did you install Python originally?** (Official installer, package manager, etc.)
 * **What version of Python are you currently using?** (You can check by running `python --version` or `python3 --version` in your terminal)
-* **What version of Python are you trying to upgrade to?**
+* **What version of Python do you want to upgrade to?**
 
-Once I have this information, I can provide you with more specific instructions.",how to upgrade my python version?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_008/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code snippet, this repository seems to be related to **code search and indexing**. 
+Once I have this information, I can provide you with tailored instructions on how to upgrade.",how to upgrade my python version?,general coding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_008/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code snippet, this repository seems to be related to **code search and indexing**. 
 
 Here's why:
 
-* **Data Structures:** The code defines structures like `FileMatch`, `ChunkMatch`, `LineMatch`, and fields like `Ranges`, `SymbolInfo`, `Content`, and `LineFragments`. These strongly suggest that the code deals with representing code search results.
-* **Functionality:** The functions like `SortAndTruncateFiles`, `DisplayTruncator`, `limitChunkMatches`, and `limitLineMatches` focus on sorting, truncating, and limiting the display of search results. 
-* **Context:** The presence of ""context lines"" and ""multiline ranges"" suggests handling of code snippets within their surrounding context.
+* **Data Structures:** The code defines structures like `FileMatch`, `ChunkMatches`, `LineMatches`, and `LineFragments`. These strongly suggest functionality for storing and representing code search results.
+* **Search and Filtering:** The presence of `SearchOptions`, `SortFiles`, and `DisplayTruncator` indicates capabilities for searching, sorting, and filtering code files based on user-defined criteria.
+* **Result Limiting:** The code implements logic for limiting the number of displayed documents (`MaxDocDisplayCount`) and matches (`MaxMatchDisplayCount`), which is crucial for handling large codebases and presenting concise results.
+* **Chunking and Context:** The `ChunkMatches` structure and the logic for limiting matches within chunks suggest the ability to group matches within a file for better context and navigation.
 
-**In short, this codebase likely belongs to a tool that indexes codebases and allows users to search through them.** It handles the logic for displaying a limited and relevant subset of search results to the user. 
+**In short, this codebase likely belongs to a tool that indexes codebases and allows users to search for code snippets, with features for sorting, filtering, and limiting results.** 
 
-However, without further context or access to other parts of the codebase, it's difficult to be more specific about the exact purpose or features of this repository.",What does this repo do??,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_009/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,You provided very little code: just a comment and an empty object literal. There is nothing to describe. Please provide the actual code so I can help you.,describe my code,,,0,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_010/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"I can't answer this question since I don't have access to any code written by \@zoekt. I can only see the files you've shared in our current conversation. 
+However, without further context or access to other parts of the codebase, it's difficult to be more specific about its exact purpose or features.",What does this repo do??,codebase onboarding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_009/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"You didn't provide me with any code to describe! Please provide the code snippet you'd like me to describe. 
 
-Please provide me with the code you'd like me to describe, and I'll do my best to help!",\@zoekt describe my code.,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_011/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"The provided code snippets don't contain information about a ""directory watcher"". 
+For example, you could say:
 
-However, based on the context of the `README.md` file describing a text search engine called ""Zoekt"", a directory watcher would likely be a component responsible for:
+""Here's the code I'd like you to describe: 
+```python
+def hello_world():
+  print(""Hello, world!"")
+```"" 
 
-* **Monitoring a specified directory for changes:** This could include new files, modifications to existing files, or deletions.
-* **Triggering re-indexing:** When changes are detected, the directory watcher would notify the indexing component to update the search index with the latest content.
+Once you provide the code, I can help you understand what it does.",describe my code,codebase onboarding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_010/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, but I need more context to understand your request. 
 
-This ensures that the search index remains consistent with the contents of the directory being watched, allowing for accurate search results even as the codebase evolves. 
+* **""My code"" is too vague.** Please provide the specific code snippet you'd like me to describe. 
+* **Tell me what you want to know.** Do you want a general overview, an explanation of specific functions, or something else?
 
-Please provide more context or specific code snippets if you have a particular directory watcher implementation in mind.",What does directory watcher do?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_012/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code snippets, I cannot determine if your codebase is ""clean"" in a general sense. ""Clean"" can be subjective and depend on various factors like coding style, complexity, and potential issues. 
+For example, you could say:
 
-However, I can offer some observations:
+* ""Describe the function `NewRateLimitWithPercentageConcurrency` in `limit.go`.""
+* ""Explain how the `concurrencyLimiter` struct works in `limit.go`.""
+* ""What is the purpose of the `@sourcegraph/cody-agent` package?""
 
-* **Code Variety:** You have code in Go, TypeScript, and a README file. This suggests a multifaceted project.
-* **Documentation:** The presence of a README suggests an attempt at documentation, which is a good practice.
-* **Specific Functionality:** The code snippets reveal parts of a search engine (Zoekt) with features like indexing, searching, and result limiting. 
+Please provide me with more information so I can assist you better.",\@zoekt describe my code.,codebase onboarding,,,2,,0,true,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_011/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"The `DirectoryWatcher` in `shards/watcher.go` monitors a directory for changes to shard files (`*.zoekt`) and updates the search index accordingly. Here's a breakdown:
 
-To assess the cleanliness of your codebase more thoroughly, I would need more context and potentially use code analysis tools. 
+1. **Initialization:**
+   - It takes the directory path and a `shardLoader` as input.
+   - It scans the directory for existing shard files and records their modification timestamps.
+   - It loads the initial set of shards using the `shardLoader`.
 
-Could you please provide more information about what you consider ""clean"" in this context? For example:
+2. **Watching for Changes:**
+   - It uses `fsnotify` to watch the directory for file system events.
+   - When a change is detected (e.g., new file, modification, deletion), it triggers a re-scan of the directory.
 
-* **Specific concerns:** Are you worried about code smells, potential bugs, or adherence to a style guide?
-* **Codebase size:** Is this the entirety of your codebase or just a small sample?
-* **Tools:** Do you use any linters or static analysis tools?
+3. **Updating the Index:**
+   - During the re-scan, it compares the current shard files and their timestamps with the recorded ones.
+   - **New/Modified Shards:** If a new shard is found or an existing one is modified, it loads the shard using the `shardLoader`.
+   - **Deleted Shards:** If a shard is deleted, it unloads the corresponding shard using the `shardLoader`.
 
-With more information, I can give you a more helpful and tailored answer.",Is my codebase clean?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_013/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"The provided snippets don't contain enough information to determine where the gRPC chunker is tested. 
+4. **Handling Errors:**
+   - It logs errors encountered during file system operations and continues watching.
 
-To figure out where the gRPC chunker tests are, I need more context.  Please provide the following:
+**In essence, the `DirectoryWatcher` ensures that the search index stays up-to-date with the contents of the shard directory by loading new/modified shards and unloading deleted ones.**",What does directory watcher do?,code search,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_012/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"Based on the code snippets provided, it's impossible to determine if your codebase is ""clean"" in a general sense. Code cleanliness encompasses many factors, including:
 
-* **File path:** What is the full path to the file containing the `chunker_test.go` file? This helps me understand the project structure.
-* **Chunker implementation:** Can you share the code for the gRPC chunker itself? This will help me identify related files and test patterns.
-* **Project structure:** Are there any specific directories where tests are typically located (e.g., a `tests` directory)?
+* **Style and Formatting:** Consistent use of whitespace, naming conventions, etc.
+* **Code Complexity:** Avoiding overly complex functions or deeply nested logic.
+* **Documentation:** Clear comments explaining the purpose and functionality of code.
+* **Error Handling:** Robust mechanisms for handling and reporting errors.
+* **Security:** Absence of vulnerabilities and secure coding practices.
+* **Performance:** Efficient use of resources and optimized for speed.
 
-With more information, I can help you find where the gRPC chunker is tested.",where do we test the grpc chunker,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_014/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, but I cannot upgrade your PyTorch version. I can only provide information and complete tasks related to the codebase you provided. 
+The provided snippets only show a small portion of your codebase, focusing on specific data structures and functions. 
 
-Upgrading PyTorch involves running commands on your system, which I cannot do. 
+To assess the cleanliness of your codebase, you could consider using static analysis tools like:
 
-However, I can give you some general advice on how to upgrade PyTorch to 1.0.0:
+* **Go:** `gofmt`, `golint`, `go vet`
+* **TypeScript:** `tslint`, `eslint`
 
-1. **Consult the official PyTorch website:** The PyTorch website will have the most up-to-date information on upgrading. Look for their installation instructions and make sure to specify version 1.0.0.
-2. **Use pip:** If you installed PyTorch using pip, you can likely upgrade using a simple command like: `pip install --upgrade torch==1.0.0`.
-3. **Consider your environment:** If you are using a virtual environment (which is recommended), make sure it is activated before upgrading.
-4. **Check for compatibility issues:** Upgrading PyTorch might require you to also upgrade other packages or modify your code.
+These tools can help identify potential issues related to style, complexity, and potential bugs. 
 
-If you encounter any problems, refer to the PyTorch documentation and forums for help.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site",,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_015/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,I cannot identify conflicting packages because there is no indication of conflicting packages in the provided code. The code you provided defines functions for sorting and truncating file matches in search results. It does not involve any package imports that could potentially cause conflicts.,Can you look through the files and identify the conflicting packages that may be causing this?,,,0,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_016/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"You're right! I apologize for overlooking your request to focus on `limit.go`. 
+Additionally, peer code reviews are invaluable for getting feedback on code quality and maintainability.",Is my codebase clean?,codebase onboarding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_013/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"The provided snippets don't contain enough information to determine where the gRPC chunker is tested. 
 
-Could you please tell me what you'd like to know about `limit.go` specifically? For example:
+To figure out where the gRPC chunker tests are, I need more context. Specifically:
 
-* Are you interested in a specific function or data structure within the file?
-* Do you have any questions about how the code in this file works?
-* Are you looking for ways to improve the code in this file?
+* **What is the ""gRPC chunker""?**  Is it a specific function, a module, or a concept within the codebase?  Knowing what it refers to will help me narrow down the search.
+* **File paths:**  Knowing the directory structure and file names related to gRPC functionality would be helpful.  For example, are there files named `grpc_client.go`, `grpc_server.go`, or something similar?
+* **Test file naming conventions:**  Does the project follow a specific pattern for naming test files (e.g., `*_test.go`)?
 
-The more specific you are, the better I can understand your needs and provide helpful information.",Mind taking a second look at the file? @limit.go,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"I cannot answer this question. The provided context does not contain the reasoning behind the licensing choice for this project. 
+Please provide more information about the codebase or the ""gRPC chunker"" so I can assist you better.",where do we test the grpc chunker,code search,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_014/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"I can't help you with that. I'm an AI coding assistant, so I can't directly execute commands or modify your environment. 
 
-To understand why the MIT license was chosen, you would need to look for clues in:
+To upgrade your PyTorch version, you'll need to follow the instructions on the PyTorch website. They usually involve using the `pip` package manager. 
 
-* **Project's documentation:** Check the project's README or other documentation files for explicit mentions of licensing rationale.
-* **Commit history:** Examining the early commits and discussions around the project's inception might reveal insights into the licensing decision. 
-* **Communication channels:** Explore forums, mailing lists, or chat logs associated with the project for any discussions related to licensing.
+For example, you might run a command like this:
 
-Remember that the MIT license is a permissive open-source license, allowing for broad use and modification of the software. This is a common choice for open-source projects, but the specific reasons can vary.",Why does this project use the MIT license?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided code snippets don't contain any references to a ""tensor"" function or any code related to tensors. Therefore, I cannot provide a location for it within the Zoekt repository. 
+```bash
+pip install --upgrade torch==1.0.0
+```
 
-To help me find the function, please provide more context:
+Make sure to consult the official PyTorch installation instructions for the most up-to-date and accurate information.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site",cody usage,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_015/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"I cannot identify any conflicting packages from the provided code snippet. There is no indication of package conflicts in the code. 
+
+To identify conflicting packages, I would need to see:
+
+* **Import statements:** Conflicting packages usually have the same package name but are imported from different sources.
+* **Error messages:** Build errors or runtime errors often provide clues about conflicting packages.
+* **Package management files:** Files like `go.mod` or `go.sum` can help identify package dependencies and potential conflicts.
+
+Please provide more context or code snippets if you suspect package conflicts.",Can you look through the files and identify the conflicting packages that may be causing this?,debug code,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_016/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"You're right! I apologize for overlooking your request to focus on `limit.go`.  
+
+It seems I got caught up in processing all the code and missed the specific instruction. Can you tell me what you'd like to know about `limit.go`? For example:
+
+* **Do you have a specific question about the code in `limit.go`?** 
+* **Are you looking for an explanation of how a particular function works?**
+* **Do you want to know how this file interacts with other parts of the codebase?**
+
+The more information you give me, the better I can understand your needs and provide a helpful response.",Mind taking a second look at the file? @limit.go,explain code,,,2,,2,true,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"The provided context does not mention why the project uses the MIT license. However, the MIT license is a very permissive open-source license that allows for both commercial and non-commercial use with very few restrictions. 
+
+This is likely why the project chose to use it: to encourage wide adoption and use of the software.",Why does this project use the MIT license?,insufficient context,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided code snippets don't contain any references to a ""tensor"" function or any code related to tensor operations. Therefore, I cannot provide you with the location of a ""tensor"" function within the Zoekt repository based on the given context. 
+
+To help me find the function, please provide more context or details:
 
 * **What is the purpose of this ""tensor"" function?** Knowing what it does will help me narrow down the search.
-* **Are there any other relevant keywords or file names?** Any additional information could be helpful. 
-* **Could you provide more code snippets where this function might be used or defined?** This would give me a better understanding of the surrounding code. 
+* **Are there any specific files or directories where you expect this function to be located?** 
+* **Can you provide any code snippets that call or use this ""tensor"" function?**
 
-With more information, I can assist you in finding the location of the ""tensor"" function.",See zoekt repo find location of tensor function,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"```go
+With more information, I can assist you better in finding the desired function.",See zoekt repo find location of tensor function,insufficient context,,,2,,2,true,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"```go
 package src
 
 import (
@@ -276,461 +281,401 @@ import (
 	""time""
 )
 
-// Agent is part of a distributed search, it searches a subset of the data and
-// reports back to a central coordinator.
+// agentSearchArgs are arguments passed to an agent. Note: this is a
+// different type than searchArgs because we do want to be able to
+// test how agent progresses through shards independently of how the
+// initial set of shards is determined.
+type agentSearchArgs struct {
+	query     *Query
+	opts      *SearchOptions
+	stat      *RepoStats
+	repos     []*RepoListEntry
+	shardDist []uint32
+}
+
+// Agent is the first stage of a distributed text search.
+//
+// An Agent is responsible for searching a set of shards.  A set of
+// Agents can be used to distribute a search across multiple machines.
 type Agent struct {
-	Searcher        Searcher
-	SearcherMu      sync.Mutex
-	LastIndex       uint32
-	Index           IndexReader
-	IndexOptions    *IndexOptions
-	RepoCache       *RepoCache
-	LastRepoCache   *RepoCache
-	TempDir         string
-	Logger          *log.Logger
-	Client          Client
-	SearchOptions   *SearchOptions
-	EstimateDocCount bool
+	Searcher
+	SearcherMu sync.Mutex
+
+	// maxShards is the maximum number of shards to search concurrently.
+	maxShards int
+	// how long to wait between printing progress messages.
+	PrintProgressEvery time.Duration
 }
 
-// Run runs the agent. It will connect to the given address, and only return
-// when a subsequent call to Client.Close() is made.
-func (a *Agent) Run(ctx context.Context, addr string) error {
-	a.Logger.Printf(""agent: connecting to %s"", addr)
-	if err := a.Client.Connect(ctx, addr); err != nil {
-		return fmt.Errorf(""agent: connect: %v"", err)
+// NewAgent returns a new Agent.
+func NewAgent(s Searcher) *Agent {
+	return &Agent{
+		Searcher:           s,
+		maxShards:          4 * runtime.GOMAXPROCS(0),
+		PrintProgressEvery: 5 * time.Second,
 	}
-	defer a.Client.Close()
-	return a.run(ctx)
 }
 
-func (a *Agent) run(ctx context.Context) error {
-	for {
-		args, reply, err := a.Client.Next()
-		if err != nil {
-			return err
-		}
+// Search implements the Searcher interface by searching the given
+// shards in parallel and ranking the combined results.
+func (a *Agent) Search(ctx context.Context, q *Query, opts *SearchOptions) (*SearchResult, error) {
+	return a.search(ctx, &agentSearchArgs{
+		query: q,
+		opts:  opts,
+		repos: a.Searcher.List(ctx, q, opts),
+	})
+}
 
-		if args == nil {
-			// No work.
-			runtime.GC()
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-time.After(10 * time.Second):
+func (a *Agent) search(ctx context.Context, args *agentSearchArgs) (*SearchResult, error) {
+	t0 := time.Now()
+
+	// Start a goroutine for each shard.  The goroutines will send
+	// their results to the chan searchResult.
+	shardc := make(chan *SearchResult, a.maxShards)
+	var searchError error
+	var wg sync.WaitGroup
+	var shardStartTime time.Time
+	nextShard := make(chan int, a.maxShards)
+	var mu sync.Mutex
+	go func() {
+		for i := range args.repos {
+			nextShard <- i
+		}
+		close(nextShard)
+	}()
+	for i := 0; i < a.maxShards; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for si := range nextShard {
+				mu.Lock()
+				if shardStartTime.IsZero() {
+					shardStartTime = time.Now()
+				}
+				mu.Unlock()
+				repo := args.repos[si]
+				sr, err := a.Searcher.Search(ctx, args.query, &SearchOptions{
+					Shard:           repo.Repository.Name,
+					UseLegacySyntax: args.opts.UseLegacySyntax,
+					// No limits here, we do collapsing
+					// and limiting as agent.
+					MaxWallTime:      args.opts.MaxWallTime,
+					MaxDocDisplayCount: args.opts.MaxDocDisplayCount,
+					ShardMaxMatchCount: args.opts.ShardMaxMatchCount,
+					ShardMaxImportantMatch: args.opts.ShardMaxImportantMatch,
+				})
+				if err != nil {
+					searchError = err
+					return
+				}
+				sr.Stats.Wait = time.Since(shardStartTime)
+				shardc <- sr
 			}
-			continue
+		}()
+	}
+
+	go func() {
+		wg.Wait()
+		close(shardc)
+	}()
+
+	// Merge the results from the shards on this agent.
+	var aggregate AggregateSearchResult
+	for sr := range shardc {
+		aggregate.Add(sr)
+	}
+
+	// Sort the results before we apply MaxDocDisplayCount, so that
+	// we return the globally best results, not the best results
+	// per shard.
+	sort.Sort(&aggregate)
+
+	// Now that the results are sorted, we can apply MaxDocDisplayCount.
+	aggregate.Top(args.opts.MaxDocDisplayCount)
+
+	elapsed := time.Since(t0)
+	stats := aggregate.Stats
+	stats.ShardsScanned = uint32(len(args.repos))
+	stats.ShardsSkippedFilter = uint32(len(args.repos) - len(aggregate.shardStats))
+	stats.TotalDocs = args.stat.Documents
+	stats.IndexBytes = args.stat.IndexBytes
+	return &SearchResult{
+		Stats:  stats,
+		Files:  aggregate.Files,
+		Elapsed: elapsed,
+	}, searchError
+}
+
+// AggregateSearchResult is the intermediate data structure used to merge
+// search results from multiple shards.
+type AggregateSearchResult struct {
+	Files      []*FileMatch
+	shardStats []*ShardStats
+	Stats      *Stats
+}
+
+// Add adds the search results from a shard to the aggregate results.
+func (a *AggregateSearchResult) Add(r *SearchResult) {
+	if r == nil {
+		return
+	}
+	a.Files = append(a.Files, r.Files...)
+	a.shardStats = append(a.shardStats, r.Stats)
+	if a.Stats == nil {
+		a.Stats = &Stats{}
+	}
+	a.Stats.Add(r.Stats)
+}
+
+// Top sets a.Files to the top k files with the highest Rank.
+// It assumes a.Files is already sorted.
+func (a *AggregateSearchResult) Top(k int) {
+	if len(a.Files) <= k {
+		return
+	}
+	a.Files = a.Files[:k]
+}
+
+// Len is the number of files in the result set.
+func (a *AggregateSearchResult) Len() int { return len(a.Files) }
+
+// Less compares the rank of two files.
+func (a *AggregateSearchResult) Less(i, j int) bool {
+	return a.Files[i].Score > a.Files[j].Score
+}
+
+// Swap swaps two files in the result set.
+func (a *AggregateSearchResult) Swap(i, j int) { a.Files[i], a.Files[j] = a.Files[j], a.Files[i] }
+
+// StreamSearch streams the search results to the given writer.
+func (a *Agent) StreamSearch(ctx context.Context, w io.Writer, q *Query, opts *SearchOptions) error {
+	return a.streamSearch(ctx, w, &agentSearchArgs{
+		query: q,
+		opts:  opts,
+		repos: a.Searcher.List(ctx, q, opts),
+	})
+}
+
+func (a *Agent) streamSearch(ctx context.Context, w io.Writer, args *agentSearchArgs) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Start a goroutine for each shard.  The goroutines will send
+	// their results to the chan searchResult.
+	shardc := make(chan *SearchResult, a.maxShards)
+	var searchError error
+	var wg sync.WaitGroup
+	nextShard := make(chan int, a.maxShards)
+	go func() {
+		for i := range args.repos {
+			nextShard <- i
 		}
-
-		if err := a.handle(ctx, args, reply); err != nil {
-			return err
-		}
-	}
-}
-
-func (a *Agent) handle(ctx context.Context, args *Request, reply *Response) error {
-	if args.Index != nil {
-		return a.handleIndex(ctx, args.Index, reply)
-	} else if args.Search != nil {
-		return a.handleSearch(ctx, args.Search, reply)
-	} else if args.List != nil {
-		return a.handleList(ctx, args.List, reply)
-	}
-	panic(""unknown request"")
-}
-
-func (a *Agent) handleIndex(ctx context.Context, args *IndexArgs, reply *IndexResponse) error {
-	a.SearcherMu.Lock()
-	defer a.SearcherMu.Unlock()
-
-	if a.LastIndex == args.Index {
-		// We have already indexed this data.
-		return nil
-	}
-
-	a.Logger.Printf(""agent: indexing generation %d"", args.Index)
-	if err := index(ctx, a.TempDir, args.Index, a.IndexOptions, args.Repo, a.Logger); err != nil {
-		return err
-	}
-	a.LastIndex = args.Index
-	a.Index = nil
-	a.Searcher = nil
-	a.RepoCache = nil
-
-	if err := a.loadNewIndex(ctx); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (a *Agent) loadNewIndex(ctx context.Context) error {
-	indexFile := fmt.Sprintf(""%s/index.%08d.zoekt"", a.TempDir, a.LastIndex)
-
-	a.Logger.Printf(""agent: loading index %s"", indexFile)
-	var err error
-	a.Index, err = NewIndexReader(indexFile, a.IndexOptions)
-	if err != nil {
-		return fmt.Errorf(""NewIndexReader: %v"", err)
-	}
-
-	a.Searcher = NewSearcher(a.Index)
-	a.RepoCache, err = NewRepoCache(a.Index)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *Agent) handleSearch(ctx context.Context, args *SearchArgs, reply *SearchResponse) error {
-	if a.Searcher == nil {
-		if err := a.loadNewIndex(ctx); err != nil {
-			return err
-		}
-	}
-
-	// TODO(hanwen): cancel previous search
-	a.SearcherMu.Lock()
-	defer a.SearcherMu.Unlock()
-
-	reply.Stats.Wait = time.Since(args.Start).Seconds()
-
-	if args.Pattern == ""CountRepositoryDocumentMatchCount"" {
-		return a.countRepositoryDocumentMatchCount(ctx, args, reply)
-	}
-
-	if args.Pattern == ""ListRepositoryNames"" {
-		return a.listRepositoryNames(ctx, args, reply)
-	}
-
-	s := a.Searcher
-
-	opts := args.Options
-
-	if opts.EstimateDocCount {
-		reply.Stats.ShardHasRepo = a.RepoCache.Exists(args.Repo)
-	}
-
-	if !reply.Stats.ShardHasRepo {
-		return nil
-	}
-
-	if a.LastRepoCache != nil && args.Repo != """" {
-		if repo, ok := a.LastRepoCache.Get(args.Repo); ok {
-			opts = opts.WithRepoIDs(repo.IDs)
-		}
-	}
-
-	sr, err := s.Search(ctx, args.Pattern, opts)
-	if err != nil {
-		return err
-	}
-
-	return a.convertSearchResult(ctx, sr, reply, args)
-}
-
-func (a *Agent) countRepositoryDocumentMatchCount(ctx context.Context, args *SearchArgs, reply *SearchResponse) error {
-	if a.LastRepoCache == nil {
-		return nil
-	}
-
-	repo, ok := a.LastRepoCache.Get(args.Repo)
-	if !ok {
-		return nil
-	}
-
-	var docCount uint32
-	for _, id := range repo.IDs {
-		docCount += a.Index.GetDocCount(id)
-	}
-
-	reply.Stats.ShardDocumentCount += docCount
-	return nil
-}
-
-func (a *Agent) listRepositoryNames(ctx context.Context, args *SearchArgs, reply *SearchResponse) error {
-	if a.LastRepoCache == nil {
-		return nil
-	}
-
-	repo, ok := a.LastRepoCache.Get(args.Repo)
-	if !ok {
-		return nil
-	}
-
-	reply.RepoURLs = []string{repo.URL()}
-	return nil
-}
-
-func (a *Agent) convertSearchResult(ctx context.Context, sr *SearchResult, reply *SearchResponse, args *SearchArgs) error {
-	opts := args.Options
-	reply.Stats.IndexTime = sr.Stats.IndexTime
-	reply.Stats.SearchTime = sr.Stats.SearchTime
-	reply.Stats.NumShards = sr.Stats.NumShards
-	reply.Stats.ShardsSkipped = sr.Stats.ShardsSkipped
-	reply.Stats.ShardsScanned = sr.Stats.ShardsScanned
-	reply.Stats.FileCount = sr.Stats.FileCount
-	reply.Stats.LineCount = sr.Stats.LineCount
-	reply.Stats.MatchCount = sr.Stats.MatchCount
-	reply.Stats.MaxMatchLineCount = sr.Stats.MaxMatchLineCount
-
-	if opts.EstimateDocCount {
-		reply.Stats.ShardDocumentCount = sr.Stats.ShardDocumentCount
-		return nil
-	}
-
-	if sr.Stats.MatchCount == 0 || opts.MaxResults == 0 {
-		return nil
-	}
-
-	result := &SearchResult{
-		Files: make([]*FileMatch, 0, len(sr.Files)),
-	}
-	for _, fm := range sr.Files {
-		if len(result.Files) >= opts.MaxResults {
-			break
-		}
-
-		// Merge matches from the same repository.
-		if len(result.Files) > 0 {
-			last := result.Files[len(result.Files)-1]
-			if last.Repository.ID == fm.Repository.ID {
-				// last is guaranteed to have at least one element.
-				last.LineMatches = append(last.LineMatches, fm.LineMatches...)
-				continue
+		close(nextShard)
+	}()
+	for i := 0; i < a.maxShards; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for si := range nextShard {
+				repo := args.repos[si]
+				err := a.Searcher.StreamSearch(ctx, w, args.query, &SearchOptions{
+					Shard:           repo.Repository.Name,
+					UseLegacySyntax: args.opts.UseLegacySyntax,
+					// No limits here, we do collapsing
+					// and limiting as agent.
+					MaxWallTime:      args.opts.MaxWallTime,
+					MaxDocDisplayCount: args.opts.MaxDocDisplayCount,
+					ShardMaxMatchCount: args.opts.ShardMaxMatchCount,
+					ShardMaxImportantMatch: args.opts.ShardMaxImportantMatch,
+				})
+				if err != nil {
+					searchError = err
+					return
+				}
 			}
-		}
-
-		result.Files = append(result.Files, fm)
+		}()
 	}
 
-	matchCount := sortFilesByScore(result.Files)
-	if opts.MaxResults > 0 && matchCount > opts.MaxResults {
-		matchCount = opts.MaxResults
-		result.Files = result.Files[:opts.MaxResults]
+	go func() {
+		wg.Wait()
+		close(shardc)
+	}()
+
+	for range shardc {
 	}
 
-	reply.Files = result.Files
-	reply.Stats.MatchCount = matchCount
-	return nil
+	return searchError
 }
 
-func (a *Agent) handleList(ctx context.Context, args *ListArgs, reply *ListResponse) error {
-	if a.LastRepoCache == nil {
-		if err := a.loadNewIndex(ctx); err != nil {
-			return err
-		}
-	}
-
-	a.LastRepoCache = a.RepoCache
-	reply.Repos, reply.CtagsVersions = a.RepoCache.List()
-	return nil
+// List lists the repositories.
+func (a *Agent) List(ctx context.Context, q *Query, opts *SearchOptions) []*RepoListEntry {
+	return a.Searcher.List(ctx, q, opts)
 }
 
-type repoFileSlice []*FileMatch
-
-// Len is the number of elements in the collection.
-func (r repoFileSlice) Len() int { return len(r) }
-
-// Less reports whether the element with
-// index i should sort before the element with index j.
-func (r repoFileSlice) Less(i, j int) bool {
-	if r[i].Repository.Name != r[j].Repository.Name {
-		return r[i].Repository.Name < r[j].Repository.Name
-	}
-	if r[i].Repository.Branch != r[j].Repository.Branch {
-		return r[i].Repository.Branch < r[j].Repository.Branch
-	}
-	return r[i].FileName < r[j].FileName
+// Close closes the agent.
+func (a *Agent) Close() {
+	a.Searcher.Close()
 }
 
-// Swap swaps the elements with indexes i and j.
-func (r repoFileSlice) Swap(i, j int) { r[i], r[j] = r[j], r[i] }
-
-func sortFilesByScore(files []*FileMatch) uint32 {
-	var matches uint32
-	for _, f := range files {
-		sort.Sort(byScore(f.LineMatches))
-		matches += uint32(len(f.LineMatches))
-	}
-	sort.Sort(repoFileSlice(files))
-	return matches
+// printProgress prints the search progress to stdout.
+func (a *Agent) printProgress(ctx context.Context, started time.Time, args *agentSearchArgs, aggregate *AggregateSearchResult) {
+	// \r returns to the beginning of the line
+	// \033[2K clears the line
+	fmt.Printf(""\r\033[2K"")
+	log.Printf(""Searched %d/%d shards in %s, found %d matching files..."",
+		aggregate.Stats.ShardsScanned,
+		len(args.repos),
+		time.Since(started),
+		len(aggregate.Files),
+	)
 }
-
-// byScore implements sort.Interface for []Match based on
-// the Score field.
-type byScore []LineMatch
-
-func (m byScore) Len() int           { return len(m) }
-func (m byScore) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
-func (m byScore) Less(i, j int) bool { return m[i].Score > m[j].Score }
-
-// Client is an interface to communicate with the coordinator.
-type Client interface {
-	// Connect should establish a connection to the coordinator.
-	Connect(ctx context.Context, address string) error
-
-	// Close should close the connection to the coordinator.
-	Close() error
-
-	// Next should block until the coordinator has a request.
-	Next() (*Request, *Response, error)
-}
-
-// CopyFile copies src to dst until either EOF is reached on src or an error
-// occurs. It verifies that the hash of the copied content matches the given
-// sha1 hash.
-func CopyFile(dst io.Writer, src io.Reader, sha1 Hash) error {
-	h := sha1.NewHash()
-	_, err := io.Copy(io.MultiWriter(dst, h), src)
-	if err != nil {
-		return err
-	}
-	if !h.Sum(nil).Equal(sha1) {
-		return fmt.Errorf(""got different hash for %s"", sha1)
-	}
-	return nil
-}
-
-```","Explain the logic in src/agent.go, particularly how agents interact with ranking",,,0,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_020/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"The README.md file provides a comprehensive guide for using Zoekt, a fast text search engine designed specifically for source code. 
-
-Here's a breakdown of the information it provides:
+```","Explain the logic in src/agent.go, particularly how agents interact with ranking",insufficient context,,,0,,0,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_020/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"The README.md file provides a comprehensive overview of Zoekt, a fast text search engine designed specifically for source code. Here's a breakdown of the information it presents:
 
 **1. Introduction:**
 
-* Briefly describes Zoekt and its purpose.
-* Mentions that this is a Sourcegraph fork of Google's Zoekt and is currently the actively maintained version.
+- Briefly introduces Zoekt and its purpose.
+- Mentions its origin as a Sourcegraph fork of Google's Zoekt and clarifies that it's now the primary maintained version.
 
 **2. Instructions:**
 
-* **Downloading:** Explains how to download Zoekt using `go get`.
-* **Indexing:** 
-    * Details how to index a directory or a Git repository using the respective command-line tools (`zoekt-index` and `zoekt-git-index`).
-    * Provides an example for indexing specific branches.
-    * Explains how to index multiple repositories using `zoekt-repo-index` and `zoekt-mirror-gitiles`.
-* **Searching:**
-    * **Web interface:** Guides through setting up the web interface using `zoekt-webserver`.
-    * **JSON API:** Explains how to interact with the JSON API for retrieving search results programmatically.
-    * **CLI:** Demonstrates how to perform searches from the command line using the `zoekt` command.
+- **Downloading:** Provides the `go get` command to download Zoekt.
+- **Indexing:** Explains how to index codebases for searching:
+    - **Directory:**  Uses `zoekt-index` to index a local directory.
+    - **Git repository:** Uses `zoekt-git-index` to index a Git repository, specifying branches with `-branches`.
+    - **Repo repositories:** Uses `zoekt-repo-index` and `zoekt-mirror-gitiles` to index repositories managed by a tool like Gerrit.
+- **Searching:** Explains how to search using Zoekt:
+    - **Web interface:**  Uses `zoekt-webserver` to start a web interface for searching.
+    - **JSON API:** Describes how to query the webserver's JSON API for search results.
+    - **CLI:** Uses the `zoekt` command for searching from the command line.
 
 **3. Installation:**
 
-* Recommends using a systemd unit file for a more structured installation on a Linux server.
-* Provides an example unit file configuration for running the `zoekt-webserver`.
+- Recommends using a systemd unit file for a more robust installation on Linux servers. Provides an example unit file for running the `zoekt-webserver`.
 
 **4. Search Service:**
 
-* Introduces `zoekt-indexserver`, a service management tool for Zoekt.
-* Explains how to configure it using a `config.json` file to mirror and index repositories from GitHub and Gitiles.
-* Mentions that it handles fetching updates, indexing, and log cleanup.
+- Introduces `zoekt-indexserver`, a service manager for Zoekt.
+- Explains how to configure it using a `config.json` file to mirror and index repositories from GitHub and Gitiles.
+- Mentions its role in fetching updates, indexing, and log management.
 
 **5. Symbol Search:**
 
-* Suggests installing Universal ctags for enhanced ranking in symbol searches.
-* Links to a separate document (`doc/ctags.md`) for more details on using ctags with Zoekt.
+- Recommends installing Universal ctags for enhanced ranking in symbol searches.
+- Points to `doc/ctags.md` for more details on using ctags with Zoekt.
 
 **6. Acknowledgements:**
 
-* Expresses gratitude to the original creators and contributors of Zoekt.
+- Expresses gratitude to the original creators and contributors of Zoekt.
 
 **7. Fork Details:**
 
-* Explains that this section is retained for historical context and may contain outdated information.
-* Briefly describes the differences between this fork and the original Google version, highlighting Sourcegraph-specific additions.
-* Provides a command for comparing the current codebase with the upstream repository.
+- **(Outdated)** Explains the initial differences between the Sourcegraph fork and the original Google version. This section is marked as outdated and can likely be removed.
 
 **8. Disclaimer:**
 
-* Clarifies that this is not an official Google product.
+- Clarifies that this is not an official Google product.
 
-In essence, the README.md serves as a comprehensive starting point for anyone looking to use Zoekt, covering everything from installation and indexing to searching and service management.",explain @README.md,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_021/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"Goroutines are the heart of Go's concurrency model, offering a lightweight and efficient way to manage concurrent operations. Here's a breakdown of how they work:
+**In essence, the README.md serves as a quick-start guide and reference for anyone looking to use Zoekt for code searching.** It covers installation, indexing, searching, and service management, making it easy for developers to get started with the tool.",explain @README.md,explain code,,,2,,0,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_021/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"Goroutines are the heart of Go's concurrency model, offering a lightweight and efficient way to achieve concurrent execution. Here's a breakdown of how they work:
 
-**1. Lightweight Threads, Not OS Threads:**
+**Understanding Goroutines**
 
-* Goroutines are **not** traditional operating system threads. They are managed entirely by the Go runtime.
-* This means they are incredibly lightweight. You can have thousands, even millions, of goroutines running concurrently without overwhelming your system.
-* The Go runtime handles scheduling these goroutines onto a smaller number of OS threads (called ""M"" in Go's terminology), effectively multiplexing many goroutines onto fewer threads.
+* **Lightweight Threads:** Think of goroutines as lightweight threads managed by the Go runtime. They consume far less memory than traditional OS threads and have minimal setup/teardown overhead.
+* **Multiplexing onto OS Threads:** The Go runtime uses a smaller set of OS threads (called ""M"" for machine) and cleverly multiplexes numerous goroutines onto them. This means you can have thousands, even millions, of goroutines running concurrently without overwhelming your system.
+* **Concurrent, Not Parallel:** It's crucial to understand that while goroutines enable concurrency, they don't guarantee parallelism.  Parallelism (truly running tasks simultaneously) depends on your system's CPU cores. The Go scheduler distributes runnable goroutines across available OS threads, which are then executed in parallel if multiple cores are present.
 
-**2. Starting a Goroutine:**
+**Creating Goroutines**
 
-* You start a goroutine by simply adding the keyword `go` before a function call:
+* **The `go` Keyword:**  Creating a goroutine is remarkably simple. Just prefix any function or method call with the `go` keyword:
 
    ```go
-   func myFunc() {
-       // Do something
+   package main
+
+   import (
+       ""fmt""
+       ""time""
+   )
+
+   func sayHello() {
+       time.Sleep(1 * time.Second)
+       fmt.Println(""Hello from goroutine!"")
    }
 
    func main() {
-       go myFunc() // Run myFunc concurrently
-       // ... rest of your code
+       go sayHello() // Start sayHello concurrently
+       fmt.Println(""Main function continues..."")
+
+       time.Sleep(2 * time.Second) // Keep the program running
    }
    ```
 
-* This launches `myFunc` as a separate, independent goroutine that runs concurrently with the rest of the `main` function.
+**Key Points**
 
-**3. Communication and Synchronization:**
+* **Asynchronous Execution:** When you launch a goroutine, it runs asynchronously. The main function doesn't wait for it to complete before proceeding to the next line.
+* **Main Goroutine:** Your Go program starts with a single, main goroutine. All other goroutines branch out from this initial one.
+* **Goroutine Scheduling:** The Go runtime's scheduler manages the execution of goroutines, deciding when and on which OS thread they should run. It employs a cooperative scheduling model, meaning goroutines yield control at specific points (like I/O operations or channel interactions).
 
-* Goroutines communicate with each other primarily through **channels**. 
-* Channels are typed conduits that allow you to safely send and receive data between goroutines. This helps avoid race conditions and other concurrency pitfalls.
+**Communication and Synchronization**
 
-   ```go
-   func worker(id int, jobs <-chan int, results chan<- int) {
-       for j := range jobs {
-           results <- j * 2 // Send result back through the channel
-       }
-   }
+* **Channels:** Goroutines often need to communicate or synchronize their actions. Go provides channels for this purpose. Channels act like pipes through which goroutines can send and receive data.
+* **Synchronization Primitives:** Go also offers traditional synchronization primitives like mutexes and wait groups for more complex scenarios.
 
-   func main() {
-       jobs := make(chan int, 100)
-       results := make(chan int, 100)
+**Example with Channels**
 
-       for w := 1; w <= 3; w++ {
-           go worker(w, jobs, results) 
-       }
+```go
+package main
 
-       for j := 1; j <= 5; j++ {
-           jobs <- j // Send jobs to workers
-       }
-       close(jobs)
+import (
+    ""fmt""
+    ""time""
+)
 
-       for a := 1; a <= 5; a++ {
-           fmt.Println(<-results) // Receive results from workers
-       }
-   }
-   ```
+func worker(id int, jobs <-chan int, results chan<- int) {
+    for j := range jobs {
+        fmt.Println(""Worker"", id, ""started job"", j)
+        time.Sleep(time.Second)
+        fmt.Println(""Worker"", id, ""finished job"", j)
+        results <- j * 2
+    }
+}
 
-* Goroutines can also synchronize their execution using **sync primitives** like `sync.Mutex` and `sync.WaitGroup`.
+func main() {
+    jobs := make(chan int, 10)
+    results := make(chan int, 10)
 
-**4. The Go Scheduler:**
+    for i := 1; i <= 3; i++ {
+        go worker(i, jobs, results)
+    }
 
-* The Go runtime includes a sophisticated scheduler that manages the execution of goroutines.
-* It distributes goroutines across available OS threads, ensuring that all goroutines get a chance to run.
-* The scheduler uses a cooperative multitasking model, meaning goroutines yield control voluntarily at specific points (e.g., channel operations, function calls).
+    for j := 1; j <= 5; j++ {
+        jobs <- j
+    }
+    close(jobs)
 
-**Key Advantages of Goroutines:**
+    for a := 1; a <= 5; a++ {
+        <-results
+    }
+}
+```
 
-* **Lightweight:** Low memory overhead, allowing for massive concurrency.
-* **Efficient:** Multiplexing onto fewer OS threads reduces context switching costs.
-* **Simplified Concurrency:** Channels and sync primitives provide safe and structured ways to manage concurrent operations.
-* **Improved Performance:**  Can significantly improve the performance of I/O-bound and CPU-bound tasks by utilizing multiple processor cores.
+**In Essence**
 
-Let me know if you'd like to explore any of these concepts in more detail or have specific code examples you'd like to discuss!",how do goroutines work?,,,2,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_022/question.yaml,991fec9c631383f1a244ba1f2cb1440250536009,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file in the provided codebase context defines functions for limiting the number of matches and files returned in a Zoekt search result. 
+Goroutines are a powerful abstraction that simplifies concurrent programming. By understanding how they are managed by the Go runtime and how to use channels for communication, you can write highly efficient and concurrent Go applications.",how do goroutines work?,general coding,,,2,,2,false,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_022/question.yaml,459db4aa095be28cdd860313d7f86543259923c4,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file in the `zoekt` package defines functions for truncating search results based on document and match count limits. 
 
 Here's a breakdown:
 
-* **`SortAndTruncateFiles`**: This function takes a list of `FileMatch` objects and `SearchOptions` as input. It first sorts the files (presumably based on relevance or other criteria) and then truncates the list based on the limits specified in the `SearchOptions`.
+- **`SortAndTruncateFiles`**: This function sorts a list of `FileMatch` objects (representing search results) and then truncates the list based on the provided `SearchOptions`.
 
-* **`DisplayTruncator`**: This is a stateful function type that enforces document and match display limits by truncating the input list of `FileMatch` objects. It returns the truncated list and a boolean indicating whether there are more results available.
+- **`DisplayTruncator`**: This is a stateful function type that enforces document and match display limits by truncating and mutating a list of `FileMatch` objects. It returns the truncated list and a boolean indicating whether more results are available.
 
-* **`NewDisplayTruncator`**: This function creates a new `DisplayTruncator` based on the limits specified in the `SearchOptions`. If no limits are set, it returns a no-op truncator.
+- **`NewDisplayTruncator`**: This function creates a new `DisplayTruncator` based on the provided `SearchOptions`. It returns the `DisplayTruncator` and a boolean indicating whether any limits are actually being enforced.
 
-* **`limitMatches`**: This function takes a list of `FileMatch` objects, a limit, and a boolean indicating whether to chunk matches. It applies the appropriate limiting function (`limitChunkMatches` or `limitLineMatches`) to each file in the list.
+- **`limitMatches`**: This function limits the number of matches (either `ChunkMatches` or `LineMatches`) within a list of `FileMatch` objects. It takes a `chunkMatches` boolean parameter to determine which type of match to limit.
 
-* **`limitChunkMatches`**: This function limits the number of `ChunkMatch` objects within a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to enforce the limit.
+- **`limitChunkMatches`**: This function limits the number of `ChunkMatches` within a `FileMatch` object. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` as needed.
 
-* **`limitLineMatches`**: This function limits the number of `LineMatch` objects within a `FileMatch`. It truncates the `LineFragments` field of each `LineMatch` to enforce the limit.
+- **`limitLineMatches`**: This function limits the number of `LineMatches` within a `FileMatch` object by truncating the `LineFragments` field of each `LineMatch`.
 
-In essence, this file provides the logic for ensuring that Zoekt search results don't exceed the configured display limits, preventing excessive memory usage and improving performance.",what does @limit.go do?,,,2,,,,,,,,
+In essence, this code ensures that search results displayed to the user do not exceed the configured limits for document count and match count. This helps to prevent overwhelming the user with too much information and improves the performance of displaying search results.",what does @limit.go do?,explain code,,,2,,2,false,,,,,,,

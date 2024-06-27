@@ -2,15 +2,17 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The provided codebase context doesn't contain any information about a "directory watcher".  It's likely that this functionality is implemented in a different part of the codebase, or perhaps it's a feature that's not yet implemented. 
+# CHAT_REPLY The `DirectoryWatcher` in the provided codebase is responsible for monitoring a directory containing Zoekt shard files. It performs the following actions:
 # CHAT_REPLY 
-# CHAT_REPLY To help me understand what you're looking for, could you please provide more context? For example:
+# CHAT_REPLY 1. **Initial Scan:** When initialized, it scans the directory for all `.zoekt` files and loads them into the `shardLoader`. It also keeps track of the modification timestamps of these files.
+# CHAT_REPLY 2. **File System Watching:** It uses `fsnotify` to watch for changes in the directory. This includes file creations, deletions, and modifications.
+# CHAT_REPLY 3. **Change Detection:** When a change is detected, it compares the modification timestamp of the affected file with the timestamp stored in its internal map. If the timestamp has changed, it means the file has been updated.
+# CHAT_REPLY 4. **Loading and Unloading:** For updated files, it calls the `load` method of the `shardLoader` to load the new data. For deleted files, it calls the `drop` method of the `shardLoader` to unload the data.
+# CHAT_REPLY 5. **Error Handling:** It logs any errors encountered during the watching process, but it continues to monitor the directory.
 # CHAT_REPLY 
-# CHAT_REPLY * **Where did you see the term "directory watcher" mentioned?** Was it in a comment, a function name, or a file name?
-# CHAT_REPLY * **What is the purpose of this directory watcher?** Is it used for indexing, monitoring changes, or something else?
-# CHAT_REPLY 
-# CHAT_REPLY With more information, I can help you understand the functionality of the directory watcher.
+# CHAT_REPLY In essence, the `DirectoryWatcher` ensures that the `shardLoader` always has the latest data from the shard files in the monitored directory. This is crucial for maintaining an up-to-date search index in Zoekt.
 
+ class: code search
  files:
    - ../mocked/enhanced_context/squirrel.ts
    - ../mocked/enhanced_context/animal.ts
@@ -18,4 +20,5 @@
    - ../mocked/enhanced_context/limit.go
    - ../mocked/enhanced_context/README.md
    - ../mocked/codebase_context/README.md
+   - ../mocked/codebase_context/shards/watcher.go
  

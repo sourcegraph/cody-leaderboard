@@ -61,39 +61,45 @@ def chat_csv_table(name: str):
     df = pd.read_csv(name)
     st.subheader("Leaderboard")
     score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
-    score_df.columns = ["FIXTURE", "Score"]
-    score_df = score_df.sort_values(by="Score", ascending=False)
+    score_df.columns = ["FIXTURE", "LLM Judge Score"]
+    score_df = score_df.sort_values(by="LLM Judge Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
     score_df = score_df.set_index("FIXTURE")
     st.dataframe(score_df)
 
-    filtered_df = df[["FIXTURE", "FILEPATH",
-                      "LLM_JUDGE_SCORE", "CHAT_QUESTION"]]
-
-    pivot_df = df.pivot(index="CHAT_QUESTION",
-                        columns="FIXTURE", values="LLM_JUDGE_SCORE")
-    pivot_df = pivot_df.sort_values(by=models_by_score, ascending=False)
+    pivot_df = df.pivot(index=["CHAT_QUESTION", "QUESTION_CLASS"], columns="FIXTURE", values="LLM_JUDGE_SCORE")
+    pivot_df = pivot_df.sort_values(by="QUESTION_CLASS")
     pivot_df = pivot_df[models_by_score]
 
     st.dataframe(pivot_df.style.map(
         lambda score: 'background-color: #ffdddd' if score == 0 else '', subset=pivot_df.columns))
 
-    selected_question = st.selectbox(
-        "Select a question", filtered_df["CHAT_QUESTION"].unique())
-    filtered_models = st.multiselect(
-        "Filter models", filtered_df["FIXTURE"].unique())
+    selected_question = st.selectbox("Select question", df["CHAT_QUESTION"].unique())
+    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique())
 
-    rows = df[(df["CHAT_QUESTION"] == selected_question) & (
-        (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
-    rows = rows.sort_values(by="FIXTURE")
+    rows = df[(df["CHAT_QUESTION"] == selected_question) & ((len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
+    fixtures = rows.groupby("FIXTURE")
 
-    for _, row in rows.iterrows():
-        st.header(row["FIXTURE"])
-        st.markdown(f"""-----
-**Chat Reply**: {row["CHAT_REPLY"]}
+    for fixture, rows in fixtures:
+        rows = rows.sort_values(by="LLM_JUDGE_SCORE", ascending=False)
+        st.header(fixture)
+        for index, row in rows.iterrows():
+            score = 'Good' if row["LLM_JUDGE_SCORE"] > 0 else '<span style="color:red">Poor</span>'
+            hedges = 'No' if row["HEDGES"] == 0 else '<span style="color:red">Yes</span>'
+            verbose = 'No' if row["CONCISENESS_SCORE"] > 0 else '<span style="color:red">Yes</span>'
 
-""")
+            st.markdown(f"""-----
+
+🤖 **LLM Judge Score**: {score} | 🤔 **Hedges**: {hedges} | 🕑 **Verbose**: {verbose}
+
+**Question**: {row["CHAT_QUESTION"]}
+
+**Question Class**: {row["QUESTION_CLASS"]}
+
+**Response**: {row["CHAT_REPLY"]}
+
+""", unsafe_allow_html=True)
 
 
 def emojify(b: bool):
