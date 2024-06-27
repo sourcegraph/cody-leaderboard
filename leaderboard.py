@@ -115,7 +115,13 @@ def emojify(b: bool):
 
 def unit_test_csv_table(name: str):
     df = pd.read_csv(name)
-    st.dataframe(df[['TEST_NAME', 'TEST_LANGUAGE']])
+
+    score_df = df.groupby("FIXTURE")[["TEST_MATCHES_EXPECTED_TEST_FILE", "TEST_USED_EXPECTED_TEST_FRAMEWORK"]].sum().reset_index()
+    score_df.columns = ["Fixture", "Expected path", "Expected framework"]
+    score_df = score_df.sort_values(by="Expected path", ascending=False)
+
+    score_df = score_df.set_index("Fixture")
+    st.dataframe(score_df)
 
     selected_test = st.selectbox(
         "Select a test", df["TEST_NAME"].unique())
@@ -132,19 +138,24 @@ def unit_test_csv_table(name: str):
         st.header(row["FIXTURE"])
         test_files_match = bool(row["TEST_MATCHES_EXPECTED_TEST_FILE"])
         expected_text = f"({row['TEST_EXPECTED_FILE'].strip('/')})"
-        expected_actual_text = f"(expected: {row['TEST_EXPECTED_FILE']}, produced: {row['TEST_FILE']})"
-        st.text(
-            f'Produced expected test file: {emojify(test_files_match)} {expected_text if test_files_match else expected_actual_text}')
+        expected_actual_text = f"(expected: {row['TEST_EXPECTED_FILE']}, actual: {row['TEST_FILE']})"
+        has_errors = row["TEST_LANGUAGE"] == "typescript" and bool(row["TEST_HAS_TYPESCRIPT_ERRORS"])
 
-        st.text("Imported correct framework: " +
-                emojify(row["TEST_USED_EXPECTED_TEST_FRAMEWORK"]))
-        if row["TEST_LANGUAGE"] == "typescript":
-            has_errors = bool(row["TEST_HAS_TYPESCRIPT_ERRORS"])
-            st.text("Is error free? " + emojify(not has_errors))
-            if has_errors:
-                st.text("Errors:")
-                st.code(row["TEST_DIAGNOSTICS"], language="text")
-        st.code(row["TEST_GENERATED"], language=row['TEST_LANGUAGE'])
+        st.markdown(f"""-----
+**Correct file path?** {emojify(test_files_match)} {expected_text if test_files_match else expected_actual_text}
+
+**Correct framework?** {emojify(row["TEST_USED_EXPECTED_TEST_FRAMEWORK"])}
+
+{"**No Typescript errors?** " + emojify(not has_errors) if row["TEST_LANGUAGE"] == "typescript" else ""}\n
+```
+{row["TEST_DIAGNOSTICS"] if row["TEST_DIAGNOSTICS"] else ""}
+```
+
+**Generated test:**
+```{row['TEST_LANGUAGE']}
+{row["TEST_GENERATED"]}
+```
+""", unsafe_allow_html=True)
 
 
 chatTab, fixTab, unitTestTab, editTab, autocompleteTab = st.tabs(
