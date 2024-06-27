@@ -147,9 +147,9 @@ def unit_test_csv_table(name: str):
 **Correct framework?** {emojify(row["TEST_USED_EXPECTED_TEST_FRAMEWORK"])}
 
 {"**No Typescript errors?** " + emojify(not has_errors) if row["TEST_LANGUAGE"] == "typescript" else ""}\n
-```
-{row["TEST_DIAGNOSTICS"] if row["TEST_DIAGNOSTICS"] else ""}
-```
+
+{row["TEST_DIAGNOSTICS"] if has_errors and row["TEST_DIAGNOSTICS"] else ""}
+
 
 **Generated test:**
 ```{row['TEST_LANGUAGE']}
