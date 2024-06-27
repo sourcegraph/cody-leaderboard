@@ -1,0 +1,45 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_009,gpt-4o,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+
+	""github.com/google/go-cmp/cmp""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{}
+	fileMatches := []FileMatch{
+		{File: ""file1.go"", Branches: []RepositoryBranch{{Rev: ""rev1""}}},
+		{File: ""file2.go"", Branches: []RepositoryBranch{{Rev: ""rev2""}}},
+	}
+	tfs := []termFrequency{
+		{term: ""foo"", file: ""file1.go"", frequency: 2},
+		{term: ""bar"", file: ""file2.go"", frequency: 1},
+	}
+	df := termDocumentFrequency{""foo"": 1, ""bar"": 1}
+	opts := &SearchOptions{}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	want := []FileMatch{
+		{File: ""file1.go"", Branches: []RepositoryBranch{{Rev: ""rev1""}}, Score: 1.0},
+		{File: ""file2.go"", Branches: []RepositoryBranch{{Rev: ""rev2""}}, Score: 0.5},
+	}
+	if diff := cmp.Diff(want, fileMatches); diff != """" {
+		t.Errorf(""scoreFilesUsingBM25 mismatch (-want +got):\n%s"", diff)
+	}
+}
+
+func TestScoreFilesUsingBM25Empty(t *testing.T) {
+	d := &indexData{}
+	fileMatches := []FileMatch{}
+	tfs := []termFrequency{}
+	df := termDocumentFrequency{}
+	opts := &SearchOptions{}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	if len(fileMatches) != 0 {
+		t.Errorf(""scoreFilesUsingBM25 should not modify input slice when empty"")
+	}
+}
+",true,false,true,,zoekt/score.go,go,Zoekt BM25 scoring,

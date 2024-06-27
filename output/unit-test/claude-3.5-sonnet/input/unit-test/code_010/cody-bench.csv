@@ -1,0 +1,73 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,claude-3.5-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestIsRetryableError(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{
+			name:     ""nil error"",
+			err:      nil,
+			expected: false,
+		},
+		{
+			name:     ""non-retryable error"",
+			err:      errors.New(""some error""),
+			expected: false,
+		},
+		{
+			name:     ""retryable gRPC error"",
+			err:      status.Error(codes.Unavailable, ""service unavailable""),
+			expected: true,
+		},
+		{
+			name:     ""retryable gRPC error with wrapped error"",
+			err:      status.Error(codes.Unavailable, ""service unavailable: wrapped error""),
+			expected: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, IsRetryableError(test.err))
+		})
+	}
+}
+
+func TestContextError(t *testing.T) {
+	tests := []struct {
+		name     string
+		ctx      context.Context
+		expected error
+	}{
+		{
+			name:     ""context without error"",
+			ctx:      context.Background(),
+			expected: nil,
+		},
+		{
+			name:     ""context with error"",
+			ctx:      context.WithValue(context.Background(), contextErrorKey{}, errors.New(""some error"")),
+			expected: errors.New(""some error""),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			require.Equal(t, test.expected, ContextError(test.ctx))
+		})
+	}
+}
+",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,

@@ -1,0 +1,45 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"import (
+	""testing""
+
+	""github.com/google/go-cmp/cmp""
+)
+
+func TestSplitHeaderValue(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []string
+	}{
+		{
+			name:     ""empty input"",
+			input:    """",
+			expected: nil,
+		},
+		{
+			name:     ""single value"",
+			input:    ""value"",
+			expected: []string{""value""},
+		},
+		{
+			name:     ""multiple values"",
+			input:    ""value1, value2, value3"",
+			expected: []string{""value1"", ""value2"", ""value3""},
+		},
+		{
+			name:     ""leading and trailing spaces"",
+			input:    ""  value1, value2,   value3  "",
+			expected: []string{""value1"", ""value2"", ""value3""},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := SplitHeaderValue(test.input)
+			if diff := cmp.Diff(test.expected, actual); diff != """" {
+				t.Errorf(""SplitHeaderValue(%q) mismatch (-want +got):\n%s"", test.input, diff)
+			}
+		})
+	}
+}
+",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
