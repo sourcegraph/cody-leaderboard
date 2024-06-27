@@ -60,8 +60,12 @@ def fix_csv_table(name: str):
 def chat_csv_table(name: str):
     df = pd.read_csv(name)
     st.subheader("Leaderboard")
-    score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
-    score_df.columns = ["FIXTURE", "LLM Judge Score"]
+
+    df["LLM_JUDGE_SCORE"] = df["LLM_JUDGE_SCORE"].apply(lambda x: 0 if x == 0 else 1)
+    df["VERBOSE"] = df["CONCISENESS_SCORE"].apply(lambda x: 1 if x == 0 else 0)
+
+    score_df = df.groupby("FIXTURE")[["LLM_JUDGE_SCORE", "HEDGES", "VERBOSE"]].sum().reset_index()
+    score_df.columns = ["FIXTURE", "LLM Judge Score", "Hedges", "Verbose"]
     score_df = score_df.sort_values(by="LLM Judge Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
@@ -86,7 +90,7 @@ def chat_csv_table(name: str):
         for index, row in rows.iterrows():
             score = 'Good' if row["LLM_JUDGE_SCORE"] > 0 else '<span style="color:red">Poor</span>'
             hedges = 'No' if row["HEDGES"] == 0 else '<span style="color:red">Yes</span>'
-            verbose = 'No' if row["CONCISENESS_SCORE"] > 0 else '<span style="color:red">Yes</span>'
+            verbose = 'No' if row["VERBOSE"] == 0 else '<span style="color:red">Yes</span>'
 
             st.markdown(f"""-----
 
