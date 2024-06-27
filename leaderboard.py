@@ -64,7 +64,7 @@ def chat_csv_table(name: str):
     df["LLM_JUDGE_SCORE"] = (df["LLM_JUDGE_SCORE"] > 0).astype(int)
 
     score_df = df.groupby("FIXTURE")[["LLM_JUDGE_SCORE", "HEDGES"]].sum().reset_index()
-    score_df.columns = ["FIXTURE", "LLM Judge Score", "HEDGES"]
+    score_df.columns = ["FIXTURE", "LLM Judge Score", "Hedges"]
     score_df = score_df.sort_values(by="LLM Judge Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
