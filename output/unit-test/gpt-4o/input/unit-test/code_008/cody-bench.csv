@@ -1,98 +1,83 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_008,gpt-4o,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestSearchTimeout(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_008,gpt-4o,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
 
-	git, err := newSubprocessGit(t, repoDir)
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+)
+
+func TestSearch_CommitNotIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
-	defer git.Close()
 
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
-	defer cancel()
-
-	_, err = s.Search(ctx, search.SymbolsParameters{
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
 		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    ""sym"",
-		Timeout:  time.Second,
-	})
+		CommitID: commitID,
+	}
+
+	_, err = service.Search(context.Background(), args)
+	require.Error(t, err)
+	require.Equal(t, context.DeadlineExceeded, err)
+}
+
+func TestSearch_CommitIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+	}
+
+	// Simulate indexing the commit
+	repoId, err := updateLastAccessedAt(context.Background(), db, string(repo))
+	require.NoError(t, err)
+	_, err = insertCommit(context.Background(), db, repoId, string(commitID))
+	require.NoError(t, err)
+
+	symbols, err := service.Search(context.Background(), args)
+	require.NoError(t, err)
+	require.NotNil(t, symbols)
+}
+
+func TestSearch_Timeout(t *testing.T) {
+	db := dbtest.NewDB(t)
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Timeout:  100 * time.Millisecond,
+	}
+
+	_, err = service.Search(context.Background(), args)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
 }
-
-func TestSearchIndexingInProgress(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
-
-	git, err := newSubprocessGit(t, repoDir)
-	require.NoError(t, err)
-	defer git.Close()
-
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	s.status.threadIdToThreadStatus[""indexing""] = &observation.ThreadStatus{
-		Name: fmt.Sprintf(""indexing %s"", repo),
-		Remaining: func() string {
-			return ""10 minutes""
-		},
-	}
-
-	_, err = s.Search(context.Background(), search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    ""sym"",
-		Timeout:  time.Second,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), ""Still processing symbols"")
-	require.Contains(t, err.Error(), ""Estimated completion: 10 minutes"")
-}
-
-func TestSearchRepoLocked(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
-
-	git, err := newSubprocessGit(t, repoDir)
-	require.NoError(t, err)
-	defer git.Close()
-
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	_, err = s.db.Exec(""LOCK TABLE rockskip_repos IN ACCESS EXCLUSIVE MODE"")
-	require.NoError(t, err)
-
-	_, err = s.Search(context.Background(), search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    ""sym"",
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), ""deletion in progress"")
-}
-",false,true,true,src/rockskip/search.go,go,Rockskip search,
+",true,false,true,true,src/rockskip/search.go,go,Rockskip search,

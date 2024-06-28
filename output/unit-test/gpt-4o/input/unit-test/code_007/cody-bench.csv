@@ -1,39 +1,48 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_007,gpt-4o,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"func TestRuler(t *testing.T) {
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_007,gpt-4o,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,rockskip/ruler_test.go,src/rockskip/server_test.go,"import ""testing""
+
+func TestRuler(t *testing.T) {
 	tests := []struct {
 		name     string
-		n        int
+		input    int
 		expected int
 	}{
-		{
-			name:     ""zero"",
-			n:        0,
-			expected: 0,
-		},
-		{
-			name:     ""negative"",
-			n:        -5,
-			expected: 0,
-		},
-		{
-			name:     ""positive"",
-			n:        10,
-			expected: 4,
-		},
-		{
-			name:     ""large"",
-			n:        1000000,
-			expected: 5,
-		},
+		{""zero"", 0, 0},
+		{""one"", 1, 0},
+		{""two"", 2, 1},
+		{""four"", 4, 2},
+		{""eight"", 8, 3},
+		{""negative"", -1, 0},
+		{""max int"", 1<<63 - 1, 0},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := ruler(tc.n)
+			actual := ruler(tc.input)
 			if actual != tc.expected {
-				t.Errorf(""ruler(%d) = %d, expected %d"", tc.n, actual, tc.expected)
+				t.Errorf(""ruler(%d) = %d, expected %d"", tc.input, actual, tc.expected)
 			}
 		})
 	}
 }
-",false,true,,src/rockskip/server.go,go,Rockskip ruler function,
+
+func TestRulerLargeInput(t *testing.T) {
+	// Test a large input value to ensure the function handles it correctly
+	input := 1 << 62
+	expected := 62
+	actual := ruler(input)
+	if actual != expected {
+		t.Errorf(""ruler(%d) = %d, expected %d"", input, actual, expected)
+	}
+}
+
+func TestRulerOverflow(t *testing.T) {
+	// Test an input value that would cause an overflow
+	input := 1 << 63
+	expected := 0
+	actual := ruler(input)
+	if actual != expected {
+		t.Errorf(""ruler(%d) = %d, expected %d"", input, actual, expected)
+	}
+}
+",false,false,false,,src/rockskip/server.go,go,Rockskip ruler function,
