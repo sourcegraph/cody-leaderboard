@@ -1,92 +1,63 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_009,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+yaml,code_009,claude-3.5-sonnet,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
 	""testing""
 )
 
 func TestScoreFilesUsingBM25(t *testing.T) {
-	d := &indexData{
-		boundaries: []uint32{0, 100, 200, 300},
-	}
+	d := &indexData{}
 	fileMatches := []FileMatch{
-		{},
-		{},
-		{},
+		{Path: ""file1.txt""},
+		{Path: ""file2.txt""},
+		{Path: ""file3.txt""},
 	}
 	tfs := []termFrequency{
-		{doc: 0, tf: map[string]int{""term1"": 5, ""term2"": 3}},
-		{doc: 1, tf: map[string]int{""term1"": 2, ""term3"": 1}},
-		{doc: 2, tf: map[string]int{""term2"": 4}},
+		{term: ""hello"", freq: 2},
+		{term: ""world"", freq: 1},
 	}
 	df := termDocumentFrequency{
-		""term1"": 2,
-		""term2"": 2,
-		""term3"": 1,
+		""hello"": 2,
+		""world"": 3,
 	}
-	opts := &SearchOptions{DebugScore: false}
+	opts := &SearchOptions{}
 
 	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
 
-	// Check scores
-	if fileMatches[0].Score == 0 {
-		t.Errorf(""Expected non-zero score for first file"")
-	}
-	if fileMatches[1].Score == 0 {
-		t.Errorf(""Expected non-zero score for second file"")
-	}
-	if fileMatches[2].Score == 0 {
-		t.Errorf(""Expected non-zero score for third file"")
-	}
-
-	// Check debug scores
-	if fileMatches[0].Debug != """" {
-		t.Errorf(""Expected empty debug string when DebugScore is false"")
-	}
-	if fileMatches[1].Debug != """" {
-		t.Errorf(""Expected empty debug string when DebugScore is false"")
-	}
-	if fileMatches[2].Debug != """" {
-		t.Errorf(""Expected empty debug string when DebugScore is false"")
-	}
-
-	// Test with DebugScore enabled
-	opts.DebugScore = true
-	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
-
-	if fileMatches[0].Debug == """" {
-		t.Errorf(""Expected non-empty debug string when DebugScore is true"")
-	}
-	if fileMatches[1].Debug == """" {
-		t.Errorf(""Expected non-empty debug string when DebugScore is true"")
-	}
-	if fileMatches[2].Debug == """" {
-		t.Errorf(""Expected non-empty debug string when DebugScore is true"")
-	}
+	// Add assertions to validate the expected behavior
+	// For example, check if the scores are calculated correctly
 }
 
-func TestScoreFilesUsingBM25EdgeCases(t *testing.T) {
-	d := &indexData{
-		boundaries: []uint32{0, 0, 0},
-	}
+func TestScoreFilesUsingBM25_EmptyInput(t *testing.T) {
+	d := &indexData{}
 	fileMatches := []FileMatch{}
 	tfs := []termFrequency{}
 	df := termDocumentFrequency{}
-	opts := &SearchOptions{DebugScore: false}
+	opts := &SearchOptions{}
 
 	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
 
-	// Test with empty inputs
+	// Add assertions to validate the expected behavior for empty input
+}
 
-	d = &indexData{
-		boundaries: []uint32{0, 100},
+func TestScoreFilesUsingBM25_EdgeCases(t *testing.T) {
+	d := &indexData{}
+	fileMatches := []FileMatch{
+		{Path: ""file1.txt""},
+		{Path: ""file2.txt""},
+		{Path: ""file3.txt""},
 	}
-	fileMatches = []FileMatch{{}}
-	tfs = []termFrequency{{doc: 0, tf: map[string]int{}}}
-	df = termDocumentFrequency{}
+	tfs := []termFrequency{
+		{term: ""hello"", freq: 0},
+		{term: ""world"", freq: 10},
+	}
+	df := termDocumentFrequency{
+		""hello"": 0,
+		""world"": 1,
+	}
+	opts := &SearchOptions{}
 
 	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
 
-	if fileMatches[0].Score != 0 {
-		t.Errorf(""Expected zero score for file with no terms"")
-	}
+	// Add assertions to validate the expected behavior for edge cases
+	// For example, check if the scores are calculated correctly when term frequency or document frequency is zero
 }
 ",true,false,true,,zoekt/score.go,go,Zoekt BM25 scoring,
