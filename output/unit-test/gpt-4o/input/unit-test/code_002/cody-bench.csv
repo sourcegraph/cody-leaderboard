@@ -1,0 +1,46 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_002,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
+import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  it('should correctly import ContextItem type', () => {
+    const contextItem: ContextItem = {
+      type: 'file',
+      uri: 'file:///example.ts',
+      content: 'Example content',
+    }
+    expect(contextItem).toBeDefined()
+    expect(contextItem.type).toBe('file')
+  })
+
+  it('should correctly import RangeData type', () => {
+    const rangeData: RangeData = {
+      startLine: 1,
+      endLine: 5,
+      startCharacter: 0,
+      endCharacter: 10,
+    }
+    expect(rangeData).toBeDefined()
+    expect(rangeData.startLine).toBe(1)
+    expect(rangeData.endLine).toBe(5)
+  })
+
+  it('should allow creation of ContextItem with RangeData', () => {
+    const contextItem: ContextItem = {
+      type: 'file',
+      uri: 'file:///example.ts',
+      content: 'Example content',
+      range: {
+        startLine: 1,
+        endLine: 5,
+        startCharacter: 0,
+        endCharacter: 10,
+      },
+    }
+    expect(contextItem.range).toBeDefined()
+    expect(contextItem.range?.startLine).toBe(1)
+    expect(contextItem.range?.endLine).toBe(5)
+  })
+})
+",false,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/__tests__/UniqueContext.test.ts:1:37 2307 Cannot find module '@jest/globals' or its corresponding type declarations.
+/src/__tests__/UniqueContext.test.ts:2:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations."

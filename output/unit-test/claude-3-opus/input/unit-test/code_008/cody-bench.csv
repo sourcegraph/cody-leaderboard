@@ -1,5 +1,5 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_008,claude-3-opus,unit-test,test.yaml,ef92e73fc6fdce716391f62b6097405545dd8a1f,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestSearch_Timeout(t *testing.T) {
+yaml,code_008,claude-3-opus,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestSearch_Timeout(t *testing.T) {
 	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
 	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
 
@@ -55,8 +55,8 @@ func TestSearch_ConcurrentDeletion(t *testing.T) {
 		Query:    ""sym"",
 	}
 
-	// Simulate a concurrent deletion by acquiring a write lock
-	_, err = db.ExecContext(ctx, ""INSERT INTO rockskip_locks (repo, write_lock) VALUES ($1, true) ON CONFLICT (repo) DO UPDATE SET write_lock = true"", repo)
+	// Simulate concurrent deletion
+	_, err = db.ExecContext(ctx, ""LOCK TABLE rockskip_repos IN ACCESS EXCLUSIVE MODE"")
 	require.NoError(t, err)
 
 	_, err = s.Search(ctx, params)
@@ -87,13 +87,11 @@ func TestSearch_IndexingInProgress(t *testing.T) {
 		Repo:     repo,
 		CommitID: api.CommitID(commit),
 		Query:    ""sym"",
+		Timeout:  100 * time.Millisecond,
 	}
 
 	// Simulate indexing in progress
-	s.status.threadIdToThreadStatus[""test""] = &ThreadStatus{
-		Name:      fmt.Sprintf(""indexing %s"", repo),
-		StartTime: time.Now().Add(-5 * time.Minute),
-	}
+	s.status.NewThreadStatus(fmt.Sprintf(""indexing %s"", repo))
 
 	_, err = s.Search(ctx, params)
 	require.Error(t, err)
@@ -124,19 +122,17 @@ func TestSearch_LastIndexedCommit(t *testing.T) {
 	previousCommit := string(bytes.TrimSpace(out))
 
 	ctx := context.Background()
-	s.searchLastIndexedCommit = true
-
-	// Index the previous commit
-	_, err = updateLastAccessedAt(ctx, db, string(repo))
-	require.NoError(t, err)
-	_, err = db.ExecContext(ctx, ""INSERT INTO rockskip_commits (repo_id, hash) VALUES ((SELECT id FROM rockskip_repos WHERE name = $1), $2)"", repo, previousCommit)
-	require.NoError(t, err)
-
 	params := search.SymbolsParameters{
 		Repo:     repo,
 		CommitID: api.CommitID(latestCommit),
 		Query:    ""sym"",
 	}
+
+	s.searchLastIndexedCommit = true
+
+	// Index the previous commit
+	_, err = s.emitIndexRequest(repoCommit{repo: string(repo), commit: previousCommit})
+	require.NoError(t, err)
 
 	symbols, err := s.Search(ctx, params)
 	require.NoError(t, err)
@@ -144,7 +140,7 @@ func TestSearch_LastIndexedCommit(t *testing.T) {
 	require.Equal(t, ""sym1a"", symbols[0].Name)
 }
 
-func TestSearch_EmptyResult(t *testing.T) {
+func TestSearch_EmptyQuery(t *testing.T) {
 	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
 	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
 
@@ -156,7 +152,7 @@ func TestSearch_EmptyResult(t *testing.T) {
 	defer db.Close()
 
 	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""content without symbols"")
+	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
 
 	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
 	require.NoError(t, err, string(out))
@@ -166,11 +162,12 @@ func TestSearch_EmptyResult(t *testing.T) {
 	params := search.SymbolsParameters{
 		Repo:     repo,
 		CommitID: api.CommitID(commit),
-		Query:    ""nonexistent"",
+		Query:    """",
 	}
 
 	symbols, err := s.Search(ctx, params)
 	require.NoError(t, err)
-	require.Empty(t, symbols)
+	require.Len(t, symbols, 1)
+	require.Equal(t, ""sym1a"", symbols[0].Name)
 }
 ",true,false,true,true,src/rockskip/search.go,go,Rockskip search,

@@ -1,0 +1,60 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_003,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""testing""
+)
+
+func TestQuicksort(t *testing.T) {
+	// Test cases will be added here once the Quicksort function is implemented
+}
+
+func TestQuicksortEmptySlice(t *testing.T) {
+	empty := []int{}
+	Quicksort(empty)
+	if len(empty) != 0 {
+		t.Errorf(""Expected empty slice, got slice with length %d"", len(empty))
+	}
+}
+
+func TestQuicksortSingleElement(t *testing.T) {
+	single := []int{1}
+	Quicksort(single)
+	if len(single) != 1 || single[0] != 1 {
+		t.Errorf(""Expected [1], got %v"", single)
+	}
+}
+
+func TestQuicksortAlreadySorted(t *testing.T) {
+	sorted := []int{1, 2, 3, 4, 5}
+	Quicksort(sorted)
+	for i := 0; i < len(sorted)-1; i++ {
+		if sorted[i] > sorted[i+1] {
+			t.Errorf(""Expected sorted slice, got %v"", sorted)
+			break
+		}
+	}
+}
+
+func TestQuicksortReverseSorted(t *testing.T) {
+	reverse := []int{5, 4, 3, 2, 1}
+	Quicksort(reverse)
+	for i := 0; i < len(reverse)-1; i++ {
+		if reverse[i] > reverse[i+1] {
+			t.Errorf(""Expected sorted slice, got %v"", reverse)
+			break
+		}
+	}
+}
+
+func TestQuicksortDuplicateElements(t *testing.T) {
+	duplicates := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
+	Quicksort(duplicates)
+	for i := 0; i < len(duplicates)-1; i++ {
+		if duplicates[i] > duplicates[i+1] {
+			t.Errorf(""Expected sorted slice, got %v"", duplicates)
+			break
+		}
+	}
+}
+",true,false,true,,quicksort.go,go,Quicksort,

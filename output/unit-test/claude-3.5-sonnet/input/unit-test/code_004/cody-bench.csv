@@ -1,0 +1,46 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_004,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class LevenshteinTest {
+
+    @Test
+    public void testLevenshteinDistanceEmptyStrings() {
+        assertEquals(0, Levenshtein.levenshteinDistance("""", """"));
+    }
+
+    @Test
+    public void testLevenshteinDistanceOneEmptyString() {
+        assertEquals(3, Levenshtein.levenshteinDistance(""abc"", """"));
+        assertEquals(3, Levenshtein.levenshteinDistance("""", ""abc""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceEqualStrings() {
+        assertEquals(0, Levenshtein.levenshteinDistance(""hello"", ""hello""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceOneCharacterDifference() {
+        assertEquals(1, Levenshtein.levenshteinDistance(""kitten"", ""sitten""));
+        assertEquals(1, Levenshtein.levenshteinDistance(""sitting"", ""sittin""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceMultipleChanges() {
+        assertEquals(3, Levenshtein.levenshteinDistance(""kitten"", ""sitting""));
+        assertEquals(3, Levenshtein.levenshteinDistance(""saturday"", ""sunday""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceCaseSensitivity() {
+        assertEquals(3, Levenshtein.levenshteinDistance(""book"", ""BOOK""));
+    }
+
+    @Test
+    public void testLevenshteinDistanceSpecialCharacters() {
+        assertEquals(2, Levenshtein.levenshteinDistance(""hello!"", ""hello?""));
+        assertEquals(1, Levenshtein.levenshteinDistance(""test-case"", ""test case""));
+    }
+}
+",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,

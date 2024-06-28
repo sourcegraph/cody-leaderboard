@@ -1,0 +1,36 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_001,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { expect } from 'chai'
+import { add } from './add'
+
+describe('add function', () => {
+  it('should add two positive numbers correctly', () => {
+    expect(add(2, 3)).to.equal(5)
+  })
+
+  it('should handle zero as an input', () => {
+    expect(add(0, 5)).to.equal(5)
+    expect(add(10, 0)).to.equal(10)
+  })
+
+  it('should add negative numbers correctly', () => {
+    expect(add(-2, -3)).to.equal(-5)
+  })
+
+  it('should handle positive and negative number combinations', () => {
+    expect(add(-5, 10)).to.equal(5)
+    expect(add(7, -3)).to.equal(4)
+  })
+
+  it('should return zero when adding inverse numbers', () => {
+    expect(add(5, -5)).to.equal(0)
+  })
+
+  it('should handle decimal numbers', () => {
+    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(1000000, 2000000)).to.equal(3000000)
+  })
+})
+",false,false,true,,src/add.ts,typescript,Adder,
