@@ -61,10 +61,12 @@ def chat_csv_table(name: str):
     df = pd.read_csv(name)
     st.subheader("Leaderboard")
 
-    df["LLM_JUDGE_SCORE"] = df["LLM_JUDGE_SCORE"].apply(lambda x: 0 if x == 0 else 1)
+    df["LLM_JUDGE_SCORE"] = df["LLM_JUDGE_SCORE"].apply(
+        lambda x: 0 if x == 0 else 1)
     df["VERBOSE"] = df["CONCISENESS_SCORE"].apply(lambda x: 1 if x == 0 else 0)
 
-    score_df = df.groupby("FIXTURE")[["LLM_JUDGE_SCORE", "HEDGES", "VERBOSE"]].sum().reset_index()
+    score_df = df.groupby("FIXTURE")[
+        ["LLM_JUDGE_SCORE", "HEDGES", "VERBOSE"]].sum().reset_index()
     score_df.columns = ["FIXTURE", "LLM Judge Score", "Hedges", "Verbose"]
     score_df = score_df.sort_values(by="LLM Judge Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
@@ -116,7 +118,10 @@ def emojify(b: bool):
 def unit_test_csv_table(name: str):
     df = pd.read_csv(name)
 
-    score_df = df.groupby("FIXTURE")[["TEST_MATCHES_EXPECTED_TEST_FILE", "TEST_USED_EXPECTED_TEST_FRAMEWORK"]].sum().reset_index()
+    df['TEST_MATCHES_EXPECTED_TEST_FILE'] = df['TEST_EXPECTED_FILENAME'] == df['TEST_FILENAME']
+
+    score_df = df.groupby("FIXTURE")[
+        ["TEST_MATCHES_EXPECTED_TEST_FILE", "TEST_USED_EXPECTED_TEST_FRAMEWORK"]].sum().reset_index()
     score_df.columns = ["Fixture", "Expected path", "Expected framework"]
     score_df = score_df.sort_values(by="Expected path", ascending=False)
 
@@ -136,13 +141,15 @@ def unit_test_csv_table(name: str):
 
     for _, row in rows.iterrows():
         st.header(row["FIXTURE"])
-        test_files_match = bool(row["TEST_MATCHES_EXPECTED_TEST_FILE"])
-        expected_text = f"({row['TEST_EXPECTED_FILE'].strip('/')})"
-        expected_actual_text = f"(expected: {row['TEST_EXPECTED_FILE']}, actual: {row['TEST_FILE']})"
-        has_errors = row["TEST_LANGUAGE"] == "typescript" and bool(row["TEST_HAS_TYPESCRIPT_ERRORS"])
+        expected_filename = row['TEST_EXPECTED_FILENAME']
+        actual_filename = row['TEST_FILENAME']
+        test_files_match = expected_filename == actual_filename
+        expected_actual_text = f"(expected: {expected_filename}, actual: {actual_filename})"
+        has_errors = row["TEST_LANGUAGE"] == "typescript" and bool(
+            row["TEST_HAS_TYPESCRIPT_ERRORS"])
 
         st.markdown(f"""-----
-**Correct file path?** {emojify(test_files_match)} {expected_text if test_files_match else expected_actual_text}
+**Correct file path?** {emojify(test_files_match)} {expected_filename if test_files_match else expected_actual_text}
 
 **Correct framework?** {emojify(row["TEST_USED_EXPECTED_TEST_FRAMEWORK"])}
 

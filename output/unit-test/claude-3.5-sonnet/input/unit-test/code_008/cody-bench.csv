@@ -1,54 +1,96 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestPackageDeclaration(t *testing.T) {
-	tests := []struct {
-		name    string
-		content string
-		want    bool
-	}{
-		{
-			name:    ""valid package declaration"",
-			content: ""package rockskip"",
-			want:    true,
-		},
-		{
-			name:    ""invalid package declaration"",
-			content: ""package main"",
-			want:    false,
-		},
-		{
-			name:    ""no package declaration"",
-			content: ""import \""fmt\"""",
-			want:    false,
-		},
-		{
-			name:    ""package declaration with leading whitespace"",
-			content: ""  package rockskip"",
-			want:    true,
-		},
-		{
-			name:    ""package declaration with trailing content"",
-			content: ""package rockskip // some comment"",
-			want:    true,
-		},
-		{
-			name:    ""multiple package declarations"",
-			content: ""package rockskip\npackage other"",
-			want:    true,
-		},
-		{
-			name:    ""empty content"",
-			content: """",
-			want:    false,
-		},
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestSearchTimeout(t *testing.T) {
+	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
+	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+
+	git, err := newSubprocessGit(t, repoDir)
+	require.NoError(t, err)
+	defer git.Close()
+
+	db, s := mockService(t, git)
+	defer db.Close()
+
+	state := map[string][]string{}
+	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
+
+	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
+	require.NoError(t, err, string(out))
+	commit := string(bytes.TrimSpace(out))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	_, err = s.Search(ctx, search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: api.CommitID(commit),
+		Query:    ""sym"",
+		Timeout:  time.Second,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
+}
+
+func TestSearchIndexingInProgress(t *testing.T) {
+	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
+	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+
+	git, err := newSubprocessGit(t, repoDir)
+	require.NoError(t, err)
+	defer git.Close()
+
+	db, s := mockService(t, git)
+	defer db.Close()
+
+	state := map[string][]string{}
+	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
+
+	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
+	require.NoError(t, err, string(out))
+	commit := string(bytes.TrimSpace(out))
+
+	s.status.threadIdToThreadStatus[""indexing""] = &observation.ThreadStatus{
+		Name:     ""indexing "" + repo,
+		Estimate: 10 * time.Minute,
+		Start:    time.Now(),
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := strings.HasPrefix(strings.TrimSpace(tt.content), ""package rockskip"")
-			if got != tt.want {
-				t.Errorf(""Package declaration check for %q = %v, want %v"", tt.content, got, tt.want)
-			}
-		})
-	}
+	_, err = s.Search(context.Background(), search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: api.CommitID(commit),
+		Query:    ""sym"",
+		Timeout:  time.Second,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""Still processing symbols"")
 }
-",true,false,true,true,src/rockskip/search.go,go,Rockskip search,
+
+func TestSearchRepoLocked(t *testing.T) {
+	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
+	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+
+	git, err := newSubprocessGit(t, repoDir)
+	require.NoError(t, err)
+	defer git.Close()
+
+	db, s := mockService(t, git)
+	defer db.Close()
+
+	state := map[string][]string{}
+	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
+
+	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
+	require.NoError(t, err, string(out))
+	commit := string(bytes.TrimSpace(out))
+
+	_, err = db.Exec(""LOCK TABLE rockskip_repos IN ACCESS EXCLUSIVE MODE"")
+	require.NoError(t, err)
+
+	_, err = s.Search(context.Background(), search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: api.CommitID(commit),
+		Query:    ""sym"",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""deletion in progress"")
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,
