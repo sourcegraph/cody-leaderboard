@@ -145,17 +145,16 @@ def unit_test_csv_table(name: str):
         actual_filename = row['TEST_FILENAME']
         test_files_match = expected_filename == actual_filename
         expected_actual_text = f"(expected: {expected_filename}, actual: {actual_filename})"
-        has_errors = row["TEST_LANGUAGE"] == "typescript" and bool(
-            row["TEST_HAS_TYPESCRIPT_ERRORS"])
+        diagnostics = row["TEST_DIAGNOSTICS"]
 
         st.markdown(f"""-----
 **Correct file path?** {emojify(test_files_match)} {expected_filename if test_files_match else expected_actual_text}
 
 **Correct framework?** {emojify(row["TEST_USED_EXPECTED_TEST_FRAMEWORK"])}
 
-{"**No Typescript errors?** " + emojify(not has_errors) if row["TEST_LANGUAGE"] == "typescript" else ""}\n
+{"**No Typescript errors?** " + emojify(not diagnostics) if row["TEST_LANGUAGE"] == "typescript" else ""}
 
-{row["TEST_DIAGNOSTICS"] if has_errors and row["TEST_DIAGNOSTICS"] else ""}
+{diagnostics}
 
 
 **Generated test:**
