@@ -1,46 +1,50 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_002,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
-import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+yaml,code_002,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
 
 describe('UniqueContext', () => {
-  it('should correctly import ContextItem type', () => {
-    const contextItem: ContextItem = {
-      type: 'file',
-      uri: 'file:///path/to/file.ts',
-      content: 'const example = 42;',
-    }
-    expect(contextItem).toBeDefined()
-    expect(contextItem.type).toBe('file')
+  test('should import ContextItem and RangeData from @sourcegraph/cody-shared', () => {
+    expect(ContextItem).toBeDefined()
+    expect(RangeData).toBeDefined()
   })
 
-  it('should correctly import RangeData type', () => {
+  test('should have correct type definitions for ContextItem and RangeData', () => {
+    const contextItem: ContextItem = {
+      title: 'Test Context Item',
+      url: 'https://example.com',
+      kind: 'definition',
+      score: 1.0,
+      ranges: [
+        {
+          start: { line: 1, character: 0 },
+          end: { line: 1, character: 10 },
+        },
+      ],
+    }
+
     const rangeData: RangeData = {
-      startLine: 1,
-      endLine: 5,
-      startCharacter: 0,
-      endCharacter: 10,
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 10 },
     }
-    expect(rangeData).toBeDefined()
-    expect(rangeData.startLine).toBe(1)
-    expect(rangeData.endLine).toBe(5)
-  })
 
-  it('should allow creation of ContextItem with RangeData', () => {
-    const contextItem: ContextItem = {
-      type: 'file',
-      uri: 'file:///path/to/file.ts',
-      content: 'const example = 42;',
-      range: {
-        startLine: 1,
-        endLine: 1,
-        startCharacter: 0,
-        endCharacter: 20,
-      },
-    }
-    expect(contextItem.range).toBeDefined()
-    expect(contextItem.range?.startLine).toBe(1)
-    expect(contextItem.range?.endLine).toBe(1)
+    expect(contextItem).toMatchObject({
+      title: expect.any(String),
+      url: expect.any(String),
+      kind: expect.any(String),
+      score: expect.any(Number),
+      ranges: expect.arrayContaining([expect.objectContaining(rangeData)]),
+    })
   })
 })
-",false,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/__tests__/UniqueContext.test.ts:1:37 2307 Cannot find module '@jest/globals' or its corresponding type declarations.
-/src/__tests__/UniqueContext.test.ts:2:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations."
+",true,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+/src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:6:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:9:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:28:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:29:13 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:30:11 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:31:12 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:32:13 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:33:14 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:33:38 2304 Cannot find name 'expect'."

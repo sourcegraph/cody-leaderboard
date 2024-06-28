@@ -1,339 +1,328 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_002,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
-import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+yaml,code_010,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReporter(t *testing.T) {
+	t.Run(""success"", func(t *testing.T) {
+		ctx := context.Background()
+		_, err := UnaryReporter(ctx, nil, nil, nil)
+		require.NoError(t, err)
+	})
+
+	t.Run(""error"", func(t *testing.T) {
+		ctx := context.Background()
+		err := errors.New(""test error"")
+		_, reportedErr := UnaryReporter(ctx, nil, nil, err)
+		require.Equal(t, err, reportedErr)
+	})
+
+	t.Run(""grpc_error"", func(t *testing.T) {
+		ctx := context.Background()
+		grpcErr := status.Error(codes.Unavailable, ""service unavailable"")
+		_, reportedErr := UnaryReporter(ctx, nil, nil, grpcErr)
+		require.Equal(t, grpcErr, reportedErr)
+	})
+
+	t.Run(""timeout"", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+		time.Sleep(200 * time.Millisecond)
+		_, err := UnaryReporter(ctx, nil, nil, nil)
+		require.Error(t, err)
+		require.Equal(t, context.DeadlineExceeded, err)
+	})
+}
+
+func TestStreamReporter(t *testing.T) {
+	t.Run(""success"", func(t *testing.T) {
+		ctx := context.Background()
+		err := StreamReporter(ctx, nil, nil)
+		require.NoError(t, err)
+	})
+
+	t.Run(""error"", func(t *testing.T) {
+		ctx := context.Background()
+		err := errors.New(""test error"")
+		reportedErr := StreamReporter(ctx, nil, err)
+		require.Equal(t, err, reportedErr)
+	})
+
+	t.Run(""grpc_error"", func(t *testing.T) {
+		ctx := context.Background()
+		grpcErr := status.Error(codes.Unavailable, ""service unavailable"")
+		reportedErr := StreamReporter(ctx, nil, grpcErr)
+		require.Equal(t, grpcErr, reportedErr)
+	})
+
+	t.Run(""timeout"", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+		time.Sleep(200 * time.Millisecond)
+		err := StreamReporter(ctx, nil, nil)
+		require.Error(t, err)
+		require.Equal(t, context.DeadlineExceeded, err)
+	})
+}
+",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+yaml,code_002,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
 
 describe('UniqueContext', () => {
-  it('should correctly import ContextItem type', () => {
-    const contextItem: ContextItem = {
-      type: 'file',
-      uri: 'file:///example.ts',
-      content: 'Example content',
-    }
-    expect(contextItem).toBeDefined()
-    expect(contextItem.type).toBe('file')
+  test('should import ContextItem and RangeData from @sourcegraph/cody-shared', () => {
+    expect(ContextItem).toBeDefined()
+    expect(RangeData).toBeDefined()
   })
 
-  it('should correctly import RangeData type', () => {
+  test('ContextItem should have expected properties', () => {
+    const contextItem: ContextItem = {
+      title: 'Test Context Item',
+      url: 'https://example.com',
+      codeQueries: [],
+      repositories: [],
+      commit: null,
+      ranges: [],
+    }
+
+    expect(contextItem).toHaveProperty('title')
+    expect(contextItem).toHaveProperty('url')
+    expect(contextItem).toHaveProperty('codeQueries')
+    expect(contextItem).toHaveProperty('repositories')
+    expect(contextItem).toHaveProperty('commit')
+    expect(contextItem).toHaveProperty('ranges')
+  })
+
+  test('RangeData should have expected properties', () => {
     const rangeData: RangeData = {
-      startLine: 1,
-      endLine: 5,
-      startCharacter: 0,
-      endCharacter: 10,
+      start: { line: 1, character: 0 },
+      end: { line: 2, character: 10 },
+      url: 'https://example.com/file.ts',
+      repository: 'https://example.com/repo',
+      commit: 'abcd1234',
     }
-    expect(rangeData).toBeDefined()
-    expect(rangeData.startLine).toBe(1)
-    expect(rangeData.endLine).toBe(5)
-  })
 
-  it('should allow creation of ContextItem with RangeData', () => {
-    const contextItem: ContextItem = {
-      type: 'file',
-      uri: 'file:///example.ts',
-      content: 'Example content',
-      range: {
-        startLine: 1,
-        endLine: 5,
-        startCharacter: 0,
-        endCharacter: 10,
-      },
-    }
-    expect(contextItem.range).toBeDefined()
-    expect(contextItem.range?.startLine).toBe(1)
-    expect(contextItem.range?.endLine).toBe(5)
+    expect(rangeData).toHaveProperty('start')
+    expect(rangeData).toHaveProperty('end')
+    expect(rangeData).toHaveProperty('url')
+    expect(rangeData).toHaveProperty('repository')
+    expect(rangeData).toHaveProperty('commit')
   })
 })
-",false,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/__tests__/UniqueContext.test.ts:1:37 2307 Cannot find module '@jest/globals' or its corresponding type declarations.
-/src/__tests__/UniqueContext.test.ts:2:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations."
-yaml,code_004,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.Test;
-import static org.junit.Assert.*;
+",true,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+/src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:6:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:9:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:19:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:20:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:21:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:22:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:23:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:24:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:27:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:36:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:37:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:38:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:39:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:40:4 2304 Cannot find name 'expect'."
+yaml,code_004,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class LevenshteinTest {
+class LevenshteinTest {
 
     @Test
-    public void testLevenshteinDistanceEmptyStrings() {
-        assertEquals(0, Levenshtein.distance("""", """"));
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
     }
 
     @Test
-    public void testLevenshteinDistanceOneEmptyString() {
-        assertEquals(3, Levenshtein.distance(""abc"", """"));
-        assertEquals(3, Levenshtein.distance("""", ""abc""));
+    void testIdenticalStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
     }
 
     @Test
-    public void testLevenshteinDistanceEqualStrings() {
-        assertEquals(0, Levenshtein.distance(""hello"", ""hello""));
+    void testDifferentLengths() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
     }
 
     @Test
-    public void testLevenshteinDistanceSubstitution() {
-        assertEquals(1, Levenshtein.distance(""kitten"", ""sitten""));
+    void testSingleCharacterDifference() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hallo"");
+        assertEquals(1, distance);
     }
 
     @Test
-    public void testLevenshteinDistanceInsertion() {
-        assertEquals(1, Levenshtein.distance(""sit"", ""sitt""));
+    void testMultipleCharacterDifferences() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""kitten"", ""sitting"");
+        assertEquals(3, distance);
     }
 
     @Test
-    public void testLevenshteinDistanceDeletion() {
-        assertEquals(1, Levenshtein.distance(""sitt"", ""sit""));
+    void testEmptyString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", ""hello"");
+        assertEquals(5, distance);
     }
 
     @Test
-    public void testLevenshteinDistanceMultipleOperations() {
-        assertEquals(3, Levenshtein.distance(""kitten"", ""sitting""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceCaseSensitive() {
-        assertEquals(1, Levenshtein.distance(""Hello"", ""hello""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceSpecialCharacters() {
-        assertEquals(2, Levenshtein.distance(""hello!"", ""hello?""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceLongStrings() {
-        assertEquals(5, Levenshtein.distance(""pneumonoultramicroscopicsilicovolcanoconiosis"", 
-                                             ""pneumonoultramicroscopicsilicovolcanoniosis""));
+    void testNullInput() {
+        Levenshtein levenshtein = new Levenshtein();
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(null, ""hello""));
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(""hello"", null));
     }
 }
 ",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
-yaml,code_003,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+yaml,code_003,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
 
 import (
+	""reflect""
 	""testing""
 )
 
-func TestQuicksort(t *testing.T) {
-	// Test cases will be added here once the Quicksort function is implemented
-}
-
-func TestQuicksortEmptySlice(t *testing.T) {
-	empty := []int{}
-	Quicksort(empty)
-	if len(empty) != 0 {
-		t.Errorf(""Expected empty slice, got slice with length %d"", len(empty))
+func TestQuickSort(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected []int
+	}{
+		{
+			name:     ""Empty slice"",
+			input:    []int{},
+			expected: []int{},
+		},
+		{
+			name:     ""Single element"",
+			input:    []int{5},
+			expected: []int{5},
+		},
+		{
+			name:     ""Sorted slice"",
+			input:    []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Reverse sorted slice"",
+			input:    []int{5, 4, 3, 2, 1},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Duplicates"",
+			input:    []int{3, 1, 4, 1, 5, 9, 2, 6, 5},
+			expected: []int{1, 1, 2, 3, 4, 5, 5, 6, 9},
+		},
 	}
-}
 
-func TestQuicksortSingleElement(t *testing.T) {
-	single := []int{1}
-	Quicksort(single)
-	if len(single) != 1 || single[0] != 1 {
-		t.Errorf(""Expected [1], got %v"", single)
-	}
-}
-
-func TestQuicksortAlreadySorted(t *testing.T) {
-	sorted := []int{1, 2, 3, 4, 5}
-	Quicksort(sorted)
-	for i := 0; i < len(sorted)-1; i++ {
-		if sorted[i] > sorted[i+1] {
-			t.Errorf(""Expected sorted slice, got %v"", sorted)
-			break
-		}
-	}
-}
-
-func TestQuicksortReverseSorted(t *testing.T) {
-	reverse := []int{5, 4, 3, 2, 1}
-	Quicksort(reverse)
-	for i := 0; i < len(reverse)-1; i++ {
-		if reverse[i] > reverse[i+1] {
-			t.Errorf(""Expected sorted slice, got %v"", reverse)
-			break
-		}
-	}
-}
-
-func TestQuicksortDuplicateElements(t *testing.T) {
-	duplicates := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
-	Quicksort(duplicates)
-	for i := 0; i < len(duplicates)-1; i++ {
-		if duplicates[i] > duplicates[i+1] {
-			t.Errorf(""Expected sorted slice, got %v"", duplicates)
-			break
-		}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := quickSort(test.input)
+			if !reflect.DeepEqual(result, test.expected) {
+				t.Errorf(""quickSort(%v) = %v, expected %v"", test.input, result, test.expected)
+			}
+		})
 	}
 }
 ",true,false,true,,quicksort.go,go,Quicksort,
-yaml,code_008,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestSearch_Timeout(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+yaml,code_008,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
 
-	git, err := newSubprocessGit(t, repoDir)
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+)
+
+func TestSearch_CommitNotIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
-	defer git.Close()
 
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	ctx := context.Background()
-	params := search.SymbolsParameters{
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
 		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    ""sym"",
-		Timeout:  1 * time.Millisecond,
+		CommitID: commitID,
 	}
 
-	_, err = s.Search(ctx, params)
+	_, err = service.Search(context.Background(), args)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), ""Processing symbols is taking a while"")
+	require.Equal(t, context.DeadlineExceeded, err)
 }
 
-func TestSearch_ConcurrentDeletion(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
-
-	git, err := newSubprocessGit(t, repoDir)
+func TestSearch_CommitIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
-	defer git.Close()
 
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	ctx := context.Background()
-	params := search.SymbolsParameters{
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
 		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    ""sym"",
+		CommitID: commitID,
 	}
 
-	// Simulate concurrent deletion
-	_, err = db.ExecContext(ctx, ""LOCK TABLE rockskip_repos IN ACCESS EXCLUSIVE MODE"")
+	// Simulate indexing the commit
+	repoId, err := updateLastAccessedAt(context.Background(), db, string(repo))
+	require.NoError(t, err)
+	_, err = insertCommit(context.Background(), db, repoId, string(commitID))
 	require.NoError(t, err)
 
-	_, err = s.Search(ctx, params)
-	require.Error(t, err)
-	require.Contains(t, err.Error(), ""deletion in progress"")
+	symbols, err := service.Search(context.Background(), args)
+	require.NoError(t, err)
+	require.NotNil(t, symbols)
 }
 
-func TestSearch_IndexingInProgress(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
-
-	git, err := newSubprocessGit(t, repoDir)
+func TestSearch_Timeout(t *testing.T) {
+	db := dbtest.NewDB(t)
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
-	defer git.Close()
 
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	ctx := context.Background()
-	params := search.SymbolsParameters{
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
 		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    ""sym"",
+		CommitID: commitID,
 		Timeout:  100 * time.Millisecond,
 	}
 
-	// Simulate indexing in progress
-	s.status.NewThreadStatus(fmt.Sprintf(""indexing %s"", repo))
-
-	_, err = s.Search(ctx, params)
+	_, err = service.Search(context.Background(), args)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), ""Still processing symbols"")
+	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
 }
-
-func TestSearch_LastIndexedCommit(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
-
-	git, err := newSubprocessGit(t, repoDir)
-	require.NoError(t, err)
-	defer git.Close()
-
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-	gitAdd(t, repoDir, state, ""b.txt"", ""sym1b/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	latestCommit := string(bytes.TrimSpace(out))
-
-	out, err = gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD~1"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	previousCommit := string(bytes.TrimSpace(out))
-
-	ctx := context.Background()
-	params := search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: api.CommitID(latestCommit),
-		Query:    ""sym"",
-	}
-
-	s.searchLastIndexedCommit = true
-
-	// Index the previous commit
-	_, err = s.emitIndexRequest(repoCommit{repo: string(repo), commit: previousCommit})
-	require.NoError(t, err)
-
-	symbols, err := s.Search(ctx, params)
-	require.NoError(t, err)
-	require.Len(t, symbols, 1)
-	require.Equal(t, ""sym1a"", symbols[0].Name)
-}
-
-func TestSearch_EmptyQuery(t *testing.T) {
-	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
-	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
-
-	git, err := newSubprocessGit(t, repoDir)
-	require.NoError(t, err)
-	defer git.Close()
-
-	db, s := mockService(t, git)
-	defer db.Close()
-
-	state := map[string][]string{}
-	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
-
-	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
-	require.NoError(t, err, string(out))
-	commit := string(bytes.TrimSpace(out))
-
-	ctx := context.Background()
-	params := search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: api.CommitID(commit),
-		Query:    """",
-	}
-
-	symbols, err := s.Search(ctx, params)
-	require.NoError(t, err)
-	require.Len(t, symbols, 1)
-	require.Equal(t, ""sym1a"", symbols[0].Name)
-}
-",true,false,true,true,src/rockskip/search.go,go,Rockskip search,
-yaml,code_006,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+",true,false,true,,src/rockskip/search.go,go,Rockskip search,
+yaml,code_006,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
 import { describe, it, expect } from 'vitest'
 
 describe('add', () => {
@@ -341,87 +330,218 @@ describe('add', () => {
     expect(add(2, 3)).toBe(5)
   })
 
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
   it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).toBe(2)
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+})
+",true,true,true,,src/add.ts,typescript,Adder with sub context,/src/add.test.ts:2:37 2307 Cannot find module 'vitest' or its corresponding type declarations.
+yaml,code_001,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
   })
 
   it('should add two negative numbers', () => {
-    expect(add(-2, -4)).toBe(-6)
+    expect(add(-2, -3)).toBe(-5)
   })
 
-  it('should handle zero as an input', () => {
-    expect(add(0, 7)).toBe(7)
-    expect(add(7, 0)).toBe(7)
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
   })
 
-  it('should add fractional numbers', () => {
-    expect(add(0.1, 0.2)).toBeCloseTo(0.3)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).toBe(3000000)
-  })
-})
-",true,false,true,,src/add.ts,typescript,Adder with sub context,
-yaml,code_001,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should add two positive numbers correctly', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should handle zero as an input', () => {
-    expect(add(0, 5)).to.equal(5)
-    expect(add(10, 0)).to.equal(10)
-  })
-
-  it('should add negative numbers correctly', () => {
-    expect(add(-3, -7)).to.equal(-10)
-  })
-
-  it('should handle positive and negative number combinations', () => {
-    expect(add(-5, 8)).to.equal(3)
-    expect(add(4, -9)).to.equal(-5)
-  })
-
-  it('should return zero when adding inverse numbers', () => {
-    expect(add(100, -100)).to.equal(0)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(0.1, 0.2)).to.be.closeTo(0.3, 0.0001)
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
   })
 
   it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
   })
 })
-",false,false,true,,src/add.ts,typescript,Adder,
-yaml,code_007,gpt-4o,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"func TestRuler(t *testing.T) {
+",false,true,false,,src/add.ts,typescript,Adder,"/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:9:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:13:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:17:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:18:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:22:4 2304 Cannot find name 'expect'."
+yaml,code_007,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,rockskip/ruler_test.go,src/rockskip/server_test.go,"import ""testing""
+
+func TestRuler(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    int
 		expected int
 	}{
-		{""Positive even number"", 8, 3},
-		{""Positive odd number"", 7, 0},
-		{""Power of two"", 32, 5},
-		{""Large number"", 1048576, 20},
-		{""Zero"", 0, 0},
-		{""Negative number"", -4, 0},
-		{""One"", 1, 0},
-		{""Max int32"", 2147483647, 0},
+		{""zero"", 0, 0},
+		{""one"", 1, 0},
+		{""two"", 2, 1},
+		{""four"", 4, 2},
+		{""eight"", 8, 3},
+		{""negative"", -1, 0},
+		{""max int"", 1<<63 - 1, 0},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := ruler(tt.input)
-			require.Equal(t, tt.expected, result)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := ruler(tc.input)
+			if actual != tc.expected {
+				t.Errorf(""ruler(%d) = %d, expected %d"", tc.input, actual, tc.expected)
+			}
 		})
 	}
 }
-",true,false,true,,src/rockskip/server.go,go,Rockskip ruler function,
+
+func TestRulerLargeInput(t *testing.T) {
+	// Test a large input value to ensure the function handles it correctly
+	input := 1 << 62
+	expected := 62
+	actual := ruler(input)
+	if actual != expected {
+		t.Errorf(""ruler(%d) = %d, expected %d"", input, actual, expected)
+	}
+}
+
+func TestRulerOverflow(t *testing.T) {
+	// Test an input value that would cause an overflow
+	input := 1 << 63
+	expected := 0
+	actual := ruler(input)
+	if actual != expected {
+		t.Errorf(""ruler(%d) = %d, expected %d"", input, actual, expected)
+	}
+}
+",false,false,false,,src/rockskip/server.go,go,Rockskip ruler function,
+yaml,code_009,gpt-4o,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 100, 200, 300},
+	}
+
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+
+	tfs := []termFrequency{
+		{
+			doc: 0,
+			tf: map[string]int{
+				""foo"": 2,
+				""bar"": 1,
+			},
+		},
+		{
+			doc: 1,
+			tf: map[string]int{
+				""foo"": 1,
+				""baz"": 3,
+			},
+		},
+		{
+			doc: 2,
+			tf: map[string]int{
+				""bar"": 4,
+			},
+		},
+	}
+
+	df := termDocumentFrequency{
+		""foo"": 2,
+		""bar"": 2,
+		""baz"": 1,
+	}
+
+	opts := &SearchOptions{
+		DebugScore: true,
+	}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check scores
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for first file"")
+	}
+	if fileMatches[1].Score == 0 {
+		t.Errorf(""Expected non-zero score for second file"")
+	}
+	if fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero score for third file"")
+	}
+
+	// Check debug output
+	if fileMatches[0].Debug == """" {
+		t.Errorf(""Expected debug output for first file"")
+	}
+	if fileMatches[1].Debug == """" {
+		t.Errorf(""Expected debug output for second file"")
+	}
+	if fileMatches[2].Debug == """" {
+		t.Errorf(""Expected debug output for third file"")
+	}
+}
+
+func TestScoreFilesUsingBM25_ZeroAverageFileLength(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 0, 0},
+	}
+
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+
+	tfs := []termFrequency{
+		{
+			doc: 0,
+			tf: map[string]int{
+				""foo"": 1,
+			},
+		},
+		{
+			doc: 1,
+			tf: map[string]int{},
+		},
+		{
+			doc: 2,
+			tf: map[string]int{
+				""bar"": 2,
+			},
+		},
+	}
+
+	df := termDocumentFrequency{
+		""foo"": 1,
+		""bar"": 1,
+	}
+
+	opts := &SearchOptions{}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that scores are non-zero
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for first file"")
+	}
+	if fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero score for third file"")
+	}
+}
+",true,false,true,,zoekt/score.go,go,Zoekt BM25 scoring,
 yaml,code_002,claude-3-opus,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
 import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
 
@@ -862,226 +982,416 @@ yaml,code_007,claude-3-opus,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f
 	}
 }
 ",true,false,true,,src/rockskip/server.go,go,Rockskip ruler function,
-yaml,code_002,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { describe, it, expect } from '@jest/globals'
-import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
-
-describe('UniqueContext', () => {
-  it('should correctly import ContextItem type', () => {
-    const contextItem: ContextItem = {
-      type: 'file',
-      uri: 'file:///path/to/file.ts',
-      content: 'const example = 42;',
-    }
-    expect(contextItem).toBeDefined()
-    expect(contextItem.type).toBe('file')
-  })
-
-  it('should correctly import RangeData type', () => {
-    const rangeData: RangeData = {
-      startLine: 1,
-      endLine: 5,
-      startCharacter: 0,
-      endCharacter: 10,
-    }
-    expect(rangeData).toBeDefined()
-    expect(rangeData.startLine).toBe(1)
-    expect(rangeData.endLine).toBe(5)
-  })
-
-  it('should allow creation of ContextItem with RangeData', () => {
-    const contextItem: ContextItem = {
-      type: 'file',
-      uri: 'file:///path/to/file.ts',
-      content: 'const example = 42;',
-      range: {
-        startLine: 1,
-        endLine: 1,
-        startCharacter: 0,
-        endCharacter: 20,
-      },
-    }
-    expect(contextItem.range).toBeDefined()
-    expect(contextItem.range?.startLine).toBe(1)
-    expect(contextItem.range?.endLine).toBe(1)
-  })
-})
-",false,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/__tests__/UniqueContext.test.ts:1:37 2307 Cannot find module '@jest/globals' or its corresponding type declarations.
-/src/__tests__/UniqueContext.test.ts:2:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations."
-yaml,code_004,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.Test;
-import static org.junit.Assert.*;
-
-public class LevenshteinTest {
-
-    @Test
-    public void testLevenshteinDistanceEmptyStrings() {
-        assertEquals(0, Levenshtein.levenshteinDistance("""", """"));
-    }
-
-    @Test
-    public void testLevenshteinDistanceOneEmptyString() {
-        assertEquals(3, Levenshtein.levenshteinDistance(""abc"", """"));
-        assertEquals(3, Levenshtein.levenshteinDistance("""", ""abc""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceEqualStrings() {
-        assertEquals(0, Levenshtein.levenshteinDistance(""hello"", ""hello""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceOneCharacterDifference() {
-        assertEquals(1, Levenshtein.levenshteinDistance(""kitten"", ""sitten""));
-        assertEquals(1, Levenshtein.levenshteinDistance(""sitting"", ""sittin""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceMultipleChanges() {
-        assertEquals(3, Levenshtein.levenshteinDistance(""kitten"", ""sitting""));
-        assertEquals(3, Levenshtein.levenshteinDistance(""saturday"", ""sunday""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceCaseSensitivity() {
-        assertEquals(3, Levenshtein.levenshteinDistance(""book"", ""BOOK""));
-    }
-
-    @Test
-    public void testLevenshteinDistanceSpecialCharacters() {
-        assertEquals(2, Levenshtein.levenshteinDistance(""hello!"", ""hello?""));
-        assertEquals(1, Levenshtein.levenshteinDistance(""test-case"", ""test case""));
-    }
-}
-",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
-yaml,code_003,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+yaml,code_010,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
 
 import (
+	""context""
+	""errors""
+	""testing""
+
+	""github.com/stretchr/testify/assert""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReportedError(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		expected error
+	}{
+		{
+			name:     ""nil error"",
+			err:      nil,
+			expected: nil,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.Internal, ""internal error""),
+			expected: status.Error(codes.Internal, ""internal error""),
+		},
+		{
+			name:     ""non-grpc error"",
+			err:      errors.New(""custom error""),
+			expected: errors.New(""custom error""),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := ReportedError(test.err)
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestReportedErrorWithContext(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		expected error
+	}{
+		{
+			name:     ""nil error"",
+			err:      nil,
+			expected: nil,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.Internal, ""internal error""),
+			expected: status.Error(codes.Internal, ""internal error""),
+		},
+		{
+			name:     ""non-grpc error"",
+			err:      errors.New(""custom error""),
+			expected: errors.New(""custom error""),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctx := context.Background()
+			actual := ReportedErrorWithContext(ctx, test.err)
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestReportedErrorWithContextAndMetadata(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		metadata map[string]string
+		expected error
+	}{
+		{
+			name:     ""nil error"",
+			err:      nil,
+			metadata: nil,
+			expected: nil,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.Internal, ""internal error""),
+			metadata: map[string]string{""key"": ""value""},
+			expected: status.Error(codes.Internal, ""internal error""),
+		},
+		{
+			name:     ""non-grpc error"",
+			err:      errors.New(""custom error""),
+			metadata: map[string]string{""key"": ""value""},
+			expected: errors.New(""custom error""),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctx := context.Background()
+			actual := ReportedErrorWithContextAndMetadata(ctx, test.err, test.metadata)
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+func TestReportedErrorWithContextAndMetadataAndTrailer(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		metadata map[string]string
+		trailer  metadata
+		expected error
+	}{
+		{
+			name:     ""nil error"",
+			err:      nil,
+			metadata: nil,
+			trailer:  nil,
+			expected: nil,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.Internal, ""internal error""),
+			metadata: map[string]string{""key"": ""value""},
+			trailer:  metadata{""trailer-key"": []string{""trailer-value""}},
+			expected: status.Error(codes.Internal, ""internal error""),
+		},
+		{
+			name:     ""non-grpc error"",
+			err:      errors.New(""custom error""),
+			metadata: map[string]string{""key"": ""value""},
+			trailer:  metadata{""trailer-key"": []string{""trailer-value""}},
+			expected: errors.New(""custom error""),
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ctx := context.Background()
+			actual := ReportedErrorWithContextAndMetadataAndTrailer(ctx, test.err, test.metadata, test.trailer)
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
+type metadata map[string][]string
+
+func (m metadata) Len() int {
+	return len(m)
+}
+
+func (m metadata) Get(key string) string {
+	values, ok := m[key]
+	if !ok {
+		return """"
+	}
+	return values[0]
+}
+
+func (m metadata) Set(key string, value string) {
+	m[key] = []string{value}
+}
+
+func (m metadata) Keys() []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+yaml,code_002,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  test('should import ContextItem and RangeData from @sourcegraph/cody-shared', () => {
+    expect(ContextItem).toBeDefined()
+    expect(RangeData).toBeDefined()
+  })
+
+  test('should have correct type definitions for ContextItem and RangeData', () => {
+    const contextItem: ContextItem = {
+      title: 'Test Context Item',
+      url: 'https://example.com',
+      kind: 'definition',
+      score: 1.0,
+      ranges: [
+        {
+          start: { line: 1, character: 0 },
+          end: { line: 1, character: 10 },
+        },
+      ],
+    }
+
+    const rangeData: RangeData = {
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 10 },
+    }
+
+    expect(contextItem).toMatchObject({
+      title: expect.any(String),
+      url: expect.any(String),
+      kind: expect.any(String),
+      score: expect.any(Number),
+      ranges: expect.arrayContaining([expect.objectContaining(rangeData)]),
+    })
+  })
+})
+",true,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+/src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:6:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:9:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+/src/UniqueContext.test.ts:28:4 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:29:13 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:30:11 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:31:12 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:32:13 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:33:14 2304 Cannot find name 'expect'.
+/src/UniqueContext.test.ts:33:38 2304 Cannot find name 'expect'."
+yaml,code_004,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LevenshteinTest {
+
+    @Test
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testSameStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testDifferentStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
+    }
+
+    @Test
+    void testLongerString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hellworld"");
+        assertEquals(5, distance);
+    }
+
+    @Test
+    void testShorterString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hellworld"", ""hello"");
+        assertEquals(5, distance);
+    }
+
+    @Test
+    void testCaseInsensitive() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""Hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testSpecialCharacters() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello!"", ""hello?"");
+        assertEquals(1, distance);
+    }
+
+}
+",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
+yaml,code_003,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""reflect""
 	""testing""
 )
 
 func TestQuicksort(t *testing.T) {
-	// Test cases will be added here once the quicksort function is implemented
-}
-
-func TestQuicksortEmptySlice(t *testing.T) {
-	input := []int{}
-	expected := []int{}
-	Quicksort(input)
-	if !slicesEqual(input, expected) {
-		t.Errorf(""Expected %v, but got %v"", expected, input)
-	}
-}
-
-func TestQuicksortSingleElement(t *testing.T) {
-	input := []int{1}
-	expected := []int{1}
-	Quicksort(input)
-	if !slicesEqual(input, expected) {
-		t.Errorf(""Expected %v, but got %v"", expected, input)
-	}
-}
-
-func TestQuicksortAlreadySorted(t *testing.T) {
-	input := []int{1, 2, 3, 4, 5}
-	expected := []int{1, 2, 3, 4, 5}
-	Quicksort(input)
-	if !slicesEqual(input, expected) {
-		t.Errorf(""Expected %v, but got %v"", expected, input)
-	}
-}
-
-func TestQuicksortReverseSorted(t *testing.T) {
-	input := []int{5, 4, 3, 2, 1}
-	expected := []int{1, 2, 3, 4, 5}
-	Quicksort(input)
-	if !slicesEqual(input, expected) {
-		t.Errorf(""Expected %v, but got %v"", expected, input)
-	}
-}
-
-func TestQuicksortDuplicateElements(t *testing.T) {
-	input := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
-	expected := []int{1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9}
-	Quicksort(input)
-	if !slicesEqual(input, expected) {
-		t.Errorf(""Expected %v, but got %v"", expected, input)
-	}
-}
-
-func TestQuicksortNegativeNumbers(t *testing.T) {
-	input := []int{-3, 0, 2, -1, 4, -2, 1}
-	expected := []int{-3, -2, -1, 0, 1, 2, 4}
-	Quicksort(input)
-	if !slicesEqual(input, expected) {
-		t.Errorf(""Expected %v, but got %v"", expected, input)
-	}
-}
-
-func slicesEqual(a, b []int) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-",true,false,true,,quicksort.go,go,Quicksort,
-yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestPackageDeclaration(t *testing.T) {
 	tests := []struct {
-		name    string
-		content string
-		want    bool
+		name     string
+		input    []int
+		expected []int
 	}{
 		{
-			name:    ""valid package declaration"",
-			content: ""package rockskip"",
-			want:    true,
+			name:     ""Empty slice"",
+			input:    []int{},
+			expected: []int{},
 		},
 		{
-			name:    ""invalid package declaration"",
-			content: ""package main"",
-			want:    false,
+			name:     ""Single element"",
+			input:    []int{5},
+			expected: []int{5},
 		},
 		{
-			name:    ""no package declaration"",
-			content: ""import \""fmt\"""",
-			want:    false,
+			name:     ""Sorted slice"",
+			input:    []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
 		},
 		{
-			name:    ""package declaration with leading whitespace"",
-			content: ""  package rockskip"",
-			want:    true,
+			name:     ""Reverse sorted slice"",
+			input:    []int{5, 4, 3, 2, 1},
+			expected: []int{1, 2, 3, 4, 5},
 		},
 		{
-			name:    ""package declaration with trailing content"",
-			content: ""package rockskip // some comment"",
-			want:    true,
-		},
-		{
-			name:    ""multiple package declarations"",
-			content: ""package rockskip\npackage other"",
-			want:    true,
-		},
-		{
-			name:    ""empty content"",
-			content: """",
-			want:    false,
+			name:     ""Duplicates"",
+			input:    []int{3, 1, 4, 1, 5, 9, 2, 6, 5},
+			expected: []int{1, 1, 2, 3, 4, 5, 5, 6, 9},
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := strings.HasPrefix(strings.TrimSpace(tt.content), ""package rockskip"")
-			if got != tt.want {
-				t.Errorf(""Package declaration check for %q = %v, want %v"", tt.content, got, tt.want)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := quicksort(test.input)
+			if !reflect.DeepEqual(result, test.expected) {
+				t.Errorf(""quicksort(%v) = %v, expected %v"", test.input, result, test.expected)
 			}
 		})
 	}
 }
-",true,false,true,true,src/rockskip/search.go,go,Rockskip search,
-yaml,code_006,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+",true,false,true,,quicksort.go,go,Quicksort,
+yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+)
+
+func TestSearch(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	db := dbtest.NewDB(t)
+	observationCtx := &observation.TestContext
+	git := newSubprocessGit(t, ""/path/to/repo"")
+	defer git.Close()
+
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(observationCtx, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""github.com/owner/repo"")
+	commitID := api.CommitID(""deadbeef"")
+
+	// Test case: Repo not locked
+	_, err = service.Search(ctx, search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""deletion in progress"")
+
+	// Test case: Commit not indexed
+	err = updateLastAccessedAt(ctx, db, string(repo))
+	require.NoError(t, err)
+
+	symbols, err := service.Search(ctx, search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+	})
+	require.NoError(t, err)
+	require.Empty(t, symbols)
+
+	// Test case: Timeout
+	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	defer cancel()
+
+	symbols, err = service.Search(ctx, search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Timeout:  50 * time.Millisecond,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
+
+	// Test case: Successful search
+	err = indexCommit(ctx, db, service, repo, commitID)
+	require.NoError(t, err)
+
+	symbols, err = service.Search(ctx, search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, symbols)
+}
+",true,false,true,,src/rockskip/search.go,go,Rockskip search,
+yaml,code_006,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
 import { describe, it, expect } from 'vitest'
 
 describe('add', () => {
@@ -1089,131 +1399,381 @@ describe('add', () => {
     expect(add(2, 3)).toBe(5)
   })
 
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
   it('should add a positive and a negative number', () => {
-    expect(add(5, -3)).toBe(2)
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",true,true,true,,src/add.ts,typescript,Adder with sub context,/src/add.test.ts:2:37 2307 Cannot find module 'vitest' or its corresponding type declarations.
+yaml,code_001,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
   })
 
   it('should add two negative numbers', () => {
-    expect(add(-2, -4)).toBe(-6)
+    expect(add(-2, -3)).toBe(-5)
   })
 
-  it('should handle zero as an input', () => {
-    expect(add(0, 7)).toBe(7)
-    expect(add(7, 0)).toBe(7)
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
   })
 
-  it('should add fractional numbers', () => {
-    expect(add(0.1, 0.2)).toBeCloseTo(0.3)
-  })
-
-  it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).toBe(3000000)
-  })
-})
-",true,false,true,,src/add.ts,typescript,Adder with sub context,
-yaml,code_001,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { expect } from 'chai'
-import { add } from './add'
-
-describe('add function', () => {
-  it('should add two positive numbers correctly', () => {
-    expect(add(2, 3)).to.equal(5)
-  })
-
-  it('should handle zero as an input', () => {
-    expect(add(0, 5)).to.equal(5)
-    expect(add(10, 0)).to.equal(10)
-  })
-
-  it('should add negative numbers correctly', () => {
-    expect(add(-2, -3)).to.equal(-5)
-  })
-
-  it('should handle positive and negative number combinations', () => {
-    expect(add(-5, 10)).to.equal(5)
-    expect(add(7, -3)).to.equal(4)
-  })
-
-  it('should return zero when adding inverse numbers', () => {
-    expect(add(5, -5)).to.equal(0)
-  })
-
-  it('should handle decimal numbers', () => {
-    expect(add(1.5, 2.7)).to.be.closeTo(4.2, 0.0001)
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
   })
 
   it('should handle large numbers', () => {
-    expect(add(1000000, 2000000)).to.equal(3000000)
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
   })
 })
-",false,false,true,,src/add.ts,typescript,Adder,
-yaml,code_007,claude-3.5-sonnet,unit-test,test.yaml,2065dcaf562a302c00132436bf96c77f1d4ec24a,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"func TestRuler(t *testing.T) {
+",false,true,false,,src/add.ts,typescript,Adder,"/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:9:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:13:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:17:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:18:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:22:4 2304 Cannot find name 'expect'."
+yaml,code_007,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,rockskip/ruler_test.go,src/rockskip/server_test.go,"import ""testing""
+
+func TestRuler(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    int
-		expected int
+		name string
+		n    int
+		want int
 	}{
-		{""Positive even number"", 8, 3},
-		{""Positive odd number"", 7, 0},
-		{""Power of two"", 32, 5},
-		{""Large number"", 1048576, 20},
-		{""Zero"", 0, 0},
-		{""Negative number"", -4, 0},
-		{""Max int32"", 2147483647, 0},
+		{""zero"", 0, 0},
+		{""one"", 1, 0},
+		{""two"", 2, 1},
+		{""four"", 4, 2},
+		{""eight"", 8, 3},
+		{""negative"", -5, 0},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := ruler(tt.input)
-			require.Equal(t, tt.expected, result)
-		})
-	}
-}
-",true,false,true,,src/rockskip/server.go,go,Rockskip ruler function,
-yaml,code_010,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"import (
-	""testing""
-
-	""github.com/google/go-cmp/cmp""
-)
-
-func TestSplitHeaderValue(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected []string
-	}{
-		{
-			name:     ""empty input"",
-			input:    """",
-			expected: nil,
-		},
-		{
-			name:     ""single value"",
-			input:    ""value"",
-			expected: []string{""value""},
-		},
-		{
-			name:     ""multiple values"",
-			input:    ""value1, value2, value3"",
-			expected: []string{""value1"", ""value2"", ""value3""},
-		},
-		{
-			name:     ""leading and trailing spaces"",
-			input:    ""  value1, value2,   value3  "",
-			expected: []string{""value1"", ""value2"", ""value3""},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			actual := SplitHeaderValue(test.input)
-			if diff := cmp.Diff(test.expected, actual); diff != """" {
-				t.Errorf(""SplitHeaderValue(%q) mismatch (-want +got):\n%s"", test.input, diff)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := ruler(tc.n)
+			if got != tc.want {
+				t.Errorf(""ruler(%d) = %d, want %d"", tc.n, got, tc.want)
 			}
 		})
 	}
 }
+
+func TestRulerLarge(t *testing.T) {
+	got := ruler(1 << 30)
+	want := 30
+	if got != want {
+		t.Errorf(""ruler(%d) = %d, want %d"", 1<<30, got, want)
+	}
+}
+
+func TestRulerOverflow(t *testing.T) {
+	got := ruler(1 << 63)
+	want := 63
+	if got != want {
+		t.Errorf(""ruler(%d) = %d, want %d"", 1<<63, got, want)
+	}
+}
+",false,false,false,,src/rockskip/server.go,go,Rockskip ruler function,
+yaml,code_009,claude-3.5-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 100, 200, 300},
+	}
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+	tfs := []termFrequency{
+		{doc: 0, tf: map[string]int{""term1"": 5, ""term2"": 3}},
+		{doc: 1, tf: map[string]int{""term1"": 2, ""term3"": 1}},
+		{doc: 2, tf: map[string]int{""term2"": 4}},
+	}
+	df := termDocumentFrequency{
+		""term1"": 2,
+		""term2"": 2,
+		""term3"": 1,
+	}
+	opts := &SearchOptions{DebugScore: false}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check scores
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for first file"")
+	}
+	if fileMatches[1].Score == 0 {
+		t.Errorf(""Expected non-zero score for second file"")
+	}
+	if fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero score for third file"")
+	}
+
+	// Check debug scores
+	if fileMatches[0].Debug != """" {
+		t.Errorf(""Expected empty debug string when DebugScore is false"")
+	}
+	if fileMatches[1].Debug != """" {
+		t.Errorf(""Expected empty debug string when DebugScore is false"")
+	}
+	if fileMatches[2].Debug != """" {
+		t.Errorf(""Expected empty debug string when DebugScore is false"")
+	}
+
+	// Test with DebugScore enabled
+	opts.DebugScore = true
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	if fileMatches[0].Debug == """" {
+		t.Errorf(""Expected non-empty debug string when DebugScore is true"")
+	}
+	if fileMatches[1].Debug == """" {
+		t.Errorf(""Expected non-empty debug string when DebugScore is true"")
+	}
+	if fileMatches[2].Debug == """" {
+		t.Errorf(""Expected non-empty debug string when DebugScore is true"")
+	}
+}
+
+func TestScoreFilesUsingBM25EdgeCases(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 0, 0},
+	}
+	fileMatches := []FileMatch{}
+	tfs := []termFrequency{}
+	df := termDocumentFrequency{}
+	opts := &SearchOptions{DebugScore: false}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Test with empty inputs
+
+	d = &indexData{
+		boundaries: []uint32{0, 100},
+	}
+	fileMatches = []FileMatch{{}}
+	tfs = []termFrequency{{doc: 0, tf: map[string]int{}}}
+	df = termDocumentFrequency{}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	if fileMatches[0].Score != 0 {
+		t.Errorf(""Expected zero score for file with no terms"")
+	}
+}
+",true,false,true,,zoekt/score.go,go,Zoekt BM25 scoring,
+yaml,code_010,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		err      error
+		expected codes.Code
+	}{
+		{
+			name:     ""canceled"",
+			err:      context.Canceled,
+			expected: codes.Canceled,
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			expected: codes.DeadlineExceeded,
+		},
+		{
+			name:     ""unknown error"",
+			err:      errors.New(""unknown error""),
+			expected: codes.Unknown,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.PermissionDenied, ""permission denied""),
+			expected: codes.PermissionDenied,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportStreamError(test.err)
+			require.Equal(t, test.expected, status.Code(err))
+		})
+	}
+}
+
+func TestReportStreamErrorWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	err := ReportStreamErrorWithTimeout(ctx, errors.New(""test error""))
+	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+}
+
+func TestStreamErrorHandler(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		err      error
+		expected codes.Code
+	}{
+		{
+			name:     ""canceled"",
+			err:      context.Canceled,
+			expected: codes.Canceled,
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			expected: codes.DeadlineExceeded,
+		},
+		{
+			name:     ""unknown error"",
+			err:      errors.New(""unknown error""),
+			expected: codes.Unknown,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.PermissionDenied, ""permission denied""),
+			expected: codes.PermissionDenied,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			handler := StreamErrorHandler()
+			err := handler(test.err)
+			require.Equal(t, test.expected, status.Code(err))
+		})
+	}
+}
+
+func TestStreamErrorHandlerWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	handler := StreamErrorHandlerWithTimeout(ctx)
+	err := handler(errors.New(""test error""))
+	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+}
+
+func TestUnaryErrorHandler(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		err      error
+		expected codes.Code
+	}{
+		{
+			name:     ""canceled"",
+			err:      context.Canceled,
+			expected: codes.Canceled,
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			expected: codes.DeadlineExceeded,
+		},
+		{
+			name:     ""unknown error"",
+			err:      errors.New(""unknown error""),
+			expected: codes.Unknown,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.PermissionDenied, ""permission denied""),
+			expected: codes.PermissionDenied,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			handler := UnaryErrorHandler()
+			err := handler(context.Background(), nil, nil, test.err)
+			require.Equal(t, test.expected, status.Code(err))
+		})
+	}
+}
+
+func TestUnaryErrorHandlerWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	handler := UnaryErrorHandlerWithTimeout(ctx)
+	err := handler(context.Background(), nil, nil, errors.New(""test error""))
+	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+}
+
+func TestStreamErrorHandlerWithDeadline(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
+	defer cancel()
+
+	handler := StreamErrorHandlerWithDeadline(ctx)
+	err := handler(errors.New(""test error""))
+	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+}
+
+func TestUnaryErrorHandlerWithDeadline(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
+	defer cancel()
+
+	handler := UnaryErrorHandlerWithDeadline(ctx)
+	err := handler(context.Background(), nil, nil, errors.New(""test error""))
+	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+}
 ",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
-yaml,code_002,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+yaml,code_002,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
 
 describe('UniqueContext', () => {
   test('should import ContextItem and RangeData types', () => {
@@ -1264,7 +1824,7 @@ describe('UniqueContext', () => {
 /src/UniqueContext.test.ts:32:4 2304 Cannot find name 'expect'.
 /src/UniqueContext.test.ts:33:4 2304 Cannot find name 'expect'.
 /src/UniqueContext.test.ts:34:4 2304 Cannot find name 'expect'."
-yaml,code_004,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+yaml,code_004,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LevenshteinTest {
@@ -1312,7 +1872,7 @@ class LevenshteinTest {
     }
 }
 ",true,false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
-yaml,code_003,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+yaml,code_003,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
 
 import (
 	""reflect""
@@ -1362,7 +1922,7 @@ func TestQuickSort(t *testing.T) {
 	}
 }
 ",true,false,true,,quicksort.go,go,Quicksort,
-yaml,code_008,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+yaml,code_008,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
 	""context""
 	""testing""
 	""time""
@@ -1491,29 +2051,7 @@ func (f *mockRepositoryFetcher) FetchRepositoryArchive(ctx context.Context, repo
 	return ch
 }
 ",true,false,true,,src/rockskip/search.go,go,Rockskip search,
-yaml,code_006,gpt-4o,unit-test,test.yaml,4a8e2f954807997d737783a921df5a522369e37b,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
-import { describe, it, expect } from 'vitest'
-
-describe('add', () => {
-  it('should add two positive numbers', () => {
-    expect(add(2, 3)).toBe(5)
-  })
-
-  it('should add two negative numbers', () => {
-    expect(add(-2, -3)).toBe(-5)
-  })
-
-  it('should add a positive and a negative number', () => {
-    expect(add(2, -3)).toBe(-1)
-  })
-
-  it('should add zero to a number', () => {
-    expect(add(0, 5)).toBe(5)
-    expect(add(5, 0)).toBe(5)
-  })
-})
-",true,true,true,,src/add.ts,typescript,Adder with sub context,/src/add.test.ts:2:37 2307 Cannot find module 'vitest' or its corresponding type declarations.
-yaml,code_006,claude-3.5-sonnet,unit-test,test.yaml,4a8e2f954807997d737783a921df5a522369e37b,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+yaml,code_006,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
 import { describe, it, expect } from 'vitest'
 
 describe('add', () => {
@@ -1539,7 +2077,37 @@ describe('add', () => {
   })
 })
 ",true,true,true,,src/add.ts,typescript,Adder with sub context,/src/add.test.ts:2:37 2307 Cannot find module 'vitest' or its corresponding type declarations.
-yaml,code_007,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"import ""testing""
+yaml,code_001,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(5, -3)).toBe(2)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -4)).toBe(-6)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 7)).toBe(7)
+    expect(add(7, 0)).toBe(7)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",false,true,false,,src/add.ts,typescript,Adder,"/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:9:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:13:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:17:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:18:4 2304 Cannot find name 'expect'.
+/src/add.test.ts:22:4 2304 Cannot find name 'expect'."
+yaml,code_007,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"import ""testing""
 
 func TestRuler(t *testing.T) {
 	tests := []struct {
@@ -1580,7 +2148,7 @@ func TestRuler(t *testing.T) {
 			if result != test.expected {
 				t.Errorf(""ruler(%d) = %d, expecte
 ",true,false,false,,src/rockskip/server.go,go,Rockskip ruler function,
-yaml,code_009,claude-3-sonnet,unit-test,test.yaml,0805200539a0bcd3fc369a5b67afaa11fdf4742e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+yaml,code_009,claude-3-sonnet,unit-test,test.yaml,cc13deae0e4ed2cfc041554dddd840b7ad7d95df,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
 	""testing""
 )
 
