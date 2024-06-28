@@ -1,5 +1,5 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_008,gpt-4o,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_008,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
 	""context""
 	""testing""
 	""time""
@@ -16,17 +16,22 @@ yaml,code_008,gpt-4o,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194
 
 func TestSearch_CommitNotIndexed(t *testing.T) {
 	db := dbtest.NewDB(t)
+	defer db.Close()
+
 	git := &mockGit{}
 	repoFetcher := newMockRepositoryFetcher(git)
 	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
 	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
 
 	repo := api.RepoName(""test/repo"")
 	commitID := api.CommitID(""deadbeef"")
+
 	args := search.SymbolsParameters{
 		Repo:     repo,
 		CommitID: commitID,
+		Query:    """",
 	}
 
 	_, err = service.Search(context.Background(), args)
@@ -36,24 +41,30 @@ func TestSearch_CommitNotIndexed(t *testing.T) {
 
 func TestSearch_CommitIndexed(t *testing.T) {
 	db := dbtest.NewDB(t)
+	defer db.Close()
+
 	git := &mockGit{}
 	repoFetcher := newMockRepositoryFetcher(git)
 	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
 	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
 
 	repo := api.RepoName(""test/repo"")
 	commitID := api.CommitID(""deadbeef"")
+
+	// Insert a commit to simulate it being indexed
+	repoId, err := insertRepo(db, string(repo))
+	require.NoError(t, err)
+
+	_, err = insertCommit(db, repoId, string(commitID), time.Now())
+	require.NoError(t, err)
+
 	args := search.SymbolsParameters{
 		Repo:     repo,
 		CommitID: commitID,
+		Query:    """",
 	}
-
-	// Simulate indexing the commit
-	repoId, err := updateLastAccessedAt(context.Background(), db, string(repo))
-	require.NoError(t, err)
-	_, err = insertCommit(context.Background(), db, repoId, string(commitID))
-	require.NoError(t, err)
 
 	symbols, err := service.Search(context.Background(), args)
 	require.NoError(t, err)
@@ -62,17 +73,22 @@ func TestSearch_CommitIndexed(t *testing.T) {
 
 func TestSearch_Timeout(t *testing.T) {
 	db := dbtest.NewDB(t)
+	defer db.Close()
+
 	git := &mockGit{}
 	repoFetcher := newMockRepositoryFetcher(git)
 	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
 	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
 
 	repo := api.RepoName(""test/repo"")
 	commitID := api.CommitID(""deadbeef"")
+
 	args := search.SymbolsParameters{
 		Repo:     repo,
 		CommitID: commitID,
+		Query:    """",
 		Timeout:  100 * time.Millisecond,
 	}
 
@@ -80,4 +96,4 @@ func TestSearch_Timeout(t *testing.T) {
 	require.Error(t, err)
 	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
 }
-",true,false,true,true,src/rockskip/search.go,go,Rockskip search,
+",false,true,true,src/rockskip/search.go,go,Rockskip search,

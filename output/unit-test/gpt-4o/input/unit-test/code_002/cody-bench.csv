@@ -1,27 +1,23 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_002,gpt-4o,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_002,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
 
 describe('UniqueContext', () => {
-  test('should import ContextItem and RangeData from @sourcegraph/cody-shared', () => {
+  test('should import ContextItem and RangeData types', () => {
     expect(ContextItem).toBeDefined()
     expect(RangeData).toBeDefined()
   })
 
   test('ContextItem should have expected properties', () => {
     const contextItem: ContextItem = {
-      title: 'Test Context Item',
+      title: 'Test Context',
+      description: 'This is a test context item',
       url: 'https://example.com',
-      codeQueries: [],
-      repositories: [],
-      commit: null,
       ranges: [],
     }
 
     expect(contextItem).toHaveProperty('title')
+    expect(contextItem).toHaveProperty('description')
     expect(contextItem).toHaveProperty('url')
-    expect(contextItem).toHaveProperty('codeQueries')
-    expect(contextItem).toHaveProperty('repositories')
-    expect(contextItem).toHaveProperty('commit')
     expect(contextItem).toHaveProperty('ranges')
   })
 
@@ -29,33 +25,18 @@ describe('UniqueContext', () => {
     const rangeData: RangeData = {
       start: { line: 1, character: 0 },
       end: { line: 2, character: 10 },
-      url: 'https://example.com/file.ts',
-      repository: 'https://example.com/repo',
-      commit: 'abcd1234',
+      text: 'Test range',
     }
 
     expect(rangeData).toHaveProperty('start')
     expect(rangeData).toHaveProperty('end')
-    expect(rangeData).toHaveProperty('url')
-    expect(rangeData).toHaveProperty('repository')
-    expect(rangeData).toHaveProperty('commit')
+    expect(rangeData).toHaveProperty('text')
   })
 })
-",true,true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+",true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+
 /src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
 /src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:6:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:9:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-/src/UniqueContext.test.ts:19:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:20:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:21:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:22:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:23:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:24:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:27:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-/src/UniqueContext.test.ts:36:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:37:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:38:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:39:4 2304 Cannot find name 'expect'.
-/src/UniqueContext.test.ts:40:4 2304 Cannot find name 'expect'."
+
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'."

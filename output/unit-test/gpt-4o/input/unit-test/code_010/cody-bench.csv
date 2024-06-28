@@ -1,5 +1,5 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_010,gpt-4o,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
 
 import (
 	""context""
@@ -13,65 +13,76 @@ import (
 	""google.golang.org/grpc/status""
 )
 
-func TestReporter(t *testing.T) {
-	t.Run(""success"", func(t *testing.T) {
-		ctx := context.Background()
-		_, err := UnaryReporter(ctx, nil, nil, nil)
-		require.NoError(t, err)
-	})
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
 
-	t.Run(""error"", func(t *testing.T) {
-		ctx := context.Background()
-		err := errors.New(""test error"")
-		_, reportedErr := UnaryReporter(ctx, nil, nil, err)
-		require.Equal(t, err, reportedErr)
-	})
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+	}
 
-	t.Run(""grpc_error"", func(t *testing.T) {
-		ctx := context.Background()
-		grpcErr := status.Error(codes.Unavailable, ""service unavailable"")
-		_, reportedErr := UnaryReporter(ctx, nil, nil, grpcErr)
-		require.Equal(t, grpcErr, reportedErr)
-	})
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 
-	t.Run(""timeout"", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-		defer cancel()
-		time.Sleep(200 * time.Millisecond)
-		_, err := UnaryReporter(ctx, nil, nil, nil)
-		require.Error(t, err)
-		require.Equal(t, context.DeadlineExceeded, err)
-	})
+			err := ReportStreamError(context.Background(), test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
 }
 
-func TestStreamReporter(t *testing.T) {
-	t.Run(""success"", func(t *testing.T) {
-		ctx := context.Background()
-		err := StreamReporter(ctx, nil, nil)
-		require.NoError(t, err)
-	})
+func TestReportStreamErrorWithTimeout(t *testing.T) {
+	t.Parallel()
 
-	t.Run(""error"", func(t *testing.T) {
-		ctx := context.Background()
-		err := errors.New(""test error"")
-		reportedErr := StreamReporter(ctx, nil, err)
-		require.Equal(t, err, reportedErr)
-	})
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
 
-	t.Run(""grpc_error"", func(t *testing.T) {
-		ctx := context.Background()
-		grpcErr := status.Error(codes.Unavailable, ""service unavailable"")
-		reportedErr := StreamReporter(ctx, nil, grpcErr)
-		require.Equal(t, grpcErr, reportedErr)
-	})
-
-	t.Run(""timeout"", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-		defer cancel()
-		time.Sleep(200 * time.Millisecond)
-		err := StreamReporter(ctx, nil, nil)
-		require.Error(t, err)
-		require.Equal(t, context.DeadlineExceeded, err)
-	})
+	err := ReportStreamError(ctx, nil)
+	require.Equal(t, context.DeadlineExceeded, err)
 }
-",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+
+func TestReportStreamErrorWithCancellation(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := ReportStreamError(ctx, nil)
+	require.Equal(t, context.Canceled, err)
+}
+
+func TestReportStreamErrorWithInvalidArgument(t *testing.T) {
+	t.Parallel()
+
+	err := ReportStreamError(nil, errors.New(""some error""))
+	require.Equal(t, status.Error(codes.Unknown, ""some error""), err)
+}
+
+func TestReportStreamErrorWithGRPCServer(t *testing.T) {
+	t.Parallel()
+
+	server := grpc.NewServer()
+	defer server.Stop()
+
+	err := ReportStreamError(context.Background(), status.Errorf(codes.Unavailable, ""service unavailable""))
+	require.Equal(t, status.Error(codes.Unavailable, ""service unavailable""), err)
+}
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,

@@ -1,5 +1,5 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_010,claude-3-sonnet,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
 
 import (
 	""context""
@@ -22,7 +22,7 @@ func TestReportStreamError(t *testing.T) {
 		expected codes.Code
 	}{
 		{
-			name:     ""canceled"",
+			name:     ""canceled context"",
 			err:      context.Canceled,
 			expected: codes.Canceled,
 		},
@@ -57,39 +57,34 @@ func TestReportStreamError(t *testing.T) {
 func TestReportStreamErrorWithTimeout(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-	defer cancel()
-
-	err := ReportStreamErrorWithTimeout(ctx, errors.New(""test error""))
-	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
-}
-
-func TestStreamErrorHandler(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name     string
 		err      error
+		timeout  time.Duration
 		expected codes.Code
 	}{
 		{
-			name:     ""canceled"",
+			name:     ""canceled context"",
 			err:      context.Canceled,
+			timeout:  0,
 			expected: codes.Canceled,
 		},
 		{
 			name:     ""deadline exceeded"",
 			err:      context.DeadlineExceeded,
+			timeout:  0,
 			expected: codes.DeadlineExceeded,
 		},
 		{
-			name:     ""unknown error"",
+			name:     ""unknown error with timeout"",
 			err:      errors.New(""unknown error""),
-			expected: codes.Unknown,
+			timeout:  time.Second,
+			expected: codes.DeadlineExceeded,
 		},
 		{
-			name:     ""grpc error"",
+			name:     ""grpc error with timeout"",
 			err:      status.Error(codes.PermissionDenied, ""permission denied""),
+			timeout:  time.Second,
 			expected: codes.PermissionDenied,
 		},
 	}
@@ -99,51 +94,32 @@ func TestStreamErrorHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := StreamErrorHandler()
-			err := handler(test.err)
+			err := ReportStreamErrorWithTimeout(test.err, test.timeout)
 			require.Equal(t, test.expected, status.Code(err))
 		})
 	}
 }
 
-func TestStreamErrorHandlerWithTimeout(t *testing.T) {
-	t.Parallel()
-
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-	defer cancel()
-
-	handler := StreamErrorHandlerWithTimeout(ctx)
-	err := handler(errors.New(""test error""))
-	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
-}
-
-func TestUnaryErrorHandler(t *testing.T) {
+func TestStreamErrorFromStatus(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name     string
-		err      error
-		expected codes.Code
+		code     codes.Code
+		message  string
+		expected error
 	}{
 		{
 			name:     ""canceled"",
-			err:      context.Canceled,
-			expected: codes.Canceled,
+			code:     codes.Canceled,
+			message:  ""canceled"",
+			expected: status.Error(codes.Canceled, ""canceled""),
 		},
 		{
-			name:     ""deadline exceeded"",
-			err:      context.DeadlineExceeded,
-			expected: codes.DeadlineExceeded,
-		},
-		{
-			name:     ""unknown error"",
-			err:      errors.New(""unknown error""),
-			expected: codes.Unknown,
-		},
-		{
-			name:     ""grpc error"",
-			err:      status.Error(codes.PermissionDenied, ""permission denied""),
-			expected: codes.PermissionDenied,
+			name:     ""unknown"",
+			code:     codes.Unknown,
+			message:  ""unknown error"",
+			expected: status.Error(codes.Unknown, ""unknown error""),
 		},
 	}
 
@@ -152,43 +128,60 @@ func TestUnaryErrorHandler(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			handler := UnaryErrorHandler()
-			err := handler(context.Background(), nil, nil, test.err)
-			require.Equal(t, test.expected, status.Code(err))
+			err := StreamErrorFromStatus(test.code, test.message)
+			require.Equal(t, test.expected, err)
 		})
 	}
 }
 
-func TestUnaryErrorHandlerWithTimeout(t *testing.T) {
+func TestStreamErrorFromUnknownError(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-	defer cancel()
-
-	handler := UnaryErrorHandlerWithTimeout(ctx)
-	err := handler(context.Background(), nil, nil, errors.New(""test error""))
-	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+	err := StreamErrorFromUnknownError(errors.New(""unknown error""))
+	require.Equal(t, status.Error(codes.Unknown, ""unknown error""), err)
 }
 
-func TestStreamErrorHandlerWithDeadline(t *testing.T) {
+func TestStreamErrorFromGRPCError(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
-	defer cancel()
-
-	handler := StreamErrorHandlerWithDeadline(ctx)
-	err := handler(errors.New(""test error""))
-	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+	grpcErr := status.Error(codes.PermissionDenied, ""permission denied"")
+	err := StreamErrorFromGRPCError(grpcErr)
+	require.Equal(t, grpcErr, err)
 }
 
-func TestUnaryErrorHandlerWithDeadline(t *testing.T) {
+func TestStreamErrorFromContextError(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(100*time.Millisecond))
-	defer cancel()
+	tests := []struct {
+		name     string
+		err      error
+		expected error
+	}{
+		{
+			name:     ""canceled context"",
+			err:      context.Canceled,
+			expected: status.Error(codes.Canceled, context.Canceled.Error()),
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			expected: status.Error(codes.DeadlineExceeded, context.DeadlineExceeded.Error()),
+		},
+		{
+			name:     ""unknown error"",
+			err:      errors.New(""unknown error""),
+			expected: status.Error(codes.Unknown, ""unknown error""),
+		},
+	}
 
-	handler := UnaryErrorHandlerWithDeadline(ctx)
-	err := handler(context.Background(), nil, nil, errors.New(""test error""))
-	require.Equal(t, codes.DeadlineExceeded, status.Code(err))
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := StreamErrorFromContextError(test.err)
+			require.Equal(t, test.expected, err)
+		})
+	}
 }
-",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,

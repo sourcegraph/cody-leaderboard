@@ -1,5 +1,5 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
 	""context""
 	""testing""
 	""time""
@@ -12,66 +12,96 @@ yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,511244a2b35df2b185707afe4a78
 	""github.com/sourcegraph/sourcegraph/internal/gitserver""
 	""github.com/sourcegraph/sourcegraph/internal/observation""
 	""github.com/sourcegraph/sourcegraph/internal/search""
+	""github.com/sourcegraph/sourcegraph/lib/errors""
 )
 
-func TestSearch(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
+func TestSearch_CommitNotIndexed(t *testing.T) {
 	db := dbtest.NewDB(t)
-	observationCtx := &observation.TestContext
-	git := newSubprocessGit(t, ""/path/to/repo"")
-	defer git.Close()
+	defer db.Close()
 
+	git := &mockGit{}
 	repoFetcher := newMockRepositoryFetcher(git)
 	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
 
-	service, err := NewService(observationCtx, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
 	require.NoError(t, err)
 
-	repo := api.RepoName(""github.com/owner/repo"")
+	repo := api.RepoName(""test/repo"")
 	commitID := api.CommitID(""deadbeef"")
-
-	// Test case: Repo not locked
-	_, err = service.Search(ctx, search.SymbolsParameters{
+	args := search.SymbolsParameters{
 		Repo:     repo,
 		CommitID: commitID,
-	})
+		Query:    """",
+	}
+
+	// Simulate commit not indexed
+	_, _, present, err := GetCommitByHash(context.Background(), db, 1, string(commitID))
+	require.NoError(t, err)
+	require.False(t, present)
+
+	// Test search when commit is not indexed
+	_, err = service.Search(context.Background(), args)
 	require.Error(t, err)
-	require.Contains(t, err.Error(), ""deletion in progress"")
-
-	// Test case: Commit not indexed
-	err = updateLastAccessedAt(ctx, db, string(repo))
-	require.NoError(t, err)
-
-	symbols, err := service.Search(ctx, search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: commitID,
-	})
-	require.NoError(t, err)
-	require.Empty(t, symbols)
-
-	// Test case: Timeout
-	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
-	defer cancel()
-
-	symbols, err = service.Search(ctx, search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: commitID,
-		Timeout:  50 * time.Millisecond,
-	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
-
-	// Test case: Successful search
-	err = indexCommit(ctx, db, service, repo, commitID)
-	require.NoError(t, err)
-
-	symbols, err = service.Search(ctx, search.SymbolsParameters{
-		Repo:     repo,
-		CommitID: commitID,
-	})
-	require.NoError(t, err)
-	require.NotEmpty(t, symbols)
+	require.True(t, errors.Is(err, context.DeadlineExceeded))
 }
-",true,false,true,true,src/rockskip/search.go,go,Rockskip search,
+
+func TestSearch_CommitIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+	}
+
+	// Simulate commit indexed
+	_, err = insertCommit(context.Background(), db, 1, string(commitID))
+	require.NoError(t, err)
+
+	// Test search when commit is indexed
+	symbols, err := service.Search(context.Background(), args)
+	require.NoError(t, err)
+	require.NotNil(t, symbols)
+}
+
+func TestSearch_Timeout(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+		Timeout:  time.Millisecond, // Set a very short timeout
+	}
+
+	// Simulate commit not indexed
+	_, _, present, err := GetCommitByHash(context.Background(), db, 1, string(commitID))
+	require.NoError(t, err)
+	require.False(t, present)
+
+	// Test search with timeout
+	_, err = service.Search(context.Background(), args)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, context.DeadlineExceeded))
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,

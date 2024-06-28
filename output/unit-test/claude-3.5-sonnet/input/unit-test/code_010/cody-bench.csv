@@ -1,179 +1,185 @@
-LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILE,TEST_EXPECTED_FILE,TEST_GENERATED,TEST_MATCHES_EXPECTED_TEST_FILE,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILE,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,code_010,claude-3.5-sonnet,unit-test,test.yaml,511244a2b35df2b185707afe4a78865d4a3d194d,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
 
 import (
 	""context""
 	""errors""
 	""testing""
+	""time""
 
-	""github.com/stretchr/testify/assert""
+	""github.com/stretchr/testify/require""
 	""google.golang.org/grpc""
 	""google.golang.org/grpc/codes""
 	""google.golang.org/grpc/status""
 )
 
-func TestReportedError(t *testing.T) {
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
-		name     string
-		err      error
-		expected error
+		name        string
+		err         error
+		expectedErr error
 	}{
 		{
-			name:     ""nil error"",
-			err:      nil,
-			expected: nil,
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
 		},
 		{
-			name:     ""grpc error"",
-			err:      status.Error(codes.Internal, ""internal error""),
-			expected: status.Error(codes.Internal, ""internal error""),
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
 		},
 		{
-			name:     ""non-grpc error"",
-			err:      errors.New(""custom error""),
-			expected: errors.New(""custom error""),
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
 		},
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
-			actual := ReportedError(test.err)
-			assert.Equal(t, test.expected, actual)
+			t.Parallel()
+
+			err := ReportStreamError(test.err)
+			require.Equal(t, test.expectedErr, err)
 		})
 	}
 }
 
-func TestReportedErrorWithContext(t *testing.T) {
+func TestReportStreamErrorWithContext(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
-		name     string
-		err      error
-		expected error
+		name        string
+		err         error
+		expectedErr error
 	}{
 		{
-			name:     ""nil error"",
-			err:      nil,
-			expected: nil,
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
 		},
 		{
-			name:     ""grpc error"",
-			err:      status.Error(codes.Internal, ""internal error""),
-			expected: status.Error(codes.Internal, ""internal error""),
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
 		},
 		{
-			name:     ""non-grpc error"",
-			err:      errors.New(""custom error""),
-			expected: errors.New(""custom error""),
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+		{
+			name:        ""context canceled"",
+			err:         context.Canceled,
+			expectedErr: status.Error(codes.Canceled, context.Canceled.Error()),
+		},
+		{
+			name:        ""context deadline exceeded"",
+			err:         context.DeadlineExceeded,
+			expectedErr: status.Error(codes.DeadlineExceeded, context.DeadlineExceeded.Error()),
 		},
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx := context.Background()
-			actual := ReportedErrorWithContext(ctx, test.err)
-			assert.Equal(t, test.expected, actual)
+			t.Parallel()
+
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+			defer cancel()
+
+			err := ReportStreamErrorWithContext(ctx, test.err)
+			require.Equal(t, test.expectedErr, err)
 		})
 	}
 }
 
-func TestReportedErrorWithContextAndMetadata(t *testing.T) {
+func TestReportCallError(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
-		name     string
-		err      error
-		metadata map[string]string
-		expected error
+		name        string
+		err         error
+		expectedErr error
 	}{
 		{
-			name:     ""nil error"",
-			err:      nil,
-			metadata: nil,
-			expected: nil,
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
 		},
 		{
-			name:     ""grpc error"",
-			err:      status.Error(codes.Internal, ""internal error""),
-			metadata: map[string]string{""key"": ""value""},
-			expected: status.Error(codes.Internal, ""internal error""),
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
 		},
 		{
-			name:     ""non-grpc error"",
-			err:      errors.New(""custom error""),
-			metadata: map[string]string{""key"": ""value""},
-			expected: errors.New(""custom error""),
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
 		},
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx := context.Background()
-			actual := ReportedErrorWithContextAndMetadata(ctx, test.err, test.metadata)
-			assert.Equal(t, test.expected, actual)
+			t.Parallel()
+
+			err := ReportCallError(test.err)
+			require.Equal(t, test.expectedErr, err)
 		})
 	}
 }
 
-func TestReportedErrorWithContextAndMetadataAndTrailer(t *testing.T) {
+func TestReportCallErrorWithContext(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
-		name     string
-		err      error
-		metadata map[string]string
-		trailer  metadata
-		expected error
+		name        string
+		err         error
+		expectedErr error
 	}{
 		{
-			name:     ""nil error"",
-			err:      nil,
-			metadata: nil,
-			trailer:  nil,
-			expected: nil,
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
 		},
 		{
-			name:     ""grpc error"",
-			err:      status.Error(codes.Internal, ""internal error""),
-			metadata: map[string]string{""key"": ""value""},
-			trailer:  metadata{""trailer-key"": []string{""trailer-value""}},
-			expected: status.Error(codes.Internal, ""internal error""),
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
 		},
 		{
-			name:     ""non-grpc error"",
-			err:      errors.New(""custom error""),
-			metadata: map[string]string{""key"": ""value""},
-			trailer:  metadata{""trailer-key"": []string{""trailer-value""}},
-			expected: errors.New(""custom error""),
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+		{
+			name:        ""context canceled"",
+			err:         context.Canceled,
+			expectedErr: status.Error(codes.Canceled, context.Canceled.Error()),
+		},
+		{
+			name:        ""context deadline exceeded"",
+			err:         context.DeadlineExceeded,
+			expectedErr: status.Error(codes.DeadlineExceeded, context.DeadlineExceeded.Error()),
 		},
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
-			ctx := context.Background()
-			actual := ReportedErrorWithContextAndMetadataAndTrailer(ctx, test.err, test.metadata, test.trailer)
-			assert.Equal(t, test.expected, actual)
+			t.Parallel()
+
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+			defer cancel()
+
+			err := ReportCallErrorWithContext(ctx, test.err)
+			require.Equal(t, test.expectedErr, err)
 		})
 	}
 }
-
-type metadata map[string][]string
-
-func (m metadata) Len() int {
-	return len(m)
-}
-
-func (m metadata) Get(key string) string {
-	values, ok := m[key]
-	if !ok {
-		return """"
-	}
-	return values[0]
-}
-
-func (m metadata) Set(key string, value string) {
-	m[key] = []string{value}
-}
-
-func (m metadata) Keys() []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	return keys
-}
-",true,false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
