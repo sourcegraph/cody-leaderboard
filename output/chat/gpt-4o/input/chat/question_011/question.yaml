@@ -2,32 +2,21 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided codebase is responsible for monitoring a directory for changes to files with the `.zoekt` extension. Here’s a detailed breakdown of its functionality:
+# CHAT_REPLY A `DirectoryWatcher` monitors a specified directory for changes to files with a `.zoekt` extension. It detects new, modified, or deleted files and updates its internal state accordingly. Here's a high-level overview of its functionality:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Initialization**:
-# CHAT_REPLY    - The `newDirectoryWatcher` function initializes a new `DirectoryWatcher` instance, setting up the directory to watch, a map to track file modification timestamps, and a loader to handle loading and dropping files.
+# CHAT_REPLY 1. **Initialization**: The `DirectoryWatcher` is initialized with a directory path and a `shardLoader` interface, which defines methods for loading and dropping files.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Scanning**:
-# CHAT_REPLY    - The `scan` method scans the specified directory for files with the `.zoekt` extension.
-# CHAT_REPLY    - It filters out files based on their version, ensuring that only files with a version less than or equal to the current and next index format versions are considered.
-# CHAT_REPLY    - It updates the `timestamps` map with the modification times of the files and their associated metadata files.
-# CHAT_REPLY    - It identifies new or modified files to load and files that have been deleted to drop.
+# CHAT_REPLY 2. **Scanning**: It periodically scans the directory to identify `.zoekt` files and their metadata. It keeps track of the modification times of these files to detect changes.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Watching**:
-# CHAT_REPLY    - The `watch` method sets up a file system watcher using the `fsnotify` package to monitor the directory for changes.
-# CHAT_REPLY    - It listens for file system events and triggers a scan when changes are detected.
-# CHAT_REPLY    - It handles errors from the watcher and ensures the watcher is properly closed when the `DirectoryWatcher` is stopped.
+# CHAT_REPLY 3. **Loading and Dropping**: Based on the scan results, it determines which files are new or modified and need to be loaded, and which files have been deleted and need to be dropped. It then calls the appropriate methods on the `shardLoader`.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Loading and Dropping Files**:
-# CHAT_REPLY    - The `loader` interface defines methods for loading and dropping files. The `DirectoryWatcher` uses this loader to manage the files based on the results of the scan.
+# CHAT_REPLY 4. **Watching**: It uses the `fsnotify` package to watch the directory for file system events (like creation, modification, or deletion of files). When an event is detected, it triggers a scan to update its state.
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Concurrency and Synchronization**:
-# CHAT_REPLY    - The `DirectoryWatcher` uses channels and synchronization primitives (like `sync.Once`) to manage the lifecycle of the watcher, ensuring it starts and stops correctly.
+# CHAT_REPLY 5. **Concurrency**: The `DirectoryWatcher` runs its scanning and watching logic in separate goroutines, ensuring that it can handle file system events asynchronously.
 # CHAT_REPLY 
-# CHAT_REPLY 6. **Error Handling and Logging**:
-# CHAT_REPLY    - The `DirectoryWatcher` logs errors encountered during scanning and watching, providing visibility into issues that may arise.
+# CHAT_REPLY 6. **Stopping**: It provides a method to stop the watcher gracefully, ensuring that all resources are cleaned up properly.
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` is a utility that continuously monitors a directory for changes to `.zoekt` files, ensuring that new or modified files are loaded and deleted files are dropped, keeping the system in sync with the current state of the directory.
+# CHAT_REPLY This mechanism is useful for applications that need to dynamically respond to changes in a directory, such as a search engine that indexes files in real-time.
 
  class: code search
  files:

@@ -2,26 +2,7 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in `shards/watcher.go` monitors a directory for changes to shard files (`*.zoekt`) and updates the search index accordingly. Here's a breakdown:
-# CHAT_REPLY 
-# CHAT_REPLY 1. **Initialization:**
-# CHAT_REPLY    - It takes the directory path and a `shardLoader` as input.
-# CHAT_REPLY    - It scans the directory for existing shard files and records their modification timestamps.
-# CHAT_REPLY    - It loads the initial set of shards using the `shardLoader`.
-# CHAT_REPLY 
-# CHAT_REPLY 2. **Watching for Changes:**
-# CHAT_REPLY    - It uses `fsnotify` to watch the directory for file system events.
-# CHAT_REPLY    - When a change is detected (e.g., new file, modification, deletion), it triggers a re-scan of the directory.
-# CHAT_REPLY 
-# CHAT_REPLY 3. **Updating the Index:**
-# CHAT_REPLY    - During the re-scan, it compares the current shard files and their timestamps with the recorded ones.
-# CHAT_REPLY    - **New/Modified Shards:** If a new shard is found or an existing one is modified, it loads the shard using the `shardLoader`.
-# CHAT_REPLY    - **Deleted Shards:** If a shard is deleted, it unloads the corresponding shard using the `shardLoader`.
-# CHAT_REPLY 
-# CHAT_REPLY 4. **Handling Errors:**
-# CHAT_REPLY    - It logs errors encountered during file system operations and continues watching.
-# CHAT_REPLY 
-# CHAT_REPLY **In essence, the `DirectoryWatcher` ensures that the search index stays up-to-date with the contents of the shard directory by loading new/modified shards and unloading deleted ones.**
+# CHAT_REPLY A directory watcher monitors a specified directory for changes, such as the addition, modification, or deletion of files. When changes occur, it triggers predefined actions, such as loading or unloading data associated with the modified files. This mechanism is particularly useful for keeping data synchronized with the file system in real-time.
 
  class: code search
  files:
