@@ -1,0 +1,78 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_008,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+)
+
+func TestSearch(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	db := dbtest.NewDB(t)
+	git := newSubprocessGit(t, ""/path/to/repo"")
+	defer git.Close()
+
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(
+		&observation.TestContext,
+		db,
+		git,
+		repoFetcher,
+		createParser,
+		1, 1, false, 1, 1, 1, false,
+	)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""github.com/owner/repo"")
+	commitID := api.CommitID(""deadbeef"")
+
+	t.Run(""CommitNotIndexed"", func(t *testing.T) {
+		_, err := service.Search(ctx, search.SymbolsParameters{
+			Repo:     repo,
+			CommitID: commitID,
+		})
+		require.Error(t, err)
+		require.Equal(t, context.DeadlineExceeded, err)
+	})
+
+	t.Run(""CommitIndexed"", func(t *testing.T) {
+		// Simulate indexing the commit
+		repoID, err := updateLastAccessedAt(ctx, db, string(repo))
+		require.NoError(t, err)
+		_, err = insertCommit(ctx, db, repoID, string(commitID))
+		require.NoError(t, err)
+
+		symbols, err := service.Search(ctx, search.SymbolsParameters{
+			Repo:     repo,
+			CommitID: commitID,
+		})
+		require.NoError(t, err)
+		require.NotEmpty(t, symbols)
+	})
+
+	t.Run(""Timeout"", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+		defer cancel()
+
+		_, err := service.Search(ctx, search.SymbolsParameters{
+			Repo:     repo,
+			CommitID: commitID,
+			Timeout:  100 * time.Millisecond,
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
+	})
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,

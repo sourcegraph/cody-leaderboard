@@ -5,5 +5,6 @@ if ! command -v xsv &>/dev/null; then
     cargo install xsv
 fi
 
-xsv cat rows $(find output/fix -type f -name cody-bench.csv) >fix.csv
-xsv cat rows $(find output/chat -type f -name cody-bench.csv) >chat.csv
+for task in fix chat unit-test; do
+    xsv cat rows $(find "output/$task" -type f -name cody-bench.csv) >"$task.csv"
+done
