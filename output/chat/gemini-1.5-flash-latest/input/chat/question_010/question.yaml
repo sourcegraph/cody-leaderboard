@@ -2,29 +2,19 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY Let's break down your code! It looks like you're building a system for managing rate limits and concurrency for a service like Cody, which likely handles requests from users. 
+# CHAT_REPLY Your codebase is a collection of TypeScript and Go files that implement a code intelligence API called Squirrel, an agent for interacting with Cody, and a rate limiter for managing concurrent requests. 
 # CHAT_REPLY 
-# CHAT_REPLY Here's a high-level overview:
+# CHAT_REPLY The `Squirrel` interface defines a `symbolInformation` method that takes a file path as input and returns a `CodeIntelligence` object containing symbol information. 
 # CHAT_REPLY 
-# CHAT_REPLY * **Rate Limiting:** You have a `RateLimit` struct that defines limits on the number of requests allowed within a specific time interval. It also includes a list of allowed models, which could be different AI models or services.
-# CHAT_REPLY * **Concurrency Control:** You have a `concurrencyLimiter` struct that manages the number of concurrent requests allowed. This is important to prevent overloading your system.
-# CHAT_REPLY * **Error Handling:** You have a custom error type `ErrConcurrencyLimitExceeded` to handle cases where the rate limit or concurrency limit is exceeded. This error includes information about the limit, the feature being used, and the time to retry.
-# CHAT_REPLY * **Redis Integration:** You're using Redis to store and manage the rate limit counters.
-# CHAT_REPLY * **Update on Error:** You have an `updateOnErrorLimiter` that attempts to update the actor's permissions if a rate limit or concurrency limit error occurs. This is a good practice to ensure that users are not blocked unnecessarily.
+# CHAT_REPLY The `Animal` interface defines a simple animal object with `name` and `age` properties.
 # CHAT_REPLY 
-# CHAT_REPLY **Key Takeaways:**
+# CHAT_REPLY The `agent` package in Go implements an agent that interacts with Cody via stdout/stdin. This package is intended to be used by non-ECMAScript clients such as the JetBrains and NeoVim plugins.
 # CHAT_REPLY 
-# CHAT_REPLY * Your code is well-structured and uses best practices for rate limiting and concurrency control.
-# CHAT_REPLY * You have clear error handling and retry mechanisms.
-# CHAT_REPLY * You're using Redis effectively for storing and managing rate limits.
+# CHAT_REPLY The `actor` package in Go implements a rate limiter for managing concurrent requests. It includes a `RateLimit` struct that defines the allowed models, limit, interval, and concurrency settings. It also includes a `concurrencyLimiter` struct that implements the actual rate limiting logic.
 # CHAT_REPLY 
-# CHAT_REPLY **Next Steps:**
+# CHAT_REPLY The `limit.go` file defines a `RateLimit` struct and associated methods for managing rate limits. It also defines a `concurrencyLimiter` struct that implements the actual rate limiting logic.
 # CHAT_REPLY 
-# CHAT_REPLY * Consider adding more detailed documentation to your code, especially for the `RateLimit` and `concurrencyLimiter` structs.
-# CHAT_REPLY * You could explore more advanced rate limiting strategies, such as token bucket algorithms.
-# CHAT_REPLY * You might want to implement a mechanism for monitoring and alerting on rate limit and concurrency limit usage.
-# CHAT_REPLY 
-# CHAT_REPLY Let me know if you have any specific questions about your code or if you'd like me to elaborate on any of these points!
+# CHAT_REPLY The `README.md` file provides a brief overview of the `@sourcegraph/cody-agent` package.
 
  class: codebase onboarding
  files:

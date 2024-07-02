@@ -2,25 +2,26 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The DirectoryWatcher is a component that monitors a specific directory for changes in shard files (files with a .zoekt extension) and manages the loading and unloading of these shards. Here's a high-level overview of its functionality:
+# CHAT_REPLY The DirectoryWatcher in the codebase is responsible for monitoring a specified directory for changes in shard files (*.zoekt files). Here's what it does:
 # CHAT_REPLY 
-# CHAT_REPLY 1. Initialization: It sets up a watcher for a given directory and prepares to manage shard files.
+# CHAT_REPLY 1. It scans the directory for shard files and loads them initially.
 # CHAT_REPLY 
-# CHAT_REPLY 2. Scanning: The watcher performs an initial scan of the directory to identify existing shard files and their timestamps.
+# CHAT_REPLY 2. It sets up a file system watcher to detect changes in the directory.
 # CHAT_REPLY 
-# CHAT_REPLY 3. Loading: It loads new or updated shard files into the system using a provided shardLoader interface.
+# CHAT_REPLY 3. When changes are detected (new files, modified files, or deleted files), it triggers a scan.
 # CHAT_REPLY 
-# CHAT_REPLY 4. Unloading: It removes (drops) shard files that have been deleted from the directory.
+# CHAT_REPLY 4. During a scan, it:
+# CHAT_REPLY    - Loads new or modified shard files
+# CHAT_REPLY    - Unloads deleted shard files
+# CHAT_REPLY    - Keeps track of file timestamps to determine changes
 # CHAT_REPLY 
-# CHAT_REPLY 5. Continuous Monitoring: Using the fsnotify package, it watches for file system events in the directory.
+# CHAT_REPLY 5. It handles version control of shard files, ensuring only the latest versions are loaded.
 # CHAT_REPLY 
-# CHAT_REPLY 6. Version Management: It handles different versions of shard files, ensuring that the latest compatible version is used.
+# CHAT_REPLY 6. It provides a mechanism to wait until the initial scan is complete (WaitUntilReady method).
 # CHAT_REPLY 
-# CHAT_REPLY 7. Asynchronous Operation: The watcher runs in the background, allowing for non-blocking operation of the main program.
+# CHAT_REPLY 7. It can be stopped gracefully, cleaning up resources.
 # CHAT_REPLY 
-# CHAT_REPLY 8. Graceful Shutdown: It provides a mechanism to stop the watcher cleanly when it's no longer needed.
-# CHAT_REPLY 
-# CHAT_REPLY This component is crucial for maintaining an up-to-date index of searchable content, especially in systems where the content is frequently changing. It ensures that the search functionality always has access to the most recent data without requiring manual intervention.
+# CHAT_REPLY The DirectoryWatcher is an important component for keeping the search index up-to-date with the latest shard files, enabling efficient and current search capabilities in the Zoekt search engine.
 
  class: code search
  files:

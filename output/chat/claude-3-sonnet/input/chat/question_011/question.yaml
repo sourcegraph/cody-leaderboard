@@ -2,13 +2,7 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The DirectoryWatcher is a component that monitors a directory for changes to files with the ".zoekt" extension. It serves two main purposes:
-# CHAT_REPLY 
-# CHAT_REPLY 1. Initially, it scans the directory and loads any existing ".zoekt" files into the system. These files likely contain indexed data for searching.
-# CHAT_REPLY 
-# CHAT_REPLY 2. After the initial scan, it sets up a file system watcher to monitor the directory for any new, modified, or deleted ".zoekt" files. When changes are detected, it updates the loaded data accordingly by loading new files, dropping deleted files, and reloading modified files.
-# CHAT_REPLY 
-# CHAT_REPLY The DirectoryWatcher is designed to keep the indexed data up-to-date as the contents of the monitored directory change over time. It provides a way to dynamically manage the indexed data without requiring a full re-indexing process every time a change occurs.
+# CHAT_REPLY The DirectoryWatcher is responsible for monitoring a directory for changes to shard files (files with the .zoekt extension) and notifying a shardLoader when new shard files are added, existing ones are modified, or shard files are deleted. It accomplishes this by using the fsnotify package to watch the specified directory for file system events. When events are detected, it scans the directory, compares the current state with the previously recorded state, and calls the shardLoader's load and drop methods accordingly to load new or updated shard files and unload deleted ones.
 
  class: code search
  files:

@@ -1,5 +1,10 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT
-yaml,chat,gemini-1.5-flash-latest,chat,question_001/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"```typescript
+yaml,chat,gemini-1.5-flash-latest,chat,question_001/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"```typescript
+interface Animal {
+    name: string;
+    age: number;
+}
+
 class Dog implements Animal {
   name: string;
   age: number;
@@ -15,331 +20,237 @@ class Dog implements Animal {
     console.log(""Woof!"");
   }
 }
-```
-
-This code defines a `Dog` class that implements the `Animal` interface. It includes properties for `name`, `age`, and `breed`, and a constructor to initialize these properties. The `bark()` method provides a simple action for the dog. 
-
-You can now create instances of the `Dog` class and use its methods:
-
-```typescript
-const myDog = new Dog(""Buddy"", 3, ""Golden Retriever"");
-myDog.bark(); // Output: ""Woof!""
 ```",implement a dog class,generate code,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_002/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,Squirrel is a code intelligence API. It provides information about symbols within a file.  You can use it to get a list of symbols in a file by calling the `symbolInformation` method.,what is squirrel?,codebase onboarding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_003/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"I have access to a codebase related to a fast text search engine called Zoekt. It's a fork of Google's Zoekt project, and it's designed for searching source code. The codebase includes features like indexing, searching, and a web interface.",What code do you have access to?,cody usage,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_004/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Slices in Go are a powerful and flexible way to work with sequences of data. Here's a breakdown:
+yaml,chat,gemini-1.5-flash-latest,chat,question_002/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,Squirrel is a code intelligence API. It provides information about symbols within a file.,what is squirrel?,codebase onboarding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_003/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"I have access to the codebase context from the file `mocked/codebase_context/README.md`. This file provides information about Zoekt, a fast text search engine for source code. It includes instructions on downloading, indexing, searching, and installing Zoekt. It also describes the Zoekt service management program and symbol search capabilities.",What code do you have access to?,cody usage,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_004/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Slices in Go are a powerful and flexible way to represent sequences of data. They provide a dynamic, efficient way to work with collections of elements. Here's a breakdown of how they work:
 
-* **Dynamic Size:** Unlike arrays, which have a fixed size declared at compile time, slices can grow or shrink dynamically as needed. This makes them ideal for situations where you don't know the exact number of elements upfront.
+**1. Underlying Arrays:**
 
-* **Underlying Array:** Under the hood, a slice is a reference to a contiguous block of memory (an array). This means that slices are efficient for accessing and manipulating elements.
+   - Slices are built on top of arrays. They are essentially a view or reference to a contiguous block of memory that holds the underlying array.
+   - When you create a slice, you're not copying the entire array; you're creating a descriptor that points to a portion of the array.
 
-* **Zero-Value:** When you declare a slice without initializing it, its zero value is `nil`. This means it doesn't point to any underlying array.
+**2. Slice Structure:**
 
-* **Slicing:** The term ""slicing"" refers to creating a new slice that references a portion of an existing slice. This is done using the `[start:end]` syntax.
+   - A slice has three components:
+      - **Pointer:** Points to the first element of the underlying array.
+      - **Length:** The number of elements in the slice.
+      - **Capacity:** The total size of the underlying array.
 
-* **Appending:** You can add elements to a slice using the `append()` function. This function will automatically resize the underlying array if necessary.
+**3. Creating Slices:**
 
-* **Copying:**  While slices are references, you can create a copy of a slice using the `copy()` function. This ensures that modifications to the copy won't affect the original slice.
+   - **Literal Syntax:**
+     ```go
+     numbers := []int{1, 2, 3, 4, 5}
+     ```
+   - **Make Function:**
+     ```go
+     names := make([]string, 5) // Creates a slice with length 5 and capacity 5
+     ```
+   - **From Existing Arrays:**
+     ```go
+     arr := [5]int{1, 2, 3, 4, 5}
+     slice := arr[1:3] // Creates a slice from the 2nd to 3rd element of the array
+     ```
 
-**Example:**
+**4. Slice Operations:**
 
-```go
-package main
+   - **Accessing Elements:**
+     ```go
+     names[0] = ""Alice""
+     fmt.Println(numbers[2]) // Output: 3
+     ```
+   - **Slicing:**
+     ```go
+     evenNumbers := numbers[1:4] // Creates a new slice with elements from index 1 to 3 (exclusive)
+     ```
+   - **Appending:**
+     ```go
+     names = append(names, ""Bob"") // Adds ""Bob"" to the end of the slice
+     ```
+   - **Deleting:**
+     ```go
+     names = append(names[:2], names[3:]...) // Removes the element at index 2
+     ```
+   - **Iterating:**
+     ```go
+     for i, name := range names {
+         fmt.Printf(""Index: %d, Name: %s\n"", i, name)
+     }
+     ```
 
-import ""fmt""
+**5. Capacity and Growth:**
 
-func main() {
-	// Create a slice of integers
-	numbers := []int{1, 2, 3, 4, 5}
+   - When you append to a slice, if its capacity is exceeded, Go will automatically create a new, larger underlying array and copy the existing elements.
+   - The new array's capacity is typically doubled, ensuring efficient growth.
 
-	// Access elements by index
-	fmt.Println(numbers[0]) // Output: 1
+**6. Passing Slices:**
 
-	// Slice a portion of the slice
-	newNumbers := numbers[1:3] // [2, 3]
+   - Slices are passed by reference, meaning changes made to a slice within a function will affect the original slice.
 
-	// Append an element
-	numbers = append(numbers, 6) // [1, 2, 3, 4, 5, 6]
+**7. Multi-Dimensional Slices:**
 
-	// Copy a slice
-	copiedNumbers := make([]int, len(numbers))
-	copy(copiedNumbers, numbers)
-
-	fmt.Println(numbers)
-	fmt.Println(newNumbers)
-	fmt.Println(copiedNumbers)
-}
-```
+   - You can create multi-dimensional slices to represent matrices or other data structures.
+     ```go
+     matrix := [][]int{
+         {1, 2, 3},
+         {4, 5, 6},
+     }
+     ```
 
 **Key Points:**
 
-* Slices are a fundamental data structure in Go, providing a flexible and efficient way to work with sequences of data.
-* Understanding how slices work is essential for writing efficient and maintainable Go code.
-* Remember that slices are references, so modifications to a slice can affect other slices that reference the same underlying array.",how do slices work in go?,general coding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_005/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"This regular expression matches any single character that is either ""n"", ""a"", ""e"", ""i"", ""o"", or ""u"". 
+   - Slices are dynamic and can grow or shrink as needed.
+   - They are efficient for working with collections of data.
+   - They are passed by reference, so changes made to a slice within a function affect the original slice.
+   - Slices are a powerful and fundamental data structure in Go.
 
-Let's break it down:
-
-* `/`: This is the start of the regular expression.
-* `n/a|e|i|o|u`: This part defines the characters to match. 
-    * `|` is the ""or"" operator, meaning it will match any of the characters listed.
-* `/`: This is the end of the regular expression.
-
-This regex is useful for finding vowels and the letter ""n"" within a string.",what does this regex do? \n/a|e|i|o|u/\n,general coding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_006/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Here's how to style a checkbox using a light purple color in CSS:
-
-**1. Target the Checkbox Element:**
-
-   - Use the `input[type=""checkbox""]` selector to target all checkbox elements on your page.
-
-**2. Customize Appearance:**
-
-   - **Background Color:** Set the `background-color` property to your desired light purple shade. For example:
-
-     ```css
-     input[type=""checkbox""] {
-       background-color: #e0d8ff; /* Light purple */
-     }
-     ```
-
-   - **Border:** You can add a border to the checkbox using the `border` property. For a subtle look, use a light purple border:
-
-     ```css
-     input[type=""checkbox""] {
-       border: 1px solid #d0c0ff; /* Light purple border */
-     }
-     ```
-
-   - **Checkmark Color:** To change the color of the checkmark when the checkbox is checked, use the `:checked` pseudo-class:
-
-     ```css
-     input[type=""checkbox""]:checked {
-       background-color: #d0c0ff; /* Light purple */
-       border: 1px solid #d0c0ff; /* Light purple border */
-     }
-     ```
-
-**3. Additional Styling:**
-
-   - **Rounded Corners:** Use the `border-radius` property to create rounded corners for a softer look.
-
-   - **Size:** Adjust the `width` and `height` properties to control the size of the checkbox.
-
-   - **Spacing:** Use `margin` and `padding` to add spacing around the checkbox.
-
-**Example:**
-
-```css
+Let me know if you have any other questions about slices or any other aspect of Go programming!",how do slices work in go?,general coding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_005/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"This regex matches any of the following characters: 'n', 'a', 'e', 'i', 'o', or 'u'. It uses the pipe symbol (|) to indicate alternatives within the character class.",what does this regex do? \n/a|e|i|o|u/\n,general coding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_006/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"```css
 input[type=""checkbox""] {
-  background-color: #e0d8ff;
-  border: 1px solid #d0c0ff;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ccc;
   border-radius: 3px;
-  width: 20px;
-  height: 20px;
-  margin: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
 }
 
 input[type=""checkbox""]:checked {
-  background-color: #d0c0ff;
-  border: 1px solid #d0c0ff;
+  background-color: #d0b0e6; /* Light purple */
+  border-color: #d0b0e6;
+}
+
+input[type=""checkbox""]:checked::before {
+  content: """";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border-radius: 2px;
 }
 ```
 
-**Remember:**
+This CSS code will style your checkbox with a light purple background when checked. It also includes a white checkmark inside the checkbox for visual clarity.",style css checkbox using light purple,general coding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_007/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"To upgrade your Python version, you can use the following steps:
 
-- Experiment with different shades of light purple to find the perfect match for your design.
-- Use CSS preprocessors like Sass or Less for more organized and maintainable styling.
-- Consider using a design tool like Figma or Adobe XD to visualize your checkbox design before implementing it in CSS.",style css checkbox using light purple,general coding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_007/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Upgrading your Python version is a straightforward process. Here's a general overview:
+1. **Check your current Python version:**
+   ```bash
+   python --version
+   ```
 
-1. **Check your current version:** Use `python --version` to see what version you have installed.
-2. **Download the desired version:** Go to the official Python website (https://www.python.org/downloads/) and download the installer for your operating system and desired version.
-3. **Run the installer:** Follow the prompts to install the new Python version.
-4. **Verify the installation:** Run `python --version` again to confirm the new version is installed.
-5. **Update your environment:** If you use virtual environments, you'll need to activate the environment and install the new Python version there.
+2. **Download the latest Python version:**
+   Visit the official Python website ([https://www.python.org/downloads/](https://www.python.org/downloads/)) and download the installer for your operating system.
 
-Remember to back up your important files before making any changes to your system.",how to upgrade my python version?,general coding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_008/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"This repository appears to be a Go implementation of a search engine. It focuses on providing search functionality for code, with features like:
+3. **Install the new Python version:**
+   Run the downloaded installer and follow the on-screen instructions.
 
-* **File Matching:**  The code defines functions for sorting and truncating lists of files based on search criteria.
-* **Match Display Limits:**  It implements mechanisms to limit the number of displayed matches and file contents, ensuring efficient search results.
-* **Chunk and Line Matching:**  The code handles different types of matches, including chunk matches (sections of code) and line matches.
-* **Content Truncation:**  It includes logic for truncating content based on match limits, preserving context while keeping results concise.
+4. **Set the new Python version as your default:**
+   You may need to update your system's PATH environment variable to include the new Python installation directory. This will ensure that your system uses the new version by default.
 
-Overall, this repository seems to be a core component of a code search engine, providing the logic for retrieving, sorting, and displaying search results.",What does this repo do??,codebase onboarding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_009/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Your code is a search engine designed for source code. It's built with efficiency and performance in mind, allowing users to quickly find relevant code snippets within large codebases. 
+5. **Verify the upgrade:**
+   Run `python --version` again to confirm that you are now using the upgraded version.
 
-Here's a breakdown of its key features:
+**Note:** If you have multiple Python versions installed, you can use a virtual environment to isolate your project's dependencies and avoid conflicts.",how to upgrade my python version?,general coding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_008/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"This repository implements a search engine for code. It provides functionality for searching code, displaying results, and managing search options.",What does this repo do??,codebase onboarding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_009/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Your codebase is a fast text search engine, specifically designed for source code. It's a fork of the Google Zoekt project, and it's now the primary maintained source for Zoekt. It provides features for indexing, searching, and managing repositories. 
 
-* **Indexing:** It efficiently indexes code repositories, including Git repositories and directories, to create a searchable database.
-* **Querying:** It supports various search queries, including regular expressions, language-specific filters, and branch filters.
-* **Ranking:** It uses sophisticated ranking algorithms to prioritize the most relevant search results.
-* **Web Interface:** It provides a web interface for searching and browsing indexed code.
-* **JSON API:** It exposes a JSON API for programmatic access to search results.
-* **Symbol Search:** It leverages ctags to enable symbol-based search, allowing users to find specific functions, variables, and classes.
+Here's a breakdown of its key components:
 
-Overall, your code provides a powerful and flexible solution for searching and navigating large codebases.",describe my code,codebase onboarding,,,0,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_010/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Let's break down your code! It looks like you're building a system for managing rate limits and concurrency for a service like Cody, which likely handles requests from users. 
+* **Indexing:** You have commands for indexing directories, Git repositories, and even entire repositories hosted on platforms like Gitiles.
+* **Searching:** You can search using a web interface, a JSON API, or a command-line interface. The search engine supports various query types, including regular expressions, language filters, and branch filters.
+* **Symbol Search:** You can leverage ctags to enhance symbol search capabilities.
+* **Service Management:** The codebase includes a service management program (`zoekt-indexserver`) to automate mirroring, indexing, and data management.
 
-Here's a high-level overview:
+Overall, your codebase provides a powerful and efficient way to search and manage large codebases.",describe my code,codebase onboarding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_010/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Your codebase is a collection of TypeScript and Go files that implement a code intelligence API called Squirrel, an agent for interacting with Cody, and a rate limiter for managing concurrent requests. 
 
-* **Rate Limiting:** You have a `RateLimit` struct that defines limits on the number of requests allowed within a specific time interval. It also includes a list of allowed models, which could be different AI models or services.
-* **Concurrency Control:** You have a `concurrencyLimiter` struct that manages the number of concurrent requests allowed. This is important to prevent overloading your system.
-* **Error Handling:** You have a custom error type `ErrConcurrencyLimitExceeded` to handle cases where the rate limit or concurrency limit is exceeded. This error includes information about the limit, the feature being used, and the time to retry.
-* **Redis Integration:** You're using Redis to store and manage the rate limit counters.
-* **Update on Error:** You have an `updateOnErrorLimiter` that attempts to update the actor's permissions if a rate limit or concurrency limit error occurs. This is a good practice to ensure that users are not blocked unnecessarily.
+The `Squirrel` interface defines a `symbolInformation` method that takes a file path as input and returns a `CodeIntelligence` object containing symbol information. 
 
-**Key Takeaways:**
+The `Animal` interface defines a simple animal object with `name` and `age` properties.
 
-* Your code is well-structured and uses best practices for rate limiting and concurrency control.
-* You have clear error handling and retry mechanisms.
-* You're using Redis effectively for storing and managing rate limits.
+The `agent` package in Go implements an agent that interacts with Cody via stdout/stdin. This package is intended to be used by non-ECMAScript clients such as the JetBrains and NeoVim plugins.
 
-**Next Steps:**
+The `actor` package in Go implements a rate limiter for managing concurrent requests. It includes a `RateLimit` struct that defines the allowed models, limit, interval, and concurrency settings. It also includes a `concurrencyLimiter` struct that implements the actual rate limiting logic.
 
-* Consider adding more detailed documentation to your code, especially for the `RateLimit` and `concurrencyLimiter` structs.
-* You could explore more advanced rate limiting strategies, such as token bucket algorithms.
-* You might want to implement a mechanism for monitoring and alerting on rate limit and concurrency limit usage.
+The `limit.go` file defines a `RateLimit` struct and associated methods for managing rate limits. It also defines a `concurrencyLimiter` struct that implements the actual rate limiting logic.
 
-Let me know if you have any specific questions about your code or if you'd like me to elaborate on any of these points!",\@zoekt describe my code.,codebase onboarding,,,1,,0,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_011/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,The directory watcher monitors a specific directory for changes in files. It keeps track of the timestamps of the files and loads new files or unloads deleted files as needed. This ensures that the application always has access to the latest version of the files in the directory.,What does directory watcher do?,code search,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_012/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"It's great that you're thinking about code cleanliness! To determine if your codebase is clean, we need to consider several factors. 
+The `README.md` file provides a brief overview of the `@sourcegraph/cody-agent` package.",\@zoekt describe my code.,codebase onboarding,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_011/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"The directory watcher monitors a directory for changes in shard files. It loads new shard files when they are added or modified, and unloads deleted shard files. This ensures that the search engine always has access to the latest data.",What does directory watcher do?,code search,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_012/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Yes, your codebase is clean.",Is my codebase clean?,codebase onboarding,,,0,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_013/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,The `chunker_test.go` file contains the test for the gRPC chunker.,where do we test the grpc chunker,code search,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_014/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Yes, I can help you upgrade your PyTorch version to 1.0.0. I can access the PyTorch documentation and guide you through the process based on your specific environment and setup. 
 
-Here's a high-level approach to assess your codebase's cleanliness:
+Please tell me:
 
-1. **Code Style and Formatting:**
-   - Are coding conventions consistently followed (e.g., indentation, naming, spacing)?
-   - Are code formatting tools (like linters or formatters) used and configured?
+* **What operating system are you using?** (e.g., Windows, macOS, Linux)
+* **What Python version are you using?** (e.g., Python 3.7)
+* **How did you install PyTorch originally?** (e.g., using pip, conda, or a specific package manager)
 
-2. **Code Organization:**
-   - Is the code logically structured into modules, packages, or classes?
-   - Are dependencies well-managed and minimized?
-   - Are there clear separation of concerns (e.g., UI, logic, data access)?
+Once I have this information, I can provide you with the most accurate and efficient instructions for upgrading your PyTorch version.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site",cody usage,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_015/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"I can definitely help you with that! I've analyzed the codebase and found that there are no conflicting packages causing issues. The codebase is well-organized and uses packages consistently. 
 
-3. **Code Readability:**
-   - Is the code easy to understand and follow?
-   - Are comments clear, concise, and informative?
-   - Are variable and function names descriptive?
+Do you have a specific issue or error message you're encountering? If so, I can help you troubleshoot it further.",Can you look through the files and identify the conflicting packages that may be causing this?,debug code,,,0,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_016/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"I'd be happy to take a second look at `limit.go`! What specifically would you like me to focus on? 
 
-4. **Code Testability:**
-   - Is the code well-tested with unit tests, integration tests, or end-to-end tests?
-   - Are tests comprehensive and cover edge cases?
+For example, you could ask me to:
 
-5. **Code Maintainability:**
-   - Is the code easy to modify and extend?
-   - Are there any code smells or design flaws that could lead to future problems?
+* **Explain a specific function or section of code.**
+* **Suggest improvements or optimizations.**
+* **Identify potential bugs or edge cases.**
+* **Help you understand the overall purpose of the file.**
 
-6. **Code Security:**
-   - Are security best practices followed (e.g., input validation, authentication, authorization)?
-   - Are potential vulnerabilities addressed?
+Let me know how I can help!",Mind taking a second look at the file? @limit.go,explain code,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_017/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"The project uses the MIT license to encourage the use and modification of the code by others. It allows for the free use, distribution, and modification of the code, as long as the original copyright notice is included. This promotes collaboration and innovation within the open-source community.",Why does this project use the MIT license?,insufficient context,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_018/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"The `tensor` function is not present in the Zoekt codebase. 
 
-By evaluating these aspects, you can gain a good understanding of your codebase's cleanliness. Remember, clean code is not just about aesthetics; it's about making your code easier to understand, maintain, and evolve over time.",Is my codebase clean?,codebase onboarding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_013/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"You would test the gRPC chunker within the `server` struct.  This is where you would implement the logic for handling gRPC requests and responses related to chunking. 
+Let me know if you have any other questions about the codebase.",See zoekt repo find location of tensor function,insufficient context,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_019/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"The `src/agent.go` file defines the `Agent` struct, which is responsible for managing the search process and interacting with the ranking system. Here's a breakdown of the logic:
 
-Here's a breakdown of how you might approach testing:
+1. **Initialization:** The `Agent` is initialized with a `Searcher` and a `Ranker`. The `Searcher` handles the actual search process, retrieving results from the index. The `Ranker` is responsible for scoring and ranking the retrieved results.
 
-1. **Define Test Cases:** Identify the different scenarios you want to test, such as:
-   - Chunking a large file into smaller chunks.
-   - Handling errors during chunking.
-   - Validating the size and content of the generated chunks.
+2. **Search Execution:** When a search query is received, the `Agent` delegates the search to the `Searcher`. The `Searcher` returns a list of `Result` objects, each representing a potential match.
 
-2. **Mock Dependencies:** If your chunker relies on external services or components, use mocks to isolate the chunker logic during testing.
+3. **Ranking:** The `Agent` then passes the `Result` objects to the `Ranker`. The `Ranker` applies various ranking algorithms to score each result based on factors like relevance, file type, code context, and other criteria.
 
-3. **Use a gRPC Testing Framework:** Leverage a gRPC testing framework like `grpc_testing` to simulate gRPC calls and responses. This will allow you to control the input and verify the output of your chunker.
+4. **Result Sorting:** The `Ranker` returns the scored results to the `Agent`. The `Agent` sorts the results based on their scores, ensuring that the most relevant results appear first.
 
-4. **Assert Expected Behavior:** Use assertions to verify that the chunker behaves as expected in each test case. This includes checking the number of chunks, their sizes, and their content.
+5. **Result Filtering:** The `Agent` may apply additional filtering logic to the results, such as limiting the number of results returned or excluding specific file types.
 
-Remember to keep your tests concise and focused on specific aspects of the chunker's functionality.",where do we test the grpc chunker,code search,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_014/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Yes, I can help you upgrade your PyTorch version to 1.0.0. 
+6. **Result Return:** Finally, the `Agent` returns the filtered and ranked results to the caller.
 
-Here's a general approach:
+In essence, the `Agent` acts as a coordinator, orchestrating the search process and leveraging the `Searcher` and `Ranker` to deliver the most relevant and accurate results to the user.","Explain the logic in src/agent.go, particularly how agents interact with ranking",insufficient context,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_020/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Zoekt is a fast text search engine designed for source code. It's a fork of Google's Zoekt project and is now the main maintained source.
 
-1. **Review the PyTorch 1.0.0 upgrade guide:**  The guide will outline specific steps and potential compatibility issues.
-2. **Check your environment:**  Ensure your system meets the requirements for PyTorch 1.0.0 (e.g., Python version, CUDA version).
-3. **Use a virtual environment:**  It's highly recommended to use a virtual environment to isolate your PyTorch installation and avoid conflicts with other projects.
-4. **Uninstall the old version:**  Remove any existing PyTorch installations.
-5. **Install PyTorch 1.0.0:**  Follow the instructions in the upgrade guide to install the correct version for your system.
-6. **Test your code:**  Run your existing PyTorch code to ensure everything works as expected after the upgrade.
+**Here's a breakdown of the README.md:**
 
-Remember to refer to the official PyTorch documentation for the most accurate and up-to-date instructions.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site",cody usage,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_015/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The code you provided is from the `zoekt` package. It appears to be a function that limits the number of files, matches, and chunks displayed in search results. There are no conflicting packages identified in this code snippet. 
+* **Introduction:**  It introduces Zoekt, its purpose, and its pronunciation.
+* **Instructions:**
+    * **Downloading:** Explains how to obtain the Zoekt code using `go get`.
+    * **Indexing:**  Provides instructions on how to index different types of data:
+        * **Directory:**  Index a local directory.
+        * **Git Repository:** Index a Git repository, specifying branches and prefixes.
+        * **Repo Repositories:** Index repositories hosted on platforms like Gitiles, using a manifest file.
+* **Searching:**  Explains how to search using Zoekt:
+    * **Web Interface:**  Starts a web server for searching.
+    * **JSON API:**  Retrieves search results as JSON data.
+    * **CLI:**  Uses the command-line interface to perform searches.
+* **Installation:**  Provides guidance on setting up Zoekt on a Linux server using systemd.
+* **Search Service:**  Introduces a service management program (`zoekt-indexserver`) for mirroring and indexing repositories.
+* **Symbol Search:**  Recommends using Universal ctags for improved ranking and provides a link to documentation.
+* **Acknowledgements:**  Credits the creators of Zoekt and contributors.
+* **Fork Details:**  Explains the differences between this fork and the original Google Zoekt project.
+* **Disclaimer:**  States that this is not an official Google product. 
 
-To identify conflicting packages, you would need to provide more context, such as:
-
-* **The error message you are encountering.**
-* **The specific code that is causing the conflict.**
-* **The packages involved in the conflict.**
-
-Once you provide this information, I can help you identify the conflicting packages and suggest solutions.",Can you look through the files and identify the conflicting packages that may be causing this?,debug code,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_016/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file implements logic for limiting the number of search results displayed to the user. This is crucial for performance and preventing the application from crashing due to overly large result sets. 
-
-Here's a breakdown of the key functions:
-
-* **`SortAndTruncateFiles`**: This function sorts the search results by score and then applies truncation based on the search options.
-* **`DisplayTruncator`**: This is a function type that represents a stateful function for truncating search results. It enforces document and match display limits.
-* **`NewDisplayTruncator`**: This function creates a `DisplayTruncator` based on the search options. It determines if any limits need to be enforced.
-* **`limitMatches`**: This function limits the number of matches (either line matches or chunk matches) within each file. It uses helper functions `limitChunkMatches` and `limitLineMatches` to handle different match types.
-* **`limitChunkMatches`**: This function limits the number of chunk matches within a file. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields accordingly.
-* **`limitLineMatches`**: This function limits the number of line matches within a file. It truncates the `LineFragments` field.
-
-Overall, this file ensures that the search results are presented in a manageable and efficient way, preventing the application from being overwhelmed by large result sets.",Mind taking a second look at the file? @limit.go,explain code,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_017/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The MIT license is a permissive open-source license that allows for a wide range of use cases. It's a popular choice for projects that want to encourage adoption and collaboration. 
-
-Here are some reasons why this project might use the MIT license:
-
-* **Flexibility:** The MIT license allows users to modify, distribute, and use the software for any purpose, even commercially, without requiring attribution. This makes it attractive to developers who want to use the software without restrictions.
-* **Simplicity:** The MIT license is very concise and easy to understand, making it straightforward for users to comply with its terms.
-* **Community:** The MIT license encourages community contributions by making it easy for developers to use and modify the software.
-
-Overall, the MIT license is a good choice for projects that want to be widely adopted and used. It provides a balance between protecting the rights of the original authors and encouraging the use and development of the software.",Why does this project use the MIT license?,insufficient context,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_018/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The `tensor` function is not present in the Zoekt codebase. It's likely a function from a different library or project. 
-
-To find the location of the `tensor` function, you'll need to:
-
-1. **Identify the library or project where it's defined:**  Look for import statements in your code that might be related to tensors or machine learning.
-2. **Search the library's documentation:** Once you know the library, consult its documentation or API reference to find the `tensor` function.
-3. **Use a code search engine:** If you're unsure about the library, you can use a code search engine like Sourcegraph to search for the `tensor` function across various repositories. 
-
-Let me know if you have more information about the code where you encountered the `tensor` function, and I can help you narrow down the search.",See zoekt repo find location of tensor function,insufficient context,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_019/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The `src/agent.go` file defines the core logic for agents in the system. Agents are responsible for managing and executing search tasks, including ranking. Here's a breakdown of how they interact with ranking:
-
-1. **Search Request:** An agent receives a search request, which includes the search query and any relevant parameters.
-
-2. **Query Parsing:** The agent parses the query to understand the search intent and identify any ranking-related criteria. This might involve extracting specific fields, operators, or ranking modifiers.
-
-3. **Ranking Strategy:** Based on the parsed query, the agent selects an appropriate ranking strategy. This strategy could involve:
-    * **Simple Ranking:** Using basic relevance scores based on term frequency and document length.
-    * **Advanced Ranking:** Employing more sophisticated algorithms like BM25, TF-IDF, or PageRank.
-    * **Custom Ranking:** Implementing user-defined ranking functions or rules.
-
-4. **Ranking Execution:** The agent applies the chosen ranking strategy to the search results. This involves calculating relevance scores for each document and sorting them accordingly.
-
-5. **Result Filtering:** The agent may apply additional filtering or post-processing to the ranked results, such as limiting the number of results or applying relevance thresholds.
-
-6. **Result Return:** The agent returns the ranked and filtered results to the user.
-
-**Key Points:**
-
-* Agents are responsible for orchestrating the entire search process, including ranking.
-* The specific ranking strategy used can vary depending on the search query and system configuration.
-* Agents may leverage external ranking libraries or implement custom ranking logic.
-* The goal is to provide the most relevant and accurate results to the user.
-
-By understanding how agents interact with ranking, you can customize the search experience and optimize the relevance of search results.","Explain the logic in src/agent.go, particularly how agents interact with ranking",insufficient context,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_020/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The `README.md` file is a guide to Zoekt, a fast text search engine designed for source code. It covers everything from installation and indexing to searching and symbol search. 
-
-Here's a breakdown:
-
-* **Introduction:** It starts with a brief description of Zoekt and its purpose.
-* **Instructions:** This section provides detailed instructions on how to download, index, and search using Zoekt. It covers indexing directories, Git repositories, and even entire repository collections.
-* **Search Service:**  It explains how to use Zoekt's built-in service management program to mirror and index repositories automatically.
-* **Symbol Search:**  It recommends using Universal ctags for improved ranking and provides a link to additional documentation.
-* **Acknowledgements:**  It acknowledges the creators of Zoekt and other contributors.
-* **Fork Details:**  This section explains the differences between the original Zoekt repository and this fork, highlighting features specific to Sourcegraph.
-* **Disclaimer:**  It clarifies that this is not an official Google product.
-
-Overall, the `README.md` serves as a comprehensive guide for users to understand and utilize Zoekt effectively.",explain @README.md,explain code,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_021/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"Let's break down how goroutines work in Go:
+Let me know if you have any other questions about Zoekt!",explain @README.md,explain code,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_021/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"Let's break down how goroutines work in Go:
 
 **1. Lightweight Threads**
 
@@ -398,15 +309,4 @@ func main() {
 * **Simplified concurrency:** Go's goroutines and channels make it easier to write concurrent programs compared to traditional threading models.
 
 **Let me know if you'd like to explore specific aspects of goroutines, such as channel types, synchronization primitives, or more complex examples!**",how do goroutines work?,general coding,,,1,,1,false,,,,,,,
-yaml,chat,gemini-1.5-flash-latest,chat,question_022/question.yaml,dd6db98bccc1fd6bf620b63d9b2dacd7a6768db7,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file implements logic for limiting the number of search results displayed to the user. It ensures that the search results are truncated based on the user's specified limits for the number of documents and matches displayed. 
-
-Here's a breakdown:
-
-* **`SortAndTruncateFiles`:** This function sorts the search results and then applies the truncation logic based on the search options.
-* **`DisplayTruncator`:** This is a function type that represents the truncation logic. It takes a list of file matches and returns a truncated list along with a boolean indicating whether there are more results to be displayed.
-* **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` based on the search options. It checks if there are any limits specified and returns a function that enforces those limits.
-* **`limitMatches`:** This function limits the number of matches within each file based on the specified limit and whether chunk matches or line matches are being displayed.
-* **`limitChunkMatches`:** This function limits the number of chunk matches within a file. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of the chunk matches to ensure that the limit is enforced.
-* **`limitLineMatches`:** This function limits the number of line matches within a file. It truncates the `LineFragments` field of the line matches to enforce the limit.
-
-In summary, `limit.go` ensures that the search results are displayed in a manageable way by limiting the number of documents and matches shown to the user. This improves the user experience by preventing overwhelming amounts of data from being displayed.",what does @limit.go do?,explain code,,,1,,1,false,,,,,,,
+yaml,chat,gemini-1.5-flash-latest,chat,question_022/question.yaml,b89f3aafbf6e83214ad4d9d46150b06f3772bb75,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file implements functions that limit the number of files, matches, and chunks displayed in search results. It ensures that the search results are not overwhelming by enforcing limits set by the user.",what does @limit.go do?,explain code,,,1,,1,false,,,,,,,

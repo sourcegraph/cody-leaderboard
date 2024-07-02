@@ -2,21 +2,15 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY A `DirectoryWatcher` monitors a specified directory for changes to files with a `.zoekt` extension. It detects new, modified, or deleted files and updates its internal state accordingly. Here's a high-level overview of its functionality:
+# CHAT_REPLY The `DirectoryWatcher` in your codebase monitors a specified directory for changes to files with the `.zoekt` extension. It keeps track of the modification times of these files and loads or unloads them using a `shardLoader` interface. Here's a summary of its functionality:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Initialization**: The `DirectoryWatcher` is initialized with a directory path and a `shardLoader` interface, which defines methods for loading and dropping files.
+# CHAT_REPLY 1. **Initialization**: It initializes with a directory path and a `shardLoader` instance.
+# CHAT_REPLY 2. **Scanning**: It scans the directory for `.zoekt` files, determines the latest versions, and updates its internal timestamps.
+# CHAT_REPLY 3. **Loading and Unloading**: It loads new or modified shards and unloads deleted shards by calling the appropriate methods on the `shardLoader`.
+# CHAT_REPLY 4. **Watching**: It uses `fsnotify` to watch the directory for changes and triggers a rescan when changes are detected.
+# CHAT_REPLY 5. **Stopping**: It provides a method to stop the watcher gracefully.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Scanning**: It periodically scans the directory to identify `.zoekt` files and their metadata. It keeps track of the modification times of these files to detect changes.
-# CHAT_REPLY 
-# CHAT_REPLY 3. **Loading and Dropping**: Based on the scan results, it determines which files are new or modified and need to be loaded, and which files have been deleted and need to be dropped. It then calls the appropriate methods on the `shardLoader`.
-# CHAT_REPLY 
-# CHAT_REPLY 4. **Watching**: It uses the `fsnotify` package to watch the directory for file system events (like creation, modification, or deletion of files). When an event is detected, it triggers a scan to update its state.
-# CHAT_REPLY 
-# CHAT_REPLY 5. **Concurrency**: The `DirectoryWatcher` runs its scanning and watching logic in separate goroutines, ensuring that it can handle file system events asynchronously.
-# CHAT_REPLY 
-# CHAT_REPLY 6. **Stopping**: It provides a method to stop the watcher gracefully, ensuring that all resources are cleaned up properly.
-# CHAT_REPLY 
-# CHAT_REPLY This mechanism is useful for applications that need to dynamically respond to changes in a directory, such as a search engine that indexes files in real-time.
+# CHAT_REPLY The `DirectoryWatcher` ensures that the latest versions of shards are always loaded and that any changes in the directory are promptly reflected.
 
  class: code search
  files:
