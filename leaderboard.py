@@ -69,24 +69,35 @@ Average score across all **{num_questions} questions**. Scores of 1 are 'good', 
 
 def fix_csv_table(name: str):
     df = pd.read_csv(name)
-    score_df = df.groupby("FIXTURE")["LLM_JUDGE_SCORE"].sum().reset_index()
+
+    st.subheader("Summary")
+    grouped_df = df.groupby("FIXTURE")
+    num_questions = grouped_df.size().iloc[0]
+
+    score_df = grouped_df["LLM_JUDGE_SCORE"].sum().reset_index()
     score_df.columns = ["FIXTURE", "Score"]
     score_df = score_df.sort_values(by="Score", ascending=False)
     models_by_score = score_df["FIXTURE"].values.tolist()
 
     score_df = score_df.set_index("FIXTURE")
     st.dataframe(score_df)
+    st.markdown(f'''
+Average score across all **{num_questions} questions**. Scores of 1 are 'good', meaning averages closer to 1.0 are better.
+* Score: whether an LLM judge deemed the response to be high quality.''')
 
     filtered_df = df[["FIXTURE", "FILEPATH", "LLM_JUDGE_SCORE"]]
     # Pivot the DataFrame
     pivot_df = df.pivot(index="FILEPATH", columns="FIXTURE",
                         values="LLM_JUDGE_SCORE")
     pivot_df = pivot_df.sort_values(by=models_by_score, ascending=False)
-    pivot_df = pivot_df[models_by_score]
+    pivot_df = pivot_df.sort_values(by='FILEPATH')
 
-    # Display the pivoted DataFrame
-    st.dataframe(pivot_df)
+    st.subheader("All scores")
+    st.dataframe(pivot_df.style.map(
+        lambda score: 'background-color: #ffdddd' if score == 0 else '', subset=pivot_df.columns))
+    st.markdown(f'''LLM judge score for each model and each file. **Note: these scores are noisy**, and are intended only as a starting point for analysis.''')
 
+    st.subheader("Model responses")
     # Add a selectbox to select a row
     selected_filepath = st.selectbox(
         "Select a file", filtered_df["FILEPATH"].unique())
@@ -104,7 +115,7 @@ def fix_csv_table(name: str):
                           ) else row["FIX_AFTER_DIAGNOSTIC"]
         )
         st.markdown(f"""
- **Fixture**: {row["FIXTURE"]}
+#### {row["FIXTURE"]}
 
  **LLM-as-Judge score**: {row["LLM_JUDGE_SCORE"]}
 
