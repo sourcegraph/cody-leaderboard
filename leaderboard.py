@@ -58,9 +58,7 @@ Average score across all **{num_questions} questions**. Scores of 1 are 'good', 
 
 🤖 **LLM Judge Score**: {score} | 🤔 **Confident**: {confident} | 🕑 **Concise**: {concise}
 
-**Question**: {row["CHAT_QUESTION"]}
-
-**Question Class**: {row["QUESTION_CLASS"]}
+**Question**: {row["CHAT_QUESTION"]} | **Question Class**: {row["QUESTION_CLASS"]}
 
 **Response**: {row["CHAT_REPLY"]}
 
