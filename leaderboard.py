@@ -23,8 +23,8 @@ def chat_csv_table(name: str):
     st.markdown(f'''
 Average score across all **{num_questions} questions**. Scores of 1 are 'good', meaning averages closer to 1.0 are better.
 * LLM judge score: whether an LLM judge deemed the response to be helpful and informative.
-* Confident: whether the model responds affirmatively, without excessive hedging like apologizing.
-* Concise: whether the model responds succinctly, instead of repeating itself or adding extra content.''')
+* Confident: whether the model responds affirmatively, without excessive hedging like apologizing. Hedging is detected via regex.
+* Concise: whether an LLM judge deemed the response succinct, without repetitions or extra content.''')
 
     pivot_df = df.pivot(index=["CHAT_QUESTION", "QUESTION_CLASS"],
                         columns="FIXTURE", values="LLM_JUDGE_SCORE")
