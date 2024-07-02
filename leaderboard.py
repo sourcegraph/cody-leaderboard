@@ -1,3 +1,5 @@
+import json
+
 import streamlit as st
 import pandas as pd
 
@@ -79,10 +81,15 @@ def chat_csv_table(name: str):
     st.dataframe(pivot_df.style.map(lambda score: 'background-color: #ffdddd' if score == 0 else '', subset=pivot_df.columns))
 
     selected_question = st.selectbox("Select question", df["CHAT_QUESTION"].unique())
-    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique())
+    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique(), key=name)
 
     rows = df[(df["CHAT_QUESTION"] == selected_question) & ((len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
     fixtures = rows.groupby("FIXTURE")
+
+    if "CONTEXT_ITEMS" in rows.columns:
+        st.markdown("**Context items**")
+        context_df = pd.DataFrame(json.loads(rows["CONTEXT_ITEMS"].tolist()[0]))
+        st.dataframe(context_df, hide_index=True)
 
     for fixture, rows in fixtures:
         rows = rows.sort_values(by="LLM_JUDGE_SCORE", ascending=False)
@@ -105,22 +112,27 @@ def chat_csv_table(name: str):
 """, unsafe_allow_html=True)
 
 
-chatTab, fixTab, editTab, autocompleteTab = st.tabs(
-    ["Chat", "Fix", "Edit", "Autocomplete"]
-)
+if __name__ == "__main__":
+    chatTab, chatContextTab, fixTab, editTab, autocompleteTab = st.tabs(
+        ["Chat", "Chat Context", "Fix", "Edit", "Autocomplete"]
+    )
 
-with chatTab:
-    st.header("Chat")
-    chat_csv_table("chat.csv")
+    with chatTab:
+        st.header("Chat")
+        chat_csv_table("chat.csv")
 
-with fixTab:
-    st.header("Fix Command")
-    fix_csv_table("fix.csv")
+    with chatContextTab:
+        st.header("Chat Context")
+        chat_csv_table("chat_context.csv")
 
-with editTab:
-    st.header("Edit Command")
-    st.markdown("Coming soon!")
+    with fixTab:
+        st.header("Fix Command")
+        fix_csv_table("fix.csv")
 
-with autocompleteTab:
-    st.header("Autocomplete")
-    st.markdown("Coming soon!")
+    with editTab:
+        st.header("Edit Command")
+        st.markdown("Coming soon!")
+
+    with autocompleteTab:
+        st.header("Autocomplete")
+        st.markdown("Coming soon!")
