@@ -2,19 +2,7 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY Absolutely! Let's break down how agents in `src/agent.go` interact with ranking.
-# CHAT_REPLY 
-# CHAT_REPLY The agents in `src/agent.go` don't directly handle ranking themselves. Instead, they act as intermediaries that fetch search results from shards.  The ranking logic itself is primarily handled within the shards. 
-# CHAT_REPLY 
-# CHAT_REPLY Here's a simplified explanation:
-# CHAT_REPLY 
-# CHAT_REPLY 1. **Search Request:** When you initiate a search, the request is received and processed.
-# CHAT_REPLY 2. **Agent Dispatch:** The agent determines which shards potentially contain relevant data for your search query.
-# CHAT_REPLY 3. **Shard Search:** The agent queries these selected shards. Each shard independently executes the search and ranks the results based on its internal algorithms (considering factors like term frequency, file path relevance, etc.).
-# CHAT_REPLY 4. **Result Aggregation:** The agent receives ranked results from each shard.
-# CHAT_REPLY 5. **Final Merging and Ranking:** The agent merges the results from different shards, potentially applying additional ranking adjustments or filters based on the overall search criteria. 
-# CHAT_REPLY 
-# CHAT_REPLY **In essence, agents are responsible for distributing the search workload and aggregating results, while the individual shards handle the core ranking calculations.**
+# CHAT_REPLY The agents in `src/agent.go` efficiently distribute the search across shards. Each agent is responsible for querying a subset of shards. They don't directly influence ranking; their primary role is to gather results from shards. The ranking process happens after the agents have collected these results.
 
  class: insufficient context
  files:

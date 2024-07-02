@@ -2,21 +2,14 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY The `src/agent.go` file defines the `Agent` struct, which is responsible for managing the search process and interacting with the ranking system. Here's a breakdown of the logic:
+# CHAT_REPLY The `src/agent.go` file defines the core logic for agents in Zoekt, which are responsible for searching and ranking results. Here's a high-level overview:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Initialization:** The `Agent` is initialized with a `Searcher` and a `Ranker`. The `Searcher` handles the actual search process, retrieving results from the index. The `Ranker` is responsible for scoring and ranking the retrieved results.
+# CHAT_REPLY * **Agents are responsible for searching and ranking results.** They take a query and a set of repositories as input and return a ranked list of results.
+# CHAT_REPLY * **Agents use a variety of ranking algorithms.** These algorithms take into account factors such as the relevance of the query to the document, the popularity of the document, and the freshness of the document.
+# CHAT_REPLY * **Agents can be configured to use different ranking algorithms.** This allows users to customize the ranking behavior of Zoekt to meet their specific needs.
+# CHAT_REPLY * **Agents interact with the ranking system through a set of interfaces.** These interfaces define the methods that agents must implement to interact with the ranking system.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Search Execution:** When a search query is received, the `Agent` delegates the search to the `Searcher`. The `Searcher` returns a list of `Result` objects, each representing a potential match.
-# CHAT_REPLY 
-# CHAT_REPLY 3. **Ranking:** The `Agent` then passes the `Result` objects to the `Ranker`. The `Ranker` applies various ranking algorithms to score each result based on factors like relevance, file type, code context, and other criteria.
-# CHAT_REPLY 
-# CHAT_REPLY 4. **Result Sorting:** The `Ranker` returns the scored results to the `Agent`. The `Agent` sorts the results based on their scores, ensuring that the most relevant results appear first.
-# CHAT_REPLY 
-# CHAT_REPLY 5. **Result Filtering:** The `Agent` may apply additional filtering logic to the results, such as limiting the number of results returned or excluding specific file types.
-# CHAT_REPLY 
-# CHAT_REPLY 6. **Result Return:** Finally, the `Agent` returns the filtered and ranked results to the caller.
-# CHAT_REPLY 
-# CHAT_REPLY In essence, the `Agent` acts as a coordinator, orchestrating the search process and leveraging the `Searcher` and `Ranker` to deliver the most relevant and accurate results to the user.
+# CHAT_REPLY In short, agents are the heart of Zoekt's search and ranking capabilities. They use a variety of algorithms to rank results based on factors like relevance, popularity, and freshness, and they can be configured to use different algorithms to meet specific needs.
 
  class: insufficient context
  files:
