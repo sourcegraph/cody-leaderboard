@@ -2,18 +2,7 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided code is responsible for monitoring a directory for changes to shard files (files with the `.zoekt` extension) and notifying a `shardLoader` to load or drop those shard files accordingly.
-# CHAT_REPLY 
-# CHAT_REPLY Here's a breakdown of what the `DirectoryWatcher` does:
-# CHAT_REPLY 
-# CHAT_REPLY 1. It scans the specified directory (`s.dir`) for `.zoekt` files on initialization and loads the latest version of each shard file into the `shardLoader`.
-# CHAT_REPLY 2. It uses the `fsnotify` package to watch the directory for file system events (create, modify, delete, etc.) related to `.zoekt` files.
-# CHAT_REPLY 3. When a file system event is detected, it scans the directory again to check for new, modified, or deleted shard files.
-# CHAT_REPLY 4. If a new or modified shard file is detected, it calls the `load` method of the `shardLoader` to load the new/updated shard file.
-# CHAT_REPLY 5. If a shard file is deleted, it calls the `drop` method of the `shardLoader` to unload the deleted shard file.
-# CHAT_REPLY 6. The `DirectoryWatcher` can be stopped by calling its `Stop` method, which closes the `quit` channel and waits for the watcher goroutine to exit.
-# CHAT_REPLY 
-# CHAT_REPLY The `DirectoryWatcher` is designed to keep the shard files loaded in the `shardLoader` up-to-date with the contents of the monitored directory. It handles scenarios like new shard files being added, existing shard files being updated, and shard files being deleted.
+# CHAT_REPLY The DirectoryWatcher is responsible for monitoring a directory for changes to shard files (files with the .zoekt extension) and notifying a shardLoader when new shard files are added, existing ones are modified, or shard files are deleted. It accomplishes this by using the fsnotify package to watch the specified directory for file system events. When events are detected, it scans the directory, compares the current state with the previously recorded state, and calls the shardLoader's load and drop methods accordingly to load new or updated shard files and unload deleted ones.
 
  class: code search
  files:

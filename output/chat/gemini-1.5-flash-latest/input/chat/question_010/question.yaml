@@ -2,52 +2,19 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY The code you provided is part of the Sourcegraph Cody Agent, a JSON-RPC server that enables non-ECMAScript clients like JetBrains and NeoVim plugins to interact with Cody.
+# CHAT_REPLY Your codebase is a collection of TypeScript and Go files that implement a code intelligence API called Squirrel, an agent for interacting with Cody, and a rate limiter for managing concurrent requests. 
 # CHAT_REPLY 
-# CHAT_REPLY Here's a breakdown of the code:
+# CHAT_REPLY The `Squirrel` interface defines a `symbolInformation` method that takes a file path as input and returns a `CodeIntelligence` object containing symbol information. 
 # CHAT_REPLY 
-# CHAT_REPLY **`agent.go`**
+# CHAT_REPLY The `Animal` interface defines a simple animal object with `name` and `age` properties.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines the `Agent` interface, which is likely the core interface for interacting with the Cody Agent.
-# CHAT_REPLY * This file likely contains the implementation of the `Agent` interface, handling communication with Cody via stdout/stdin.
+# CHAT_REPLY The `agent` package in Go implements an agent that interacts with Cody via stdout/stdin. This package is intended to be used by non-ECMAScript clients such as the JetBrains and NeoVim plugins.
 # CHAT_REPLY 
-# CHAT_REPLY **`limit.go`**
+# CHAT_REPLY The `actor` package in Go implements a rate limiter for managing concurrent requests. It includes a `RateLimit` struct that defines the allowed models, limit, interval, and concurrency settings. It also includes a `concurrencyLimiter` struct that implements the actual rate limiting logic.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines a `RateLimit` struct, which represents a rate limit configuration for Cody requests.
-# CHAT_REPLY * Includes methods for:
-# CHAT_REPLY     * Creating a new `RateLimit` with concurrency limits.
-# CHAT_REPLY     * Checking if a `RateLimit` is valid.
-# CHAT_REPLY     * Evaluating allowed models based on a master allowlist and the actor's allowlist.
-# CHAT_REPLY * Defines a `concurrencyLimiter` struct, which implements a concurrency limiter using Redis.
-# CHAT_REPLY * Defines an `ErrConcurrencyLimitExceeded` error type, which is returned when the concurrency limit is exceeded.
-# CHAT_REPLY * Defines an `updateOnErrorLimiter` struct, which updates the actor's information if a rate limit or access error occurs.
+# CHAT_REPLY The `limit.go` file defines a `RateLimit` struct and associated methods for managing rate limits. It also defines a `concurrencyLimiter` struct that implements the actual rate limiting logic.
 # CHAT_REPLY 
-# CHAT_REPLY **`animal.ts`**
-# CHAT_REPLY 
-# CHAT_REPLY * Defines an `Animal` interface, which represents an animal with a name and age.
-# CHAT_REPLY 
-# CHAT_REPLY **`squirrel.ts`**
-# CHAT_REPLY 
-# CHAT_REPLY * Defines a `CodeIntelligence` interface, which likely represents code intelligence data.
-# CHAT_REPLY * Defines a `Squirrel` interface, which represents a code intelligence API.
-# CHAT_REPLY 
-# CHAT_REPLY **`README.md`**
-# CHAT_REPLY 
-# CHAT_REPLY * Provides a brief overview of the Cody Agent package and its purpose.
-# CHAT_REPLY 
-# CHAT_REPLY **Overall, the codebase appears to be focused on:**
-# CHAT_REPLY 
-# CHAT_REPLY * Implementing a JSON-RPC server for Cody interaction.
-# CHAT_REPLY * Enforcing rate limits and concurrency limits for Cody requests.
-# CHAT_REPLY * Providing a way for non-ECMAScript clients to interact with Cody.
-# CHAT_REPLY 
-# CHAT_REPLY **Zoekt's Description:**
-# CHAT_REPLY 
-# CHAT_REPLY Zoekt is a code search engine, so it would likely focus on the code intelligence aspects of the codebase. It might describe the `CodeIntelligence` and `Squirrel` interfaces, and potentially highlight the use of Zoekt within the Cody Agent.
-# CHAT_REPLY 
-# CHAT_REPLY **Note:**
-# CHAT_REPLY 
-# CHAT_REPLY The codebase is incomplete, and there are likely other files and components involved in the Cody Agent. This analysis is based on the provided code snippets.
+# CHAT_REPLY The `README.md` file provides a brief overview of the `@sourcegraph/cody-agent` package.
 
  class: codebase onboarding
  files:
