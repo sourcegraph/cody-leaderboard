@@ -2,29 +2,30 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY Based on the provided codebase context, here is a brief description of the code:
+# CHAT_REPLY Based on the provided codebase context, here's a brief description of your code:
 # CHAT_REPLY 
 # CHAT_REPLY 1. **TypeScript Interfaces**:
-# CHAT_REPLY     - `squirrel.ts`:
-# CHAT_REPLY         - `CodeIntelligence`: An interface representing code intelligence with a list of symbols.
-# CHAT_REPLY         - `Squirrel`: An interface representing a code intelligence API with a method `symbolInformation` that takes a file name and returns `CodeIntelligence`.
-# CHAT_REPLY     - `animal.ts`:
-# CHAT_REPLY         - `Animal`: An interface representing an animal with a name and age.
+# CHAT_REPLY    - **CodeIntelligence**: This interface represents a structure with a single property `symbols`, which is an array of strings.
+# CHAT_REPLY    - **Squirrel**: This interface represents a code intelligence API with a method `symbolInformation` that takes a file path as a string and returns a `CodeIntelligence` object.
+# CHAT_REPLY    - **Animal**: This interface represents an animal with properties `name` (a string) and `age` (a number).
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Go Packages**:
-# CHAT_REPLY     - `agent.go`:
-# CHAT_REPLY         - Defines an `Agent` struct (though the full definition is not provided in the snippet).
-# CHAT_REPLY     - `limit.go`:
-# CHAT_REPLY         - Defines a `RateLimit` struct for managing rate limits, including allowed models, limits, intervals, and concurrency settings.
-# CHAT_REPLY         - Provides methods for creating new rate limits with concurrency settings, validating rate limits, and evaluating allowed models.
-# CHAT_REPLY         - Defines a `concurrencyLimiter` struct for managing concurrency limits with methods for acquiring and using limits.
-# CHAT_REPLY         - Defines an `ErrConcurrencyLimitExceeded` struct for handling concurrency limit exceeded errors, including methods for generating error messages and writing HTTP responses.
-# CHAT_REPLY         - Defines an `updateOnErrorLimiter` struct for updating actors on certain access errors, with methods for acquiring limits and checking usage.
+# CHAT_REPLY 2. **Go Code**:
+# CHAT_REPLY    - **agent.go**: This file defines an `Agent` package, but the provided snippet only includes a comment.
+# CHAT_REPLY    - **limit.go**: This file is part of the `actor` package and includes several components related to rate limiting:
+# CHAT_REPLY      - **RateLimit**: A struct that defines rate limiting parameters such as allowed models, limit, interval, and concurrent request settings.
+# CHAT_REPLY      - **NewRateLimitWithPercentageConcurrency**: A function to create a new `RateLimit` with concurrency settings based on a percentage of the daily limit.
+# CHAT_REPLY      - **IsValid**: A method to check if a `RateLimit` instance is valid.
+# CHAT_REPLY      - **EvaluateAllowedModels**: A method to evaluate allowed models based on a master allowlist.
+# CHAT_REPLY      - **concurrencyLimiter**: A struct that implements concurrency limiting logic using a Redis store.
+# CHAT_REPLY      - **TryAcquire**: A method to attempt acquiring a concurrency limit.
+# CHAT_REPLY      - **Usage**: A method to get the current usage of the limiter.
+# CHAT_REPLY      - **ErrConcurrencyLimitExceeded**: An error type for concurrency limit exceeded scenarios.
+# CHAT_REPLY      - **updateOnErrorLimiter**: A struct that updates the actor if access errors occur.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **README**:
-# CHAT_REPLY     - Describes the `@sourcegraph/cody-agent` package, which implements a JSON-RPC server to interact with Cody via stdout/stdin. This package is intended for use by non-ECMAScript clients such as JetBrains and NeoVim plugins.
+# CHAT_REPLY 3. **README.md**:
+# CHAT_REPLY    - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. It is intended for use by non-ECMAScript clients such as JetBrains and NeoVim plugins.
 # CHAT_REPLY 
-# CHAT_REPLY This codebase appears to be part of a larger system involving code intelligence, rate limiting, and interaction with Cody through a JSON-RPC server.
+# CHAT_REPLY Overall, your codebase includes TypeScript interfaces for code intelligence and animal representation, Go code for rate limiting and concurrency control, and documentation for a JSON-RPC server package used by Cody.
 
  class: codebase onboarding
  files:

@@ -16,255 +16,304 @@
 # CHAT_REPLY 	"time"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY // agentSearchArgs are arguments passed to an agent. Note: this is a
-# CHAT_REPLY // different type than searchArgs because we do want to be able to
-# CHAT_REPLY // test how agent progresses through shards independently of how the
-# CHAT_REPLY // initial set of shards is determined.
+# CHAT_REPLY // agentSearchArgs are arguments passed to an agent goroutine.
 # CHAT_REPLY type agentSearchArgs struct {
-# CHAT_REPLY 	query     *Query
-# CHAT_REPLY 	opts      *SearchOptions
-# CHAT_REPLY 	stat      *RepoStats
-# CHAT_REPLY 	repos     []*RepoListEntry
-# CHAT_REPLY 	shardDist []uint32
+# CHAT_REPLY 	// Pattern is the search pattern.
+# CHAT_REPLY 	Pattern *Substring
+# CHAT_REPLY 
+# CHAT_REPLY 	// MaxWallTime is the maximum wall clock time to spend on the search.
+# CHAT_REPLY 	MaxWallTime time.Duration
+# CHAT_REPLY 
+# CHAT_REPLY 	// MaxDocDisplayCount is the maximum number of documents to display.
+# CHAT_REPLY 	MaxDocDisplayCount int
+# CHAT_REPLY 
+# CHAT_REPLY 	// FileMatchLimit is the limit on the number of matches in a single file.
+# CHAT_REPLY 	FileMatchLimit int
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // Agent is the first stage of a distributed text search.
-# CHAT_REPLY //
-# CHAT_REPLY // An Agent is responsible for searching a set of shards.  A set of
-# CHAT_REPLY // Agents can be used to distribute a search across multiple machines.
+# CHAT_REPLY // agentSearchResult is the result of an agent's search.
+# CHAT_REPLY type agentSearchResult struct {
+# CHAT_REPLY 	// Stats contains search statistics.
+# CHAT_REPLY 	Stats SearchStats
+# CHAT_REPLY 
+# CHAT_REPLY 	// Files contains the search results.
+# CHAT_REPLY 	Files []FileMatch
+# CHAT_REPLY 
+# CHAT_REPLY 	// Canceled indicates whether the search was canceled.
+# CHAT_REPLY 	Canceled bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// Err is the error that occurred during the search, if any.
+# CHAT_REPLY 	Err error
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Agent is a search agent. It searches a shard and returns the results.
 # CHAT_REPLY type Agent struct {
-# CHAT_REPLY 	Searcher
-# CHAT_REPLY 	SearcherMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// maxShards is the maximum number of shards to search concurrently.
-# CHAT_REPLY 	maxShards int
-# CHAT_REPLY 	// how long to wait between printing progress messages.
-# CHAT_REPLY 	PrintProgressEvery time.Duration
+# CHAT_REPLY 	Searcher *Searcher
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // NewAgent returns a new Agent.
-# CHAT_REPLY func NewAgent(s Searcher) *Agent {
-# CHAT_REPLY 	return &Agent{
-# CHAT_REPLY 		Searcher:           s,
-# CHAT_REPLY 		maxShards:          4 * runtime.GOMAXPROCS(0),
-# CHAT_REPLY 		PrintProgressEvery: 5 * time.Second,
-# CHAT_REPLY 	}
+# CHAT_REPLY // Search searches the agent's shard for the given pattern.
+# CHAT_REPLY func (a *Agent) Search(ctx context.Context, args agentSearchArgs) (*agentSearchResult, error) {
+# CHAT_REPLY 	resultChan := make(chan *agentSearchResult, 1)
+# CHAT_REPLY 	go a.search(ctx, args, resultChan)
+# CHAT_REPLY 	return <-resultChan, nil
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // Search implements the Searcher interface by searching the given
-# CHAT_REPLY // shards in parallel and ranking the combined results.
-# CHAT_REPLY func (a *Agent) Search(ctx context.Context, q *Query, opts *SearchOptions) (*SearchResult, error) {
-# CHAT_REPLY 	return a.search(ctx, &agentSearchArgs{
-# CHAT_REPLY 		query: q,
-# CHAT_REPLY 		opts:  opts,
-# CHAT_REPLY 		repos: a.Searcher.List(ctx, q, opts),
-# CHAT_REPLY 	})
-# CHAT_REPLY }
+# CHAT_REPLY // search performs the actual search and sends the results to the given channel.
+# CHAT_REPLY func (a *Agent) search(ctx context.Context, args agentSearchArgs, resultChan chan *agentSearchResult) {
+# CHAT_REPLY 	result := &agentSearchResult{}
+# CHAT_REPLY 	defer func() { resultChan <- result }()
 # CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) search(ctx context.Context, args *agentSearchArgs) (*SearchResult, error) {
-# CHAT_REPLY 	t0 := time.Now()
+# CHAT_REPLY 	// Create a timeout for the search.
+# CHAT_REPLY 	timer := time.NewTimer(args.MaxWallTime)
+# CHAT_REPLY 	defer timer.Stop()
 # CHAT_REPLY 
-# CHAT_REPLY 	// Start a goroutine for each shard.  The goroutines will send
-# CHAT_REPLY 	// their results to the chan searchResult.
-# CHAT_REPLY 	shardc := make(chan *SearchResult, a.maxShards)
-# CHAT_REPLY 	var searchError error
-# CHAT_REPLY 	var wg sync.WaitGroup
-# CHAT_REPLY 	var shardStartTime time.Time
-# CHAT_REPLY 	nextShard := make(chan int, a.maxShards)
-# CHAT_REPLY 	var mu sync.Mutex
-# CHAT_REPLY 	go func() {
-# CHAT_REPLY 		for i := range args.repos {
-# CHAT_REPLY 			nextShard <- i
-# CHAT_REPLY 		}
-# CHAT_REPLY 		close(nextShard)
-# CHAT_REPLY 	}()
-# CHAT_REPLY 	for i := 0; i < a.maxShards; i++ {
-# CHAT_REPLY 		wg.Add(1)
-# CHAT_REPLY 		go func() {
-# CHAT_REPLY 			defer wg.Done()
-# CHAT_REPLY 			for si := range nextShard {
-# CHAT_REPLY 				mu.Lock()
-# CHAT_REPLY 				if shardStartTime.IsZero() {
-# CHAT_REPLY 					shardStartTime = time.Now()
-# CHAT_REPLY 				}
-# CHAT_REPLY 				mu.Unlock()
-# CHAT_REPLY 				repo := args.repos[si]
-# CHAT_REPLY 				sr, err := a.Searcher.Search(ctx, args.query, &SearchOptions{
-# CHAT_REPLY 					Shard:           repo.Repository.Name,
-# CHAT_REPLY 					UseLegacySyntax: args.opts.UseLegacySyntax,
-# CHAT_REPLY 					// No limits here, we do collapsing
-# CHAT_REPLY 					// and limiting as agent.
-# CHAT_REPLY 					MaxWallTime:      args.opts.MaxWallTime,
-# CHAT_REPLY 					MaxDocDisplayCount: args.opts.MaxDocDisplayCount,
-# CHAT_REPLY 					ShardMaxMatchCount: args.opts.ShardMaxMatchCount,
-# CHAT_REPLY 					ShardMaxImportantMatch: args.opts.ShardMaxImportantMatch,
-# CHAT_REPLY 				})
-# CHAT_REPLY 				if err != nil {
-# CHAT_REPLY 					searchError = err
-# CHAT_REPLY 					return
-# CHAT_REPLY 				}
-# CHAT_REPLY 				sr.Stats.Wait = time.Since(shardStartTime)
-# CHAT_REPLY 				shardc <- sr
-# CHAT_REPLY 			}
-# CHAT_REPLY 		}()
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	go func() {
-# CHAT_REPLY 		wg.Wait()
-# CHAT_REPLY 		close(shardc)
-# CHAT_REPLY 	}()
-# CHAT_REPLY 
-# CHAT_REPLY 	// Merge the results from the shards on this agent.
-# CHAT_REPLY 	var aggregate AggregateSearchResult
-# CHAT_REPLY 	for sr := range shardc {
-# CHAT_REPLY 		aggregate.Add(sr)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	// Sort the results before we apply MaxDocDisplayCount, so that
-# CHAT_REPLY 	// we return the globally best results, not the best results
-# CHAT_REPLY 	// per shard.
-# CHAT_REPLY 	sort.Sort(&aggregate)
-# CHAT_REPLY 
-# CHAT_REPLY 	// Now that the results are sorted, we can apply MaxDocDisplayCount.
-# CHAT_REPLY 	aggregate.Top(args.opts.MaxDocDisplayCount)
-# CHAT_REPLY 
-# CHAT_REPLY 	elapsed := time.Since(t0)
-# CHAT_REPLY 	stats := aggregate.Stats
-# CHAT_REPLY 	stats.ShardsScanned = uint32(len(args.repos))
-# CHAT_REPLY 	stats.ShardsSkippedFilter = uint32(len(args.repos) - len(aggregate.shardStats))
-# CHAT_REPLY 	stats.TotalDocs = args.stat.Documents
-# CHAT_REPLY 	stats.IndexBytes = args.stat.IndexBytes
-# CHAT_REPLY 	return &SearchResult{
-# CHAT_REPLY 		Stats:  stats,
-# CHAT_REPLY 		Files:  aggregate.Files,
-# CHAT_REPLY 		Elapsed: elapsed,
-# CHAT_REPLY 	}, searchError
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // AggregateSearchResult is the intermediate data structure used to merge
-# CHAT_REPLY // search results from multiple shards.
-# CHAT_REPLY type AggregateSearchResult struct {
-# CHAT_REPLY 	Files      []*FileMatch
-# CHAT_REPLY 	shardStats []*ShardStats
-# CHAT_REPLY 	Stats      *Stats
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // Add adds the search results from a shard to the aggregate results.
-# CHAT_REPLY func (a *AggregateSearchResult) Add(r *SearchResult) {
-# CHAT_REPLY 	if r == nil {
-# CHAT_REPLY 		return
-# CHAT_REPLY 	}
-# CHAT_REPLY 	a.Files = append(a.Files, r.Files...)
-# CHAT_REPLY 	a.shardStats = append(a.shardStats, r.Stats)
-# CHAT_REPLY 	if a.Stats == nil {
-# CHAT_REPLY 		a.Stats = &Stats{}
-# CHAT_REPLY 	}
-# CHAT_REPLY 	a.Stats.Add(r.Stats)
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // Top sets a.Files to the top k files with the highest Rank.
-# CHAT_REPLY // It assumes a.Files is already sorted.
-# CHAT_REPLY func (a *AggregateSearchResult) Top(k int) {
-# CHAT_REPLY 	if len(a.Files) <= k {
-# CHAT_REPLY 		return
-# CHAT_REPLY 	}
-# CHAT_REPLY 	a.Files = a.Files[:k]
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // Len is the number of files in the result set.
-# CHAT_REPLY func (a *AggregateSearchResult) Len() int { return len(a.Files) }
-# CHAT_REPLY 
-# CHAT_REPLY // Less compares the rank of two files.
-# CHAT_REPLY func (a *AggregateSearchResult) Less(i, j int) bool {
-# CHAT_REPLY 	return a.Files[i].Score > a.Files[j].Score
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // Swap swaps two files in the result set.
-# CHAT_REPLY func (a *AggregateSearchResult) Swap(i, j int) { a.Files[i], a.Files[j] = a.Files[j], a.Files[i] }
-# CHAT_REPLY 
-# CHAT_REPLY // StreamSearch streams the search results to the given writer.
-# CHAT_REPLY func (a *Agent) StreamSearch(ctx context.Context, w io.Writer, q *Query, opts *SearchOptions) error {
-# CHAT_REPLY 	return a.streamSearch(ctx, w, &agentSearchArgs{
-# CHAT_REPLY 		query: q,
-# CHAT_REPLY 		opts:  opts,
-# CHAT_REPLY 		repos: a.Searcher.List(ctx, q, opts),
-# CHAT_REPLY 	})
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (a *Agent) streamSearch(ctx context.Context, w io.Writer, args *agentSearchArgs) error {
+# CHAT_REPLY 	// Create a cancelable context for the search.
 # CHAT_REPLY 	ctx, cancel := context.WithCancel(ctx)
 # CHAT_REPLY 	defer cancel()
 # CHAT_REPLY 
-# CHAT_REPLY 	// Start a goroutine for each shard.  The goroutines will send
-# CHAT_REPLY 	// their results to the chan searchResult.
-# CHAT_REPLY 	shardc := make(chan *SearchResult, a.maxShards)
-# CHAT_REPLY 	var searchError error
-# CHAT_REPLY 	var wg sync.WaitGroup
-# CHAT_REPLY 	nextShard := make(chan int, a.maxShards)
+# CHAT_REPLY 	// Start a goroutine to listen for cancellation signals.
 # CHAT_REPLY 	go func() {
-# CHAT_REPLY 		for i := range args.repos {
-# CHAT_REPLY 			nextShard <- i
+# CHAT_REPLY 		select {
+# CHAT_REPLY 		case <-ctx.Done():
+# CHAT_REPLY 			result.Canceled = true
+# CHAT_REPLY 			return
+# CHAT_REPLY 		case <-timer.C:
+# CHAT_REPLY 			result.Canceled = true
+# CHAT_REPLY 			return
 # CHAT_REPLY 		}
-# CHAT_REPLY 		close(nextShard)
 # CHAT_REPLY 	}()
-# CHAT_REPLY 	for i := 0; i < a.maxShards; i++ {
-# CHAT_REPLY 		wg.Add(1)
-# CHAT_REPLY 		go func() {
-# CHAT_REPLY 			defer wg.Done()
-# CHAT_REPLY 			for si := range nextShard {
-# CHAT_REPLY 				repo := args.repos[si]
-# CHAT_REPLY 				err := a.Searcher.StreamSearch(ctx, w, args.query, &SearchOptions{
-# CHAT_REPLY 					Shard:           repo.Repository.Name,
-# CHAT_REPLY 					UseLegacySyntax: args.opts.UseLegacySyntax,
-# CHAT_REPLY 					// No limits here, we do collapsing
-# CHAT_REPLY 					// and limiting as agent.
-# CHAT_REPLY 					MaxWallTime:      args.opts.MaxWallTime,
-# CHAT_REPLY 					MaxDocDisplayCount: args.opts.MaxDocDisplayCount,
-# CHAT_REPLY 					ShardMaxMatchCount: args.opts.ShardMaxMatchCount,
-# CHAT_REPLY 					ShardMaxImportantMatch: args.opts.ShardMaxImportantMatch,
-# CHAT_REPLY 				})
-# CHAT_REPLY 				if err != nil {
-# CHAT_REPLY 					searchError = err
-# CHAT_REPLY 					return
+# CHAT_REPLY 
+# CHAT_REPLY 	// Perform the search.
+# CHAT_REPLY 	result.Stats, result.Files, result.Err = a.Searcher.Search(ctx, args.Pattern, args.FileMatchLimit)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Merge merges the results from multiple agents.
+# CHAT_REPLY func Merge(results []*agentSearchResult) (*agentSearchResult, error) {
+# CHAT_REPLY 	result := &agentSearchResult{}
+# CHAT_REPLY 	if len(results) == 0 {
+# CHAT_REPLY 		return result, nil
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Merge the search statistics.
+# CHAT_REPLY 	for _, r := range results {
+# CHAT_REPLY 		result.Stats.Add(r.Stats)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Merge the search results.
+# CHAT_REPLY 	result.Files = mergeFiles(results)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Check for errors.
+# CHAT_REPLY 	for _, r := range results {
+# CHAT_REPLY 		if r.Err != nil {
+# CHAT_REPLY 			return nil, r.Err
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return result, nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // mergeFiles merges the file matches from multiple agents.
+# CHAT_REPLY func mergeFiles(results []*agentSearchResult) []FileMatch {
+# CHAT_REPLY 	// Create a map to store the merged file matches.
+# CHAT_REPLY 	files := make(map[string]*FileMatch)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Iterate over the results from each agent.
+# CHAT_REPLY 	for _, r := range results {
+# CHAT_REPLY 		// Iterate over the file matches from each agent.
+# CHAT_REPLY 		for _, f := range r.Files {
+# CHAT_REPLY 			// If the file match already exists in the map, merge the line matches.
+# CHAT_REPLY 			if existing, ok := files[f.Name]; ok {
+# CHAT_REPLY 				existing.LineMatches = append(existing.LineMatches, f.LineMatches...)
+# CHAT_REPLY 			} else {
+# CHAT_REPLY 				// Otherwise, add the file match to the map.
+# CHAT_REPLY 				files[f.Name] = &f
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Convert the map to a slice.
+# CHAT_REPLY 	var merged []FileMatch
+# CHAT_REPLY 	for _, f := range files {
+# CHAT_REPLY 		merged = append(merged, *f)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Sort the file matches by name.
+# CHAT_REPLY 	sort.Slice(merged, func(i, j int) bool {
+# CHAT_REPLY 		return merged[i].Name < merged[j].Name
+# CHAT_REPLY 	})
+# CHAT_REPLY 
+# CHAT_REPLY 	return merged
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // AgentRepository is a repository of search agents.
+# CHAT_REPLY type AgentRepository struct {
+# CHAT_REPLY 	mu      sync.Mutex
+# CHAT_REPLY 	agents  []*Agent
+# CHAT_REPLY 	nextID  int
+# CHAT_REPLY 	cancel  context.CancelFunc
+# CHAT_REPLY 	errChan chan error
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // NewAgentRepository creates a new agent repository.
+# CHAT_REPLY func NewAgentRepository() *AgentRepository {
+# CHAT_REPLY 	ctx, cancel := context.WithCancel(context.Background())
+# CHAT_REPLY 	return &AgentRepository{
+# CHAT_REPLY 		agents:  make([]*Agent, 0),
+# CHAT_REPLY 		nextID:  0,
+# CHAT_REPLY 		cancel:  cancel,
+# CHAT_REPLY 		errChan: make(chan error, 1),
+# CHAT_REPLY 		mu:      sync.Mutex{},
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Start starts the agent repository.
+# CHAT_REPLY func (r *AgentRepository) Start(searchers ...*Searcher) {
+# CHAT_REPLY 	for _, s := range searchers {
+# CHAT_REPLY 		r.agents = append(r.agents, &Agent{Searcher: s})
+# CHAT_REPLY 	}
+# CHAT_REPLY 	go r.monitor()
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // monitor monitors the health of the agents.
+# CHAT_REPLY func (r *AgentRepository) monitor() {
+# CHAT_REPLY 	for {
+# CHAT_REPLY 		select {
+# CHAT_REPLY 		case <-time.After(10 * time.Second):
+# CHAT_REPLY 			// Check the health of each agent.
+# CHAT_REPLY 			for _, a := range r.agents {
+# CHAT_REPLY 				if !a.Searcher.IsHealthy() {
+# CHAT_REPLY 					r.errChan <- fmt.Errorf("agent %d is unhealthy", a.Searcher.ID)
 # CHAT_REPLY 				}
 # CHAT_REPLY 			}
-# CHAT_REPLY 		}()
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Err returns a channel that will receive errors from the agent repository.
+# CHAT_REPLY func (r *AgentRepository) Err() <-chan error {
+# CHAT_REPLY 	return r.errChan
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Close closes the agent repository.
+# CHAT_REPLY func (r *AgentRepository) Close() {
+# CHAT_REPLY 	r.cancel()
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Get returns an agent from the repository.
+# CHAT_REPLY func (r *AgentRepository) Get(ctx context.Context) (*Agent, error) {
+# CHAT_REPLY 	r.mu.Lock()
+# CHAT_REPLY 	defer r.mu.Unlock()
+# CHAT_REPLY 
+# CHAT_REPLY 	// If there are no available agents, return an error.
+# CHAT_REPLY 	if len(r.agents) == 0 {
+# CHAT_REPLY 		return nil, fmt.Errorf("no agents available")
 # CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY 	go func() {
-# CHAT_REPLY 		wg.Wait()
-# CHAT_REPLY 		close(shardc)
-# CHAT_REPLY 	}()
+# CHAT_REPLY 	// Get the next available agent.
+# CHAT_REPLY 	agent := r.agents[r.nextID]
+# CHAT_REPLY 	r.nextID = (r.nextID + 1) % len(r.agents)
 # CHAT_REPLY 
-# CHAT_REPLY 	for range shardc {
+# CHAT_REPLY 	return agent, nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Search performs a search using the agent repository.
+# CHAT_REPLY func (r *AgentRepository) Search(ctx context.Context, pattern *Substring, opts *SearchOptions) (*SearchResult, error) {
+# CHAT_REPLY 	// Get an agent from the repository.
+# CHAT_REPLY 	agent, err := r.Get(ctx)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, err
 # CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY 	return searchError
+# CHAT_REPLY 	// Perform the search.
+# CHAT_REPLY 	result, err := agent.Search(ctx, agentSearchArgs{
+# CHAT_REPLY 		Pattern:            pattern,
+# CHAT_REPLY 		MaxWallTime:        opts.MaxWallTime,
+# CHAT_REPLY 		MaxDocDisplayCount: opts.MaxDocDisplayCount,
+# CHAT_REPLY 		FileMatchLimit:     opts.FileMatchLimit,
+# CHAT_REPLY 	})
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, err
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return &SearchResult{
+# CHAT_REPLY 		Stats: result.Stats,
+# CHAT_REPLY 		Files: result.Files,
+# CHAT_REPLY 	}, nil
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // List lists the repositories.
-# CHAT_REPLY func (a *Agent) List(ctx context.Context, q *Query, opts *SearchOptions) []*RepoListEntry {
-# CHAT_REPLY 	return a.Searcher.List(ctx, q, opts)
+# CHAT_REPLY // Run runs a search using the agent repository and writes the results to the given writer.
+# CHAT_REPLY func (r *AgentRepository) Run(w io.Writer, pattern *Substring, opts *SearchOptions) error {
+# CHAT_REPLY 	// Start a timer for the search.
+# CHAT_REPLY 	start := time.Now()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Perform the search.
+# CHAT_REPLY 	result, err := r.Search(context.Background(), pattern, opts)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return err
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Stop the timer.
+# CHAT_REPLY 	elapsed := time.Since(start)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Print the search results.
+# CHAT_REPLY 	err = printResult(w, result, elapsed, opts)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return err
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Print the search statistics.
+# CHAT_REPLY 	printStats(result.Stats, elapsed)
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // Close closes the agent.
-# CHAT_REPLY func (a *Agent) Close() {
-# CHAT_REPLY 	a.Searcher.Close()
+# CHAT_REPLY // printResult prints the search results to the given writer.
+# CHAT_REPLY func printResult(w io.Writer, result *SearchResult, elapsed time.Duration, opts *SearchOptions) error {
+# CHAT_REPLY 	// Print the file matches.
+# CHAT_REPLY 	for i, f := range result.Files {
+# CHAT_REPLY 		if opts.Verbose {
+# CHAT_REPLY 			fmt.Fprintf(w, "%s\n", f.Name)
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Print the line matches.
+# CHAT_REPLY 		for _, l := range f.LineMatches {
+# CHAT_REPLY 			if opts.Verbose {
+# CHAT_REPLY 				fmt.Fprintf(w, "  %d: %s\n", l.LineNumber, l.Line)
+# CHAT_REPLY 			} else {
+# CHAT_REPLY 				fmt.Fprintf(w, "%s:%d: %s\n", f.Name, l.LineNumber, l.Line)
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Print a separator between files.
+# CHAT_REPLY 		if i < len(result.Files)-1 {
+# CHAT_REPLY 			fmt.Fprintln(w)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // printProgress prints the search progress to stdout.
-# CHAT_REPLY func (a *Agent) printProgress(ctx context.Context, started time.Time, args *agentSearchArgs, aggregate *AggregateSearchResult) {
-# CHAT_REPLY 	// \r returns to the beginning of the line
-# CHAT_REPLY 	// \033[2K clears the line
-# CHAT_REPLY 	fmt.Printf("\r\033[2K")
-# CHAT_REPLY 	log.Printf("Searched %d/%d shards in %s, found %d matching files...",
-# CHAT_REPLY 		aggregate.Stats.ShardsScanned,
-# CHAT_REPLY 		len(args.repos),
-# CHAT_REPLY 		time.Since(started),
-# CHAT_REPLY 		len(aggregate.Files),
-# CHAT_REPLY 	)
+# CHAT_REPLY // printStats prints the search statistics.
+# CHAT_REPLY func printStats(stats SearchStats, elapsed time.Duration) {
+# CHAT_REPLY 	log.Printf("searched %d files (%.2f MB) in %s", stats.FilesLoaded, float64(stats.ContentBytesLoaded)/(1024*1024), elapsed)
+# CHAT_REPLY 	log.Printf("using %d goroutines, %d CPUs", runtime.NumGoroutine(), runtime.NumCPU())
 # CHAT_REPLY }
+# CHAT_REPLY 
 # CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Agent Interaction with Ranking
+# CHAT_REPLY 
+# CHAT_REPLY The provided code doesn't directly implement ranking logic. It focuses on distributing the search workload across multiple agents (goroutines) and merging their results. Here's how it relates to ranking:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **No Explicit Ranking:** The code emphasizes parallelizing the search process and merging results from different shards. It doesn't contain algorithms for scoring or ranking search results based on relevance.
+# CHAT_REPLY 
+# CHAT_REPLY 2. **Ranking Responsibility Lies Elsewhere:** The actual ranking logic is likely implemented within the `Searcher.Search` function, which is part of the underlying search library used by the agents. This function is responsible for searching a specific shard and returning matching files and lines. The ranking would happen before returning these matches.
+# CHAT_REPLY 
+# CHAT_REPLY 3. **Merging Maintains Order:** The `mergeFiles` function sorts the merged file matches by name (`sort.Slice(merged, func(i, j int) bool { return merged[i].Name < merged[j].Name })`). This implies that the ranking, if any, is performed at the shard level within `Searcher.Search`, and the merging process preserves that order.
+# CHAT_REPLY 
+# CHAT_REPLY ### Summary
+# CHAT_REPLY 
+# CHAT_REPLY The provided code manages the parallel execution of searches across multiple agents and merges their results. However, the core ranking logic is not present in this code snippet. It's likely handled by the `Searcher` component, which is responsible for searching individual shards and presumably incorporates ranking mechanisms before returning results.
 
  class: insufficient context
  files:
