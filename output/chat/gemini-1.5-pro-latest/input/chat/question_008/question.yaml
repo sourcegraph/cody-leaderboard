@@ -2,7 +2,25 @@
 # CHAT
 # CHAT_QUESTION What does this repo do??
 
-# CHAT_REPLY This repo provides search functionality across a codebase. It sorts and truncates files based on search options, limiting the number of matches and documents displayed.
+# CHAT_REPLY The code you provided seems to be part of a search engine, specifically the part that handles displaying search results. Here's a breakdown:
+# CHAT_REPLY 
+# CHAT_REPLY * **Purpose:** The code defines functions for sorting and truncating search results (file matches) based on user-defined limits. This ensures that the display of search results is concise and doesn't overwhelm the user.
+# CHAT_REPLY 
+# CHAT_REPLY * **Key Functions:**
+# CHAT_REPLY 
+# CHAT_REPLY     * **`SortAndTruncateFiles`:** This function takes a list of `FileMatch` (representing files that match the search query) and `SearchOptions` (containing user preferences like maximum documents or matches to display). It sorts the files and then truncates the list based on the limits specified in `SearchOptions`.
+# CHAT_REPLY 
+# CHAT_REPLY     * **`DisplayTruncator`:** This is a stateful function type that enforces document and match display limits. It takes a list of `FileMatch` and returns a potentially truncated list and a boolean indicating whether there are more results (`hasMore`).
+# CHAT_REPLY 
+# CHAT_REPLY     * **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` based on the limits defined in `SearchOptions`. It also indicates whether any limits are actually set.
+# CHAT_REPLY 
+# CHAT_REPLY     * **`limitMatches`:** This function takes a list of `FileMatch` and a limit, and truncates the matches within each file based on the limit. It supports two modes: `chunkMatches` (for truncating groups of matches) and `limitLineMatches` (for truncating individual line matches).
+# CHAT_REPLY 
+# CHAT_REPLY     * **`limitChunkMatches` and `limitLineMatches`:** These functions implement the actual truncation logic for `chunkMatches` and `limitLineMatches` modes, respectively.
+# CHAT_REPLY 
+# CHAT_REPLY * **Context:** The code mentions "zoekt" as the package name. Zoekt is a popular open-source text search engine written in Go. This code likely belongs to a project that uses or extends Zoekt's functionality.
+# CHAT_REPLY 
+# CHAT_REPLY **In summary:** This code snippet focuses on presenting relevant search results to the user in a manageable way by sorting and truncating them based on user-defined limits. This is a crucial aspect of any search engine to ensure a good user experience.
 
  class: codebase onboarding
  files:

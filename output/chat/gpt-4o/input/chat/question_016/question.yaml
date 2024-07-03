@@ -2,27 +2,175 @@
 # CHAT
 # CHAT_QUESTION Mind taking a second look at the file? @limit.go
 
-# CHAT_REPLY Certainly! The `limit.go` file in your codebase is focused on managing and enforcing display limits for search results, specifically for documents and matches. Here are the key components:
+# CHAT_REPLY Sure, let's take a closer look at the `limit.go` file.
 # CHAT_REPLY 
-# CHAT_REPLY 1. **SortAndTruncateFiles Function**:
-# CHAT_REPLY    - This function sorts and truncates a list of `FileMatch` objects based on the provided search options.
+# CHAT_REPLY ### Overview
 # CHAT_REPLY 
-# CHAT_REPLY 2. **DisplayTruncator Type**:
-# CHAT_REPLY    - A stateful function type that enforces document and match display limits by truncating and mutating the list of `FileMatch` objects.
+# CHAT_REPLY The `limit.go` file provides functionality to sort and truncate search results based on certain display limits. The main components of this file are:
 # CHAT_REPLY 
-# CHAT_REPLY 3. **NewDisplayTruncator Function**:
-# CHAT_REPLY    - This function creates a `DisplayTruncator` based on the provided search options. It checks if there are any limits to enforce and returns a truncator function accordingly.
+# CHAT_REPLY 1. **SortAndTruncateFiles**: A convenience function that sorts and truncates file matches based on search options.
+# CHAT_REPLY 2. **DisplayTruncator**: A stateful function that enforces document and match display limits by truncating and mutating the file matches.
+# CHAT_REPLY 3. **NewDisplayTruncator**: A function that creates a new `DisplayTruncator` based on the provided search options.
+# CHAT_REPLY 4. **limitMatches**: A helper function that limits the number of matches in a list of file matches.
+# CHAT_REPLY 5. **limitChunkMatches**: A function that limits the number of chunk matches in a file match.
+# CHAT_REPLY 6. **limitLineMatches**: A function that limits the number of line matches in a file match.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **limitMatches Function**:
-# CHAT_REPLY    - This function limits the number of matches in a list of `FileMatch` objects based on the provided limit and whether chunk matches are enabled.
+# CHAT_REPLY ### Detailed Look
 # CHAT_REPLY 
-# CHAT_REPLY 5. **limitChunkMatches Function**:
-# CHAT_REPLY    - This function specifically limits the number of chunk matches in a `FileMatch` object, adjusting the content, ranges, and symbol information as necessary.
+# CHAT_REPLY #### SortAndTruncateFiles
+# CHAT_REPLY ```go
+# CHAT_REPLY func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {
+# CHAT_REPLY 	SortFiles(files)
+# CHAT_REPLY 	truncator, _ := NewDisplayTruncator(opts)
+# CHAT_REPLY 	files, _ = truncator(files)
+# CHAT_REPLY 	return files
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function sorts the files using `SortFiles` and then truncates them using a `DisplayTruncator` created with the provided search options.
 # CHAT_REPLY 
-# CHAT_REPLY 6. **limitLineMatches Function**:
-# CHAT_REPLY    - This function limits the number of line matches in a `FileMatch` object by truncating the line fragments.
+# CHAT_REPLY #### DisplayTruncator
+# CHAT_REPLY ```go
+# CHAT_REPLY type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
+# CHAT_REPLY ```
+# CHAT_REPLY `DisplayTruncator` is a type alias for a function that takes a list of file matches and returns a truncated list along with a boolean indicating if there are more matches.
 # CHAT_REPLY 
-# CHAT_REPLY Overall, the file is designed to handle the sorting and truncation of search results to ensure that the display limits specified in the search options are respected.
+# CHAT_REPLY #### NewDisplayTruncator
+# CHAT_REPLY ```go
+# CHAT_REPLY func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {
+# CHAT_REPLY 	docLimit := opts.MaxDocDisplayCount
+# CHAT_REPLY 	docLimited := docLimit > 0
+# CHAT_REPLY 
+# CHAT_REPLY 	matchLimit := opts.MaxMatchDisplayCount
+# CHAT_REPLY 	matchLimited := matchLimit > 0
+# CHAT_REPLY 
+# CHAT_REPLY 	done := false
+# CHAT_REPLY 
+# CHAT_REPLY 	if !docLimited && !matchLimited {
+# CHAT_REPLY 		return func(fm []FileMatch) ([]FileMatch, bool) {
+# CHAT_REPLY 			return fm, true
+# CHAT_REPLY 		}, false
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return func(fm []FileMatch) ([]FileMatch, bool) {
+# CHAT_REPLY 		if done {
+# CHAT_REPLY 			return nil, false
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if docLimited {
+# CHAT_REPLY 			if len(fm) >= docLimit {
+# CHAT_REPLY 				done = true
+# CHAT_REPLY 				fm = fm[:docLimit]
+# CHAT_REPLY 			}
+# CHAT_REPLY 			docLimit -= len(fm)
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if matchLimited {
+# CHAT_REPLY 			fm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)
+# CHAT_REPLY 			if matchLimit <= 0 {
+# CHAT_REPLY 				done = true
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		return fm, !done
+# CHAT_REPLY 	}, true
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function creates a new `DisplayTruncator` based on the provided search options. It checks if there are document or match limits and returns a truncator function that enforces these limits.
+# CHAT_REPLY 
+# CHAT_REPLY #### limitMatches
+# CHAT_REPLY ```go
+# CHAT_REPLY func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
+# CHAT_REPLY 	var limiter func(file *FileMatch, limit int) int
+# CHAT_REPLY 	if chunkMatches {
+# CHAT_REPLY 		limiter = limitChunkMatches
+# CHAT_REPLY 	} else {
+# CHAT_REPLY 		limiter = limitLineMatches
+# CHAT_REPLY 	}
+# CHAT_REPLY 	for i := range files {
+# CHAT_REPLY 		limit = limiter(&files[i], limit)
+# CHAT_REPLY 		if limit <= 0 {
+# CHAT_REPLY 			return files[:i+1], 0
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return files, limit
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function limits the number of matches in a list of file matches. It uses either `limitChunkMatches` or `limitLineMatches` based on the `chunkMatches` flag.
+# CHAT_REPLY 
+# CHAT_REPLY #### limitChunkMatches
+# CHAT_REPLY ```go
+# CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int {
+# CHAT_REPLY 	for i := range file.ChunkMatches {
+# CHAT_REPLY 		cm := &file.ChunkMatches[i]
+# CHAT_REPLY 		if len(cm.Ranges) > limit {
+# CHAT_REPLY 			// We potentially need to effect the limit upon 3 different fields:
+# CHAT_REPLY 			// Ranges, SymbolInfo, and Content.
+# CHAT_REPLY 
+# CHAT_REPLY 			// Content is the most complicated: we need to remove the last N
+# CHAT_REPLY 			// lines from it, where N is the difference between the line number
+# CHAT_REPLY 			// of the end of the old last Range and that of the new last Range.
+# CHAT_REPLY 			// This calculation is correct in the presence of both context lines
+# CHAT_REPLY 			// and multiline Ranges, taking into account that Content never has
+# CHAT_REPLY 			// a trailing newline.
+# CHAT_REPLY 			n := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber
+# CHAT_REPLY 			if n > 0 {
+# CHAT_REPLY 				for b := len(cm.Content) - 1; b >= 0; b-- {
+# CHAT_REPLY 					if cm.Content[b] == '/n' {
+# CHAT_REPLY 						n -= 1
+# CHAT_REPLY 					}
+# CHAT_REPLY 					if n == 0 {
+# CHAT_REPLY 						cm.Content = cm.Content[:b]
+# CHAT_REPLY 						break
+# CHAT_REPLY 					}
+# CHAT_REPLY 				}
+# CHAT_REPLY 				if n > 0 {
+# CHAT_REPLY 					// Should be impossible.
+# CHAT_REPLY 					log.Panicf("Failed to find enough newlines when truncating Content, %d left over, %d ranges", n, len(cm.Ranges))
+# CHAT_REPLY 				}
+# CHAT_REPLY 			}
+# CHAT_REPLY 
+# CHAT_REPLY 			cm.Ranges = cm.Ranges[:limit]
+# CHAT_REPLY 			if cm.SymbolInfo != nil {
+# CHAT_REPLY 				// When non-nil, SymbolInfo is specified to have the same length
+# CHAT_REPLY 				// as Ranges.
+# CHAT_REPLY 				cm.SymbolInfo = cm.SymbolInfo[:limit]
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if len(cm.Ranges) == limit {
+# CHAT_REPLY 			file.ChunkMatches = file.ChunkMatches[:i+1]
+# CHAT_REPLY 			limit = 0
+# CHAT_REPLY 			break
+# CHAT_REPLY 		}
+# CHAT_REPLY 		limit -= len(cm.Ranges)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return limit
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function limits the number of chunk matches in a file match. It also adjusts the content and symbol information accordingly.
+# CHAT_REPLY 
+# CHAT_REPLY #### limitLineMatches
+# CHAT_REPLY ```go
+# CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int {
+# CHAT_REPLY 	for i := range file.LineMatches {
+# CHAT_REPLY 		lm := &file.LineMatches[i]
+# CHAT_REPLY 		if len(lm.LineFragments) > limit {
+# CHAT_REPLY 			lm.LineFragments = lm.LineFragments[:limit]
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if len(lm.LineFragments) == limit {
+# CHAT_REPLY 			file.LineMatches = file.LineMatches[:i+1]
+# CHAT_REPLY 			limit = 0
+# CHAT_REPLY 			break
+# CHAT_REPLY 		}
+# CHAT_REPLY 		limit -= len(lm.LineFragments)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return limit
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY This function limits the number of line matches in a file match.
+# CHAT_REPLY 
+# CHAT_REPLY ### Summary
+# CHAT_REPLY 
+# CHAT_REPLY The `limit.go` file provides mechanisms to sort and truncate search results based on document and match limits specified in the search options. The main functions and types work together to enforce these limits and ensure that the search results are within the specified constraints.
 
  class: explain code
  files:

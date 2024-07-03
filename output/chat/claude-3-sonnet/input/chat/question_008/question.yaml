@@ -2,13 +2,23 @@
 # CHAT
 # CHAT_QUESTION What does this repo do??
 
-# CHAT_REPLY This repository contains code for a search engine called Zoekt. The provided code deals with limiting and truncating the search results based on various options and constraints. Specifically, it provides functions to:
+# CHAT_REPLY Based on the provided code snippet, this repository appears to be part of a project called "zoekt". The code deals with sorting and truncating search results, specifically file matches and line/chunk matches within those files.
 # CHAT_REPLY 
-# CHAT_REPLY 1. Sort and truncate the list of file matches based on the specified search options.
-# CHAT_REPLY 2. Create a stateful function (DisplayTruncator) that enforces limits on the number of documents and matches displayed.
-# CHAT_REPLY 3. Limit the number of chunk matches or line matches in each file match based on the specified limits.
+# CHAT_REPLY The main functions and types are:
 # CHAT_REPLY 
-# CHAT_REPLY The code handles scenarios where there are limits on the maximum number of documents to display, the maximum number of matches to display per document, and whether to chunk matches or treat them as individual line matches. It ensures that the search results are truncated and limited according to the specified options, making it easier to manage and display large search result sets.
+# CHAT_REPLY 1. `SortAndTruncateFiles`: This function sorts the given `FileMatch` slice and then truncates it based on the provided `SearchOptions`.
+# CHAT_REPLY 
+# CHAT_REPLY 2. `DisplayTruncator`: This is a type alias for a function that takes a slice of `FileMatch` and returns a (potentially truncated) slice of `FileMatch` along with a boolean indicating if there are more matches to be displayed.
+# CHAT_REPLY 
+# CHAT_REPLY 3. `NewDisplayTruncator`: This function returns a `DisplayTruncator` that enforces the limits specified in the `SearchOptions` (e.g., `MaxDocDisplayCount` and `MaxMatchDisplayCount`).
+# CHAT_REPLY 
+# CHAT_REPLY 4. `limitMatches`: This function limits the number of chunk or line matches in the given `FileMatch` slice based on the provided limit and whether to chunk matches or not.
+# CHAT_REPLY 
+# CHAT_REPLY 5. `limitChunkMatches`: This function limits the number of chunk matches in a single `FileMatch` by truncating the `Ranges`, `SymbolInfo`, and `Content` fields as necessary.
+# CHAT_REPLY 
+# CHAT_REPLY 6. `limitLineMatches`: This function limits the number of line matches in a single `FileMatch` by truncating the `LineFragments` field.
+# CHAT_REPLY 
+# CHAT_REPLY Overall, this code seems to be part of a search engine or a code search tool that retrieves file matches and provides functionality to sort and limit the number of displayed matches based on user-specified options.
 
  class: codebase onboarding
  files:

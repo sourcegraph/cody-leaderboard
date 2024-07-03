@@ -2,7 +2,29 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in your codebase monitors a specified directory for changes to files with the `.zoekt` extension. It keeps track of file modifications and ensures that the latest versions of these files are loaded while older or deleted files are unloaded. It uses the `fsnotify` package to watch for file system events and triggers a scan to update its state accordingly. This mechanism helps in maintaining an up-to-date set of files for further processing or indexing.
+# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is responsible for monitoring a specified directory for changes to files with a `.zoekt` extension. Here’s a detailed breakdown of its functionality:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **Initialization**:
+# CHAT_REPLY    - The `newDirectoryWatcher` function initializes a `DirectoryWatcher` instance with the specified directory and a `shardLoader` interface. It sets up channels for signaling readiness, quitting, and stopping.
+# CHAT_REPLY 
+# CHAT_REPLY 2. **Scanning**:
+# CHAT_REPLY    - The `scan` method scans the directory for files with a `.zoekt` extension. It determines the latest version of each shard by parsing the filenames.
+# CHAT_REPLY    - It updates the internal `timestamps` map with the modification times of the shards and their corresponding `.meta` files.
+# CHAT_REPLY    - It identifies new or modified shards to load and deleted shards to unload, and calls the `load` and `drop` methods of the `shardLoader` interface accordingly.
+# CHAT_REPLY 
+# CHAT_REPLY 3. **Watching**:
+# CHAT_REPLY    - The `watch` method sets up a file system watcher using the `fsnotify` package to monitor the directory for changes.
+# CHAT_REPLY    - It listens for file system events and signals the need to rescan the directory when changes are detected.
+# CHAT_REPLY    - It handles watcher errors and ensures the watcher is closed when the `DirectoryWatcher` is stopped.
+# CHAT_REPLY 
+# CHAT_REPLY 4. **Stopping**:
+# CHAT_REPLY    - The `Stop` method signals the watcher to stop and waits for the watcher to fully stop.
+# CHAT_REPLY 
+# CHAT_REPLY 5. **Utility Functions**:
+# CHAT_REPLY    - `versionFromPath` extracts the repository name and index format version from a shard filename.
+# CHAT_REPLY    - `humanTruncateList` generates a human-readable string of file paths, truncated to a specified maximum number of entries.
+# CHAT_REPLY 
+# CHAT_REPLY In summary, the `DirectoryWatcher` continuously monitors a directory for changes to shard files, loads new or modified shards, and unloads deleted shards, ensuring that the `shardLoader` interface is kept up-to-date with the current state of the directory.
 
  class: code search
  files:

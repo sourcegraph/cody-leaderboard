@@ -5,10 +5,10 @@
 # CHAT_REPLY Goroutines are a key feature of the Go programming language that enable concurrent execution. They are lightweight threads managed by the Go runtime, rather than operating system threads. Here's an overview of how goroutines work:
 # CHAT_REPLY 
 # CHAT_REPLY 1. Lightweight:
-# CHAT_REPLY    Goroutines are much lighter than traditional threads. They typically use only 2KB of stack space initially and can grow as needed. This allows you to create thousands or even millions of goroutines without exhausting system resources.
+# CHAT_REPLY    Goroutines are much lighter than traditional threads. They typically use only 2KB of stack space initially and can grow as needed. This allows you to create thousands or even millions of goroutines without significant performance overhead.
 # CHAT_REPLY 
 # CHAT_REPLY 2. Multiplexing:
-# CHAT_REPLY    The Go runtime multiplexes goroutines onto a smaller number of operating system threads. This is done using an M:N scheduling model, where M goroutines are scheduled across N OS threads.
+# CHAT_REPLY    The Go runtime multiplexes goroutines onto a smaller number of OS threads. This is managed by the Go scheduler, which is part of the runtime.
 # CHAT_REPLY 
 # CHAT_REPLY 3. Creation:
 # CHAT_REPLY    You can start a goroutine by using the `go` keyword followed by a function call:
@@ -17,11 +17,11 @@
 # CHAT_REPLY    go someFunction()
 # CHAT_REPLY    ```
 # CHAT_REPLY 
-# CHAT_REPLY 4. Scheduling:
-# CHAT_REPLY    The Go runtime includes a scheduler that manages goroutine execution. It can start, stop, and resume goroutines as needed, distributing them across available CPU cores.
+# CHAT_REPLY 4. Concurrency vs Parallelism:
+# CHAT_REPLY    Goroutines enable concurrency, which doesn't necessarily mean parallelism. Concurrency is about dealing with multiple things at once, while parallelism is about doing multiple things at once.
 # CHAT_REPLY 
 # CHAT_REPLY 5. Communication:
-# CHAT_REPLY    Goroutines communicate through channels, which provide a way to send and receive values between goroutines. This encourages the use of message passing for synchronization rather than shared memory and locks.
+# CHAT_REPLY    Goroutines communicate with each other using channels. This follows Go's philosophy of "Do not communicate by sharing memory; instead, share memory by communicating."
 # CHAT_REPLY 
 # CHAT_REPLY    ```go
 # CHAT_REPLY    ch := make(chan int)
@@ -29,22 +29,22 @@
 # CHAT_REPLY    value := <-ch
 # CHAT_REPLY    ```
 # CHAT_REPLY 
-# CHAT_REPLY 6. Concurrency vs Parallelism:
-# CHAT_REPLY    Goroutines enable concurrency, which is the composition of independently executing processes. Parallelism (simultaneous execution) may occur if the system has multiple CPU cores and the Go runtime schedules goroutines to run in parallel.
+# CHAT_REPLY 6. Scheduling:
+# CHAT_REPLY    The Go scheduler uses a technique called "m:n scheduling", where m goroutines are multiplexed on n OS threads. The scheduler is responsible for distributing runnable goroutines over multiple threads.
 # CHAT_REPLY 
-# CHAT_REPLY 7. Non-preemptive:
-# CHAT_REPLY    Goroutine scheduling is cooperative, meaning goroutines yield control when they are idle or logically blocked. The scheduler can also preempt a goroutine if it runs for too long.
+# CHAT_REPLY 7. Context Switching:
+# CHAT_REPLY    Context switching between goroutines is much cheaper than OS thread context switching, as it's managed entirely by the Go runtime in user space.
 # CHAT_REPLY 
-# CHAT_REPLY 8. Stack Management:
-# CHAT_REPLY    Goroutines use segmented stacks that can grow and shrink as needed. This allows for efficient memory usage.
+# CHAT_REPLY 8. Blocking:
+# CHAT_REPLY    When a goroutine blocks (e.g., on I/O or channel operations), the Go runtime automatically moves other goroutines to another OS thread if available.
 # CHAT_REPLY 
-# CHAT_REPLY 9. Synchronization:
-# CHAT_REPLY    While channels are the preferred method for synchronization, Go also provides traditional synchronization primitives like mutexes and wait groups in the `sync` package.
+# CHAT_REPLY 9. Work Stealing:
+# CHAT_REPLY    The Go scheduler implements work stealing, where idle processors can "steal" tasks from busy processors' queues, improving overall system utilization.
 # CHAT_REPLY 
-# CHAT_REPLY 10. Graceful Termination:
-# CHAT_REPLY     Goroutines don't have an explicit termination or killing mechanism. They exit when their function completes or when the program exits.
+# CHAT_REPLY 10. Garbage Collection:
+# CHAT_REPLY     Goroutines that are no longer needed are automatically garbage collected, so you don't need to manage their lifecycle explicitly.
 # CHAT_REPLY 
-# CHAT_REPLY Here's a simple example demonstrating goroutines and channels:
+# CHAT_REPLY Here's a simple example demonstrating goroutines:
 # CHAT_REPLY 
 # CHAT_REPLY ```go
 # CHAT_REPLY package main
@@ -54,37 +54,21 @@
 # CHAT_REPLY     "time"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY func worker(id int, jobs <-chan int, results chan<- int) {
-# CHAT_REPLY     for j := range jobs {
-# CHAT_REPLY         fmt.Printf("Worker %d started job %d\n", id, j)
-# CHAT_REPLY         time.Sleep(time.Second)
-# CHAT_REPLY         fmt.Printf("Worker %d finished job %d\n", id, j)
-# CHAT_REPLY         results <- j * 2
+# CHAT_REPLY func say(s string) {
+# CHAT_REPLY     for i := 0; i < 5; i++ {
+# CHAT_REPLY         time.Sleep(100 * time.Millisecond)
+# CHAT_REPLY         fmt.Println(s)
 # CHAT_REPLY     }
 # CHAT_REPLY }
 # CHAT_REPLY 
 # CHAT_REPLY func main() {
-# CHAT_REPLY     jobs := make(chan int, 100)
-# CHAT_REPLY     results := make(chan int, 100)
-# CHAT_REPLY 
-# CHAT_REPLY     // Start 3 worker goroutines
-# CHAT_REPLY     for w := 1; w <= 3; w++ {
-# CHAT_REPLY         go worker(w, jobs, results)
-# CHAT_REPLY     }
-# CHAT_REPLY 
-# CHAT_REPLY     // Send 5 jobs
-# CHAT_REPLY     for j := 1; j <= 5; j++ {
-# CHAT_REPLY         jobs <- j
-# CHAT_REPLY     }
-# CHAT_REPLY     close(jobs)
-# CHAT_REPLY 
-# CHAT_REPLY     // Collect results
-# CHAT_REPLY     for a := 1; a <= 5; a++ {
-# CHAT_REPLY         <-results
-# CHAT_REPLY     }
+# CHAT_REPLY     go say("world")
+# CHAT_REPLY     say("hello")
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY This example demonstrates how goroutines can be used to create a simple worker pool, processing jobs concurrently and communicating results through channels.
+# CHAT_REPLY In this example, two goroutines run concurrently: one printing "world" and another printing "hello".
+# CHAT_REPLY 
+# CHAT_REPLY Goroutines are a powerful feature that makes concurrent programming in Go simpler and more efficient compared to traditional threading models.
 
  class: general coding
