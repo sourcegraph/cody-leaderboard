@@ -1,0 +1,88 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportStreamError(context.Background(), test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
+}
+
+func TestReportStreamErrorWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	err := ReportStreamError(ctx, nil)
+	require.Equal(t, context.DeadlineExceeded, err)
+}
+
+func TestReportStreamErrorWithCancellation(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := ReportStreamError(ctx, nil)
+	require.Equal(t, context.Canceled, err)
+}
+
+func TestReportStreamErrorWithInvalidArgument(t *testing.T) {
+	t.Parallel()
+
+	err := ReportStreamError(nil, errors.New(""some error""))
+	require.Equal(t, status.Error(codes.Unknown, ""some error""), err)
+}
+
+func TestReportStreamErrorWithGRPCServer(t *testing.T) {
+	t.Parallel()
+
+	server := grpc.NewServer()
+	defer server.Stop()
+
+	err := ReportStreamError(context.Background(), status.Errorf(codes.Unavailable, ""service unavailable""))
+	require.Equal(t, status.Error(codes.Unavailable, ""service unavailable""), err)
+}
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,

@@ -1,0 +1,61 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_009,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 100, 200, 300},
+	}
+
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+
+	tfs := []termFrequency{
+		{doc: 0, tf: map[string]int{""term1"": 2, ""term2"": 1}},
+		{doc: 1, tf: map[string]int{""term1"": 1, ""term3"": 3}},
+		{doc: 2, tf: map[string]int{""term2"": 2, ""term3"": 1}},
+	}
+
+	df := termDocumentFrequency{
+		""term1"": 2,
+		""term2"": 2,
+		""term3"": 2,
+	}
+
+	opts := &SearchOptions{
+		DebugScore: false,
+	}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that scores are calculated correctly
+	if fileMatches[0].Score == 0 || fileMatches[1].Score == 0 || fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero scores, got: %v"", fileMatches)
+	}
+
+	// Test with DebugScore enabled
+	opts.DebugScore = true
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	for _, fm := range fileMatches {
+		if fm.Debug == """" {
+			t.Errorf(""Expected non-empty debug string when DebugScore is enabled"")
+		}
+	}
+
+	// Test with empty boundaries
+	d.boundaries = nil
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that scores are still calculated correctly
+	for _, fm := range fileMatches {
+		if fm.Score == 0 {
+			t.Errorf(""Expected non-zero scores with empty boundaries"")
+		}
+	}
+}
+",false,true,,zoekt/score.go,go,Zoekt BM25 scoring,

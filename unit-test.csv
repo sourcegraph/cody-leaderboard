@@ -1,0 +1,1897 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_010,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportStreamError(context.Background(), test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
+}
+
+func TestReportStreamErrorWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	err := ReportStreamError(ctx, nil)
+	require.Equal(t, context.DeadlineExceeded, err)
+}
+
+func TestReportStreamErrorWithCancellation(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := ReportStreamError(ctx, nil)
+	require.Equal(t, context.Canceled, err)
+}
+
+func TestReportStreamErrorWithInvalidArgument(t *testing.T) {
+	t.Parallel()
+
+	err := ReportStreamError(nil, errors.New(""some error""))
+	require.Equal(t, status.Error(codes.Unknown, ""some error""), err)
+}
+
+func TestReportStreamErrorWithGRPCServer(t *testing.T) {
+	t.Parallel()
+
+	server := grpc.NewServer()
+	defer server.Stop()
+
+	err := ReportStreamError(context.Background(), status.Errorf(codes.Unavailable, ""service unavailable""))
+	require.Equal(t, status.Error(codes.Unavailable, ""service unavailable""), err)
+}
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+yaml,code_002,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  test('should import ContextItem and RangeData types', () => {
+    expect(ContextItem).toBeDefined()
+    expect(RangeData).toBeDefined()
+  })
+
+  test('ContextItem should have expected properties', () => {
+    const contextItem: ContextItem = {
+      title: 'Test Context',
+      description: 'This is a test context item',
+      url: 'https://example.com',
+      ranges: [],
+    }
+
+    expect(contextItem).toHaveProperty('title')
+    expect(contextItem).toHaveProperty('description')
+    expect(contextItem).toHaveProperty('url')
+    expect(contextItem).toHaveProperty('ranges')
+  })
+
+  test('RangeData should have expected properties', () => {
+    const rangeData: RangeData = {
+      start: { line: 1, character: 0 },
+      end: { line: 2, character: 10 },
+      text: 'Test range',
+    }
+
+    expect(rangeData).toHaveProperty('start')
+    expect(rangeData).toHaveProperty('end')
+    expect(rangeData).toHaveProperty('text')
+  })
+})
+",true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+
+/src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'."
+yaml,code_004,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class LevenshteinTest {
+
+    @Test
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testIdenticalStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testDifferentLengths() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
+    }
+
+    @Test
+    void testSingleCharacterDifference() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hallo"");
+        assertEquals(1, distance);
+    }
+
+    @Test
+    void testMultipleCharacterDifferences() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""kitten"", ""sitting"");
+        assertEquals(3, distance);
+    }
+
+    @Test
+    void testEmptyString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", ""hello"");
+        assertEquals(5, distance);
+    }
+
+    @Test
+    void testNullString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(null, ""hello"");
+        assertEquals(5, distance);
+    }
+}
+",false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
+yaml,code_003,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""reflect""
+	""testing""
+)
+
+func TestQuickSort(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected []int
+	}{
+		{
+			name:     ""Empty slice"",
+			input:    []int{},
+			expected: []int{},
+		},
+		{
+			name:     ""Single element"",
+			input:    []int{5},
+			expected: []int{5},
+		},
+		{
+			name:     ""Sorted slice"",
+			input:    []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Reverse sorted slice"",
+			input:    []int{5, 4, 3, 2, 1},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Duplicates"",
+			input:    []int{3, 1, 4, 1, 5, 9, 2, 6, 5},
+			expected: []int{1, 1, 2, 3, 4, 5, 5, 6, 9},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := quickSort(test.input)
+			if !reflect.DeepEqual(result, test.expected) {
+				t.Errorf(""quickSort(%v) = %v, expected %v"", test.input, result, test.expected)
+			}
+		})
+	}
+}
+",false,true,,quicksort.go,go,Quicksort,
+yaml,code_008,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+)
+
+func TestSearch_CommitNotIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+	}
+
+	_, err = service.Search(context.Background(), args)
+	require.Error(t, err)
+	require.Equal(t, context.DeadlineExceeded, err)
+}
+
+func TestSearch_CommitIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+
+	// Insert a commit to simulate it being indexed
+	repoId, err := insertRepo(db, string(repo))
+	require.NoError(t, err)
+
+	_, err = insertCommit(db, repoId, string(commitID), time.Now())
+	require.NoError(t, err)
+
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+	}
+
+	symbols, err := service.Search(context.Background(), args)
+	require.NoError(t, err)
+	require.NotNil(t, symbols)
+}
+
+func TestSearch_Timeout(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+		Timeout:  100 * time.Millisecond,
+	}
+
+	_, err = service.Search(context.Background(), args)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,
+yaml,code_006,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",false,true,,src/add.ts,typescript,Adder with sub context,
+yaml,code_001,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(5, -3)).toBe(2)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -4)).toBe(-6)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 7)).toBe(7)
+    expect(add(7, 0)).toBe(7)
+  })
+})
+",true,false,,src/add.ts,typescript,Adder,/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+yaml,code_007,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"import ""testing""
+
+func TestRuler(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int
+		expected int
+	}{
+		{""zero"", 0, 0},
+		{""one"", 1, 0},
+		{""two"", 2, 1},
+		{""four"", 4, 2},
+		{""eight"", 8, 3},
+		{""negative"", -1, 0},
+		{""max int"", 1<<63 - 1, 0},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := ruler(test.input)
+			if result != test.expected {
+				t.Errorf(""ruler(%d) = %d, expected %d"", test.input, result, test.expected)
+			}
+		})
+	}
+}
+",false,false,,src/rockskip/server.go,go,Rockskip ruler function,
+yaml,code_009,gpt-4o,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 100, 200, 300},
+	}
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+	tfs := []termFrequency{
+		{doc: 0, tf: map[string]int{""term1"": 2, ""term2"": 1}},
+		{doc: 1, tf: map[string]int{""term1"": 1, ""term3"": 3}},
+		{doc: 2, tf: map[string]int{""term2"": 2, ""term3"": 1}},
+	}
+	df := termDocumentFrequency{
+		""term1"": 2,
+		""term2"": 2,
+		""term3"": 2,
+	}
+	opts := &SearchOptions{DebugScore: true}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check scores
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for file 0"")
+	}
+	if fileMatches[1].Score == 0 {
+		t.Errorf(""Expected non-zero score for file 1"")
+	}
+	if fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero score for file 2"")
+	}
+
+	// Check debug output
+	if fileMatches[0].Debug == """" {
+		t.Errorf(""Expected debug output for file 0"")
+	}
+	if fileMatches[1].Debug == """" {
+		t.Errorf(""Expected debug output for file 1"")
+	}
+	if fileMatches[2].Debug == """" {
+		t.Errorf(""Expected debug output for file 2"")
+	}
+}
+
+func TestScoreFilesUsingBM25_ZeroAverageFileLength(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 0},
+	}
+	fileMatches := []FileMatch{{}}
+	tfs := []termFrequency{{doc: 0, tf: map[string]int{""term1"": 1}}}
+	df := termDocumentFrequency{""term1"": 1}
+	opts := &SearchOptions{}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that score is non-zero
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for file 0"")
+	}
+}
+",false,true,,zoekt/score.go,go,Zoekt BM25 scoring,
+yaml,code_002,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  test('should import ContextItem and RangeData types', () => {
+    expect(ContextItem).toBeDefined()
+    expect(RangeData).toBeDefined()
+  })
+
+  test('should have correct type definitions', () => {
+    const contextItem: ContextItem = {
+      title: 'Test Context',
+      kind: 'function',
+      ranges: [
+        {
+          start: { line: 1, character: 0 },
+          end: { line: 1, character: 10 },
+        },
+      ],
+    }
+
+    const rangeData: RangeData = {
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 10 },
+    }
+
+    expect(typeof contextItem.title).toBe('string')
+    expect(typeof contextItem.kind).toBe('string')
+    expect(Array.isArray(contextItem.ranges)).toBe(true)
+    expect(typeof rangeData.start.line).toBe('number')
+    expect(typeof rangeData.start.character).toBe('number')
+    expect(typeof rangeData.end.line).toBe('number')
+    expect(typeof rangeData.end.character).toBe('number')
+  })
+})
+",true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+
+/src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'."
+yaml,code_004,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LevenshteinTest {
+
+    @Test
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testSameStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testDifferentStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
+    }
+
+    @Test
+    void testLongerString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""helloooo"");
+        assertEquals(3, distance);
+    }
+
+    @Test
+    void testShorterString() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""helloooo"", ""hello"");
+        assertEquals(3, distance);
+    }
+
+    @Test
+    void testNullString() {
+        Levenshtein levenshtein = new Levenshtein();
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(null, ""hello""));
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(""hello"", null));
+    }
+}
+",false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
+yaml,code_003,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""reflect""
+	""testing""
+)
+
+func TestQuickSort(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected []int
+	}{
+		{
+			name:     ""Empty slice"",
+			input:    []int{},
+			expected: []int{},
+		},
+		{
+			name:     ""Single element"",
+			input:    []int{5},
+			expected: []int{5},
+		},
+		{
+			name:     ""Sorted slice"",
+			input:    []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Reverse sorted slice"",
+			input:    []int{5, 4, 3, 2, 1},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Duplicates"",
+			input:    []int{3, 1, 4, 1, 5, 9, 2, 6, 5},
+			expected: []int{1, 1, 2, 3, 4, 5, 5, 6, 9},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := quickSort(test.input)
+			if !reflect.DeepEqual(result, test.expected) {
+				t.Errorf(""quickSort(%v) = %v, expected %v"", test.input, result, test.expected)
+			}
+		})
+	}
+}
+",false,true,,quicksort.go,go,Quicksort,
+yaml,code_008,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"func TestSearchTimeout(t *testing.T) {
+	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
+	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+
+	git, err := newSubprocessGit(t, repoDir)
+	require.NoError(t, err)
+	defer git.Close()
+
+	db, s := mockService(t, git)
+	defer db.Close()
+
+	state := map[string][]string{}
+	gitAdd(t, repoDir, state, ""a.txt"", ""sym1a/n"")
+
+	out, err := gitserver.CreateGitCommand(repoDir, ""git"", ""rev-parse"", ""HEAD"").CombinedOutput()
+	require.NoError(t, err, string(out))
+	commit := string(bytes.TrimSpace(out))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	_, err = s.Search(ctx, search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: api.CommitID(commit),
+		Query:    ""sym"",
+		Timeout:  time.Second,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
+}
+
+func TestSearchRepoLocked(t *testing.T) {
+	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
+	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+
+	git, err := newSubprocessGit(t, repoDir)
+	require.NoError(t, err)
+	defer git.Close()
+
+	db, s := mockService(t, git)
+	defer db.Close()
+
+	_, err = s.Search(context.Background(), search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: api.CommitID(""deadbeef""),
+		Query:    ""sym"",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""deletion in progress"")
+}
+
+func TestSearchInvalidCommit(t *testing.T) {
+	repo, repoDir := gitserver.MakeGitRepositoryAndReturnDir(t)
+	gitRun(t, repoDir, ""config"", ""user.email"", ""test@sourcegraph.com"")
+
+	git, err := newSubprocessGit(t, repoDir)
+	require.NoError(t, err)
+	defer git.Close()
+
+	db, s := mockService(t, git)
+	defer db.Close()
+
+	_, err = s.Search(context.Background(), search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: api.CommitID(""deadbeef""),
+		Query:    ""sym"",
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), ""indexing failed, check server logs"")
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,
+yaml,code_006,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+})
+",false,true,,src/add.ts,typescript,Adder with sub context,
+yaml,code_001,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",true,false,,src/add.ts,typescript,Adder,/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+yaml,code_007,claude-3-opus,unit-test,test.yaml,57d54daef0c32f970b93ce7ee99eb890e2ac12c8,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"func TestRuler(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int
+		expected int
+	}{
+		{
+			name:     ""zero"",
+			input:    0,
+			expected: 0,
+		},
+		{
+			name:     ""negative"",
+			input:    -5,
+			expected: 0,
+		},
+		{
+			name:     ""positive_even"",
+			input:    8,
+			expected: 3,
+		},
+		{
+			name:     ""positive_odd"",
+			input:    7,
+			expected: 0,
+		},
+		{
+			name:     ""max_int"",
+			input:    int(^uint(0) >> 1),
+			expected: 0,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := ruler(test.input)
+			if actual != test.expected {
+				t.Errorf(""ruler(%d) = %d, expected %d"", test.input, actual, test.expected)
+			}
+		})
+	}
+}
+",false,true,,src/rockskip/server.go,go,Rockskip ruler function,
+yaml,code_010,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportStreamError(test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
+}
+
+func TestReportStreamErrorWithContext(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+		{
+			name:        ""context canceled"",
+			err:         context.Canceled,
+			expectedErr: status.Error(codes.Canceled, context.Canceled.Error()),
+		},
+		{
+			name:        ""context deadline exceeded"",
+			err:         context.DeadlineExceeded,
+			expectedErr: status.Error(codes.DeadlineExceeded, context.DeadlineExceeded.Error()),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+			defer cancel()
+
+			err := ReportStreamErrorWithContext(ctx, test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
+}
+
+func TestReportCallError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportCallError(test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
+}
+
+func TestReportCallErrorWithContext(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		err         error
+		expectedErr error
+	}{
+		{
+			name:        ""nil error"",
+			err:         nil,
+			expectedErr: nil,
+		},
+		{
+			name:        ""grpc error"",
+			err:         status.Error(codes.Unavailable, ""service unavailable""),
+			expectedErr: status.Error(codes.Unavailable, ""service unavailable""),
+		},
+		{
+			name:        ""non-grpc error"",
+			err:         errors.New(""some error""),
+			expectedErr: status.Error(codes.Unknown, ""some error""),
+		},
+		{
+			name:        ""context canceled"",
+			err:         context.Canceled,
+			expectedErr: status.Error(codes.Canceled, context.Canceled.Error()),
+		},
+		{
+			name:        ""context deadline exceeded"",
+			err:         context.DeadlineExceeded,
+			expectedErr: status.Error(codes.DeadlineExceeded, context.DeadlineExceeded.Error()),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+			defer cancel()
+
+			err := ReportCallErrorWithContext(ctx, test.err)
+			require.Equal(t, test.expectedErr, err)
+		})
+	}
+}
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+yaml,code_002,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  test('should import ContextItem and RangeData types', () => {
+    expect(ContextItem).toBeDefined()
+    expect(RangeData).toBeDefined()
+  })
+
+  test('ContextItem should have expected properties', () => {
+    const contextItem: ContextItem = {
+      title: 'Test Context',
+      description: 'This is a test context item',
+      url: 'https://example.com',
+      ranges: [
+        {
+          start: { line: 1, character: 0 },
+          end: { line: 1, character: 10 },
+        },
+      ],
+    }
+
+    expect(contextItem).toHaveProperty('title', 'Test Context')
+    expect(contextItem).toHaveProperty('description', 'This is a test context item')
+    expect(contextItem).toHaveProperty('url', 'https://example.com')
+    expect(contextItem.ranges).toHaveLength(1)
+    expect(contextItem.ranges[0]).toMatchObject({
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 10 },
+    })
+  })
+
+  test('RangeData should have expected properties', () => {
+    const rangeData: RangeData = {
+      start: { line: 2, character: 5 },
+      end: { line: 3, character: 10 },
+    }
+
+    expect(rangeData).toHaveProperty('start')
+    expect(rangeData.start).toMatchObject({ line: 2, character: 5 })
+    expect(rangeData).toHaveProperty('end')
+    expect(rangeData.end).toMatchObject({ line: 3, character: 10 })
+  })
+})
+",true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+
+/src/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/UniqueContext.test.ts:5:4 2304 Cannot find name 'expect'."
+yaml,code_004,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LevenshteinTest {
+
+    @Test
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testIdenticalStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testDifferentLengths() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
+    }
+
+    @Test
+    void testSingleCharacterDifference() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hallo"");
+        assertEquals(1, distance);
+    }
+
+    @Test
+    void testMultipleCharacterDifferences() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""kitten"", ""sitting"");
+        assertEquals(3, distance);
+    }
+
+    @Test
+    void testNullInput() {
+        Levenshtein levenshtein = new Levenshtein();
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(null, ""hello""));
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(""hello"", null));
+    }
+}
+",false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
+yaml,code_003,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+    ""reflect""
+    ""testing""
+)
+
+func TestQuickSort(t *testing.T) {
+    tests := []struct {
+        name     string
+        input    []int
+        expected []int
+    }{
+        {""Empty slice"", []int{}, []int{}},
+        {""Single element"", []int{1}, []int{1}},
+        {""Sorted slice"", []int{1, 2, 3, 4, 5}, []int{1, 2, 3, 4, 5}},
+        {""Reverse sorted"", []int{5, 4, 3, 2, 1}, []int{1, 2, 3, 4, 5}},
+        {""Duplicates"", []int{3, 1, 4, 1, 5, 9, 2, 6, 5}, []int{1, 1, 2, 3, 4, 5, 5, 6, 9}},
+    }
+
+    for _, test := range tests {
+        t.Run(test.name, func(t *testing.T) {
+            result := QuickSort(test.input)
+            if !reflect.DeepEqual(result, test.expected) {
+                t.Errorf(""QuickSort(%v) = %v, expected %v"", test.input, result, test.expected)
+            }
+        })
+    }
+}
+",false,true,,quicksort.go,go,Quicksort,
+yaml,code_008,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+	""github.com/sourcegraph/sourcegraph/lib/errors""
+)
+
+func TestSearch_CommitNotIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+	}
+
+	// Simulate commit not indexed
+	_, _, present, err := GetCommitByHash(context.Background(), db, 1, string(commitID))
+	require.NoError(t, err)
+	require.False(t, present)
+
+	// Test search when commit is not indexed
+	_, err = service.Search(context.Background(), args)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, context.DeadlineExceeded))
+}
+
+func TestSearch_CommitIndexed(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+	}
+
+	// Simulate commit indexed
+	_, err = insertCommit(context.Background(), db, 1, string(commitID))
+	require.NoError(t, err)
+
+	// Test search when commit is indexed
+	symbols, err := service.Search(context.Background(), args)
+	require.NoError(t, err)
+	require.NotNil(t, symbols)
+}
+
+func TestSearch_Timeout(t *testing.T) {
+	db := dbtest.NewDB(t)
+	defer db.Close()
+
+	git := &mockGit{}
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(&observation.TestContext, db, git, repoFetcher, createParser, 1, 1, false, 1, 1, 1, false)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""test/repo"")
+	commitID := api.CommitID(""deadbeef"")
+	args := search.SymbolsParameters{
+		Repo:     repo,
+		CommitID: commitID,
+		Query:    """",
+		Timeout:  time.Millisecond, // Set a very short timeout
+	}
+
+	// Simulate commit not indexed
+	_, _, present, err := GetCommitByHash(context.Background(), db, 1, string(commitID))
+	require.NoError(t, err)
+	require.False(t, present)
+
+	// Test search with timeout
+	_, err = service.Search(context.Background(), args)
+	require.Error(t, err)
+	require.True(t, errors.Is(err, context.DeadlineExceeded))
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,
+yaml,code_006,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",false,true,,src/add.ts,typescript,Adder with sub context,
+yaml,code_001,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",true,false,,src/add.ts,typescript,Adder,/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+yaml,code_007,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"import ""testing""
+
+func TestRuler(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int
+		expected int
+	}{
+		{""zero"", 0, 0},
+		{""one"", 1, 0},
+		{""two"", 2, 1},
+		{""four"", 4, 2},
+		{""eight"", 8, 3},
+		{""negative"", -1, 0},
+		{""max int"", 1<<63 - 1, 0},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := ruler(tc.input)
+			if actual != tc.expected {
+				t.Errorf(""ruler(%d) = %d, expected %d"", tc.input, actual, tc.expected)
+			}
+		})
+	}
+}
+",false,false,,src/rockskip/server.go,go,Rockskip ruler function,
+yaml,code_009,claude-3.5-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{
+		boundaries: []uint32{0, 100, 200, 300},
+	}
+
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+
+	tfs := []termFrequency{
+		{doc: 0, tf: map[string]int{""term1"": 2, ""term2"": 1}},
+		{doc: 1, tf: map[string]int{""term1"": 1, ""term3"": 3}},
+		{doc: 2, tf: map[string]int{""term2"": 2, ""term3"": 1}},
+	}
+
+	df := termDocumentFrequency{
+		""term1"": 2,
+		""term2"": 2,
+		""term3"": 2,
+	}
+
+	opts := &SearchOptions{
+		DebugScore: false,
+	}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that scores are calculated correctly
+	if fileMatches[0].Score == 0 || fileMatches[1].Score == 0 || fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero scores, got: %v"", fileMatches)
+	}
+
+	// Test with DebugScore enabled
+	opts.DebugScore = true
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	for _, fm := range fileMatches {
+		if fm.Debug == """" {
+			t.Errorf(""Expected non-empty debug string when DebugScore is enabled"")
+		}
+	}
+
+	// Test with empty boundaries
+	d.boundaries = nil
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that scores are still calculated correctly
+	for _, fm := range fileMatches {
+		if fm.Score == 0 {
+			t.Errorf(""Expected non-zero scores with empty boundaries"")
+		}
+	}
+}
+",false,true,,zoekt/score.go,go,Zoekt BM25 scoring,
+yaml,code_010,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/grpc/grpcutil/util_test.go,zoekt/grpc/grpcutil/util_test.go,"package grpcutil
+
+import (
+	""context""
+	""errors""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+	""google.golang.org/grpc""
+	""google.golang.org/grpc/codes""
+	""google.golang.org/grpc/status""
+)
+
+func TestReportStreamError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		err      error
+		expected codes.Code
+	}{
+		{
+			name:     ""canceled context"",
+			err:      context.Canceled,
+			expected: codes.Canceled,
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			expected: codes.DeadlineExceeded,
+		},
+		{
+			name:     ""unknown error"",
+			err:      errors.New(""unknown error""),
+			expected: codes.Unknown,
+		},
+		{
+			name:     ""grpc error"",
+			err:      status.Error(codes.PermissionDenied, ""permission denied""),
+			expected: codes.PermissionDenied,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportStreamError(test.err)
+			require.Equal(t, test.expected, status.Code(err))
+		})
+	}
+}
+
+func TestReportStreamErrorWithTimeout(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		err      error
+		timeout  time.Duration
+		expected codes.Code
+	}{
+		{
+			name:     ""canceled context"",
+			err:      context.Canceled,
+			timeout:  0,
+			expected: codes.Canceled,
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			timeout:  0,
+			expected: codes.DeadlineExceeded,
+		},
+		{
+			name:     ""unknown error with timeout"",
+			err:      errors.New(""unknown error""),
+			timeout:  time.Second,
+			expected: codes.DeadlineExceeded,
+		},
+		{
+			name:     ""grpc error with timeout"",
+			err:      status.Error(codes.PermissionDenied, ""permission denied""),
+			timeout:  time.Second,
+			expected: codes.PermissionDenied,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ReportStreamErrorWithTimeout(test.err, test.timeout)
+			require.Equal(t, test.expected, status.Code(err))
+		})
+	}
+}
+
+func TestStreamErrorFromStatus(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		code     codes.Code
+		message  string
+		expected error
+	}{
+		{
+			name:     ""canceled"",
+			code:     codes.Canceled,
+			message:  ""canceled"",
+			expected: status.Error(codes.Canceled, ""canceled""),
+		},
+		{
+			name:     ""unknown"",
+			code:     codes.Unknown,
+			message:  ""unknown error"",
+			expected: status.Error(codes.Unknown, ""unknown error""),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := StreamErrorFromStatus(test.code, test.message)
+			require.Equal(t, test.expected, err)
+		})
+	}
+}
+
+func TestStreamErrorFromUnknownError(t *testing.T) {
+	t.Parallel()
+
+	err := StreamErrorFromUnknownError(errors.New(""unknown error""))
+	require.Equal(t, status.Error(codes.Unknown, ""unknown error""), err)
+}
+
+func TestStreamErrorFromGRPCError(t *testing.T) {
+	t.Parallel()
+
+	grpcErr := status.Error(codes.PermissionDenied, ""permission denied"")
+	err := StreamErrorFromGRPCError(grpcErr)
+	require.Equal(t, grpcErr, err)
+}
+
+func TestStreamErrorFromContextError(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		err      error
+		expected error
+	}{
+		{
+			name:     ""canceled context"",
+			err:      context.Canceled,
+			expected: status.Error(codes.Canceled, context.Canceled.Error()),
+		},
+		{
+			name:     ""deadline exceeded"",
+			err:      context.DeadlineExceeded,
+			expected: status.Error(codes.DeadlineExceeded, context.DeadlineExceeded.Error()),
+		},
+		{
+			name:     ""unknown error"",
+			err:      errors.New(""unknown error""),
+			expected: status.Error(codes.Unknown, ""unknown error""),
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := StreamErrorFromContextError(test.err)
+			require.Equal(t, test.expected, err)
+		})
+	}
+}
+",false,false,,zoekt/grpc/grpcutil/util.go,go,Zoekt gRPC utils,
+yaml,code_002,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/__tests__/UniqueContext.test.ts,src/UniqueContext.test.ts,"import { ContextItem, RangeData } from '@sourcegraph/cody-shared'
+
+describe('UniqueContext', () => {
+  test('should handle empty input', () => {
+    // Test with empty input
+  })
+
+  test('should handle invalid input', () => {
+    // Test with invalid input
+  })
+
+  test('should handle valid input', () => {
+    // Test with valid input
+    const input: ContextItem[] = [
+      { id: '1', name: 'Item 1' },
+      { id: '2', name: 'Item 2' },
+      { id: '3', name: 'Item 3' },
+    ]
+    const expected: RangeData = {
+      // Expected output
+    }
+
+    // Call the function being tested
+    const result = functionBeingTested(input)
+
+    // Assert the result
+    expect(result).toEqual(expected)
+  })
+})
+",true,false,,src/UniqueContext.ts,typescript,Unique Context,"/src/__tests__/UniqueContext.test.ts:1:39 2307 Cannot find module '@sourcegraph/cody-shared' or its corresponding type declarations.
+
+/src/__tests__/UniqueContext.test.ts:3:0 2582 Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/__tests__/UniqueContext.test.ts:4:2 2582 Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+/src/__tests__/UniqueContext.test.ts:24:19 2304 Cannot find name 'functionBeingTested'.
+
+/src/__tests__/UniqueContext.test.ts:27:4 2552 Cannot find name 'expect'. Did you mean 'expected'?"
+yaml,code_004,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LevenshteinTest {
+
+    @Test
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testSameStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testDifferentStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
+    }
+
+    @Test
+    void testNullString() {
+        Levenshtein levenshtein = new Levenshtein();
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(null, ""hello""));
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(""hello"", null));
+    }
+
+    @Test
+    void testLongStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        String str1 = ""thisisalongstringwithnospaces"";
+        String str2 = ""thisisadifferentlongstringwithnospaces"";
+        int distance = levenshtein.calculate(str1, str2);
+        assertEquals(8, distance);
+    }
+
+}
+",false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
+yaml,code_003,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,quicksort_test.go,quicksort_test.go,"package main
+
+import (
+	""reflect""
+	""testing""
+)
+
+func TestQuicksort(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected []int
+	}{
+		{
+			name:     ""Empty slice"",
+			input:    []int{},
+			expected: []int{},
+		},
+		{
+			name:     ""Single element"",
+			input:    []int{5},
+			expected: []int{5},
+		},
+		{
+			name:     ""Sorted slice"",
+			input:    []int{1, 2, 3, 4, 5},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Reverse sorted slice"",
+			input:    []int{5, 4, 3, 2, 1},
+			expected: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:     ""Duplicates"",
+			input:    []int{3, 1, 4, 1, 5, 9, 2, 6, 5},
+			expected: []int{1, 1, 2, 3, 4, 5, 5, 6, 9},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := quicksort(test.input)
+			if !reflect.DeepEqual(result, test.expected) {
+				t.Errorf(""quicksort(%v) = %v, expected %v"", test.input, result, test.expected)
+			}
+		})
+	}
+}
+",false,true,,quicksort.go,go,Quicksort,
+yaml,code_008,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/search_test.go,src/rockskip/search_test.go,"import (
+	""context""
+	""testing""
+	""time""
+
+	""github.com/stretchr/testify/require""
+
+	""github.com/sourcegraph/sourcegraph/cmd/symbols/fetcher""
+	""github.com/sourcegraph/sourcegraph/internal/api""
+	""github.com/sourcegraph/sourcegraph/internal/database/dbtest""
+	""github.com/sourcegraph/sourcegraph/internal/gitserver""
+	""github.com/sourcegraph/sourcegraph/internal/observation""
+	""github.com/sourcegraph/sourcegraph/internal/search""
+)
+
+func TestSearch(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	db := dbtest.NewDB(t)
+	git := newSubprocessGit(t, ""/path/to/repo"")
+	defer git.Close()
+
+	repoFetcher := newMockRepositoryFetcher(git)
+	createParser := func() (ctags.Parser, error) { return mockParser{}, nil }
+
+	service, err := NewService(
+		&observation.TestContext,
+		db,
+		git,
+		repoFetcher,
+		createParser,
+		1, 1, false, 1, 1, 1, false,
+	)
+	require.NoError(t, err)
+
+	repo := api.RepoName(""github.com/owner/repo"")
+	commitID := api.CommitID(""deadbeef"")
+
+	t.Run(""CommitNotIndexed"", func(t *testing.T) {
+		_, err := service.Search(ctx, search.SymbolsParameters{
+			Repo:     repo,
+			CommitID: commitID,
+		})
+		require.Error(t, err)
+		require.Equal(t, context.DeadlineExceeded, err)
+	})
+
+	t.Run(""CommitIndexed"", func(t *testing.T) {
+		// Simulate indexing the commit
+		repoID, err := updateLastAccessedAt(ctx, db, string(repo))
+		require.NoError(t, err)
+		_, err = insertCommit(ctx, db, repoID, string(commitID))
+		require.NoError(t, err)
+
+		symbols, err := service.Search(ctx, search.SymbolsParameters{
+			Repo:     repo,
+			CommitID: commitID,
+		})
+		require.NoError(t, err)
+		require.NotEmpty(t, symbols)
+	})
+
+	t.Run(""Timeout"", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+		defer cancel()
+
+		_, err := service.Search(ctx, search.SymbolsParameters{
+			Repo:     repo,
+			CommitID: commitID,
+			Timeout:  100 * time.Millisecond,
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), ""Processing symbols is taking a while, try again later"")
+	})
+}
+",false,true,true,src/rockskip/search.go,go,Rockskip search,
+yaml,code_006,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/add.test.ts,"import { add } from './add'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",false,true,,src/add.ts,typescript,Adder with sub context,
+yaml,code_001,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/add.test.ts,src/__tests__/add.test.ts,"import { add } from './add'
+
+describe('add', () => {
+  it('should add two positive numbers', () => {
+    expect(add(2, 3)).toBe(5)
+  })
+
+  it('should add two negative numbers', () => {
+    expect(add(-2, -3)).toBe(-5)
+  })
+
+  it('should add a positive and a negative number', () => {
+    expect(add(2, -3)).toBe(-1)
+  })
+
+  it('should add zero to a number', () => {
+    expect(add(0, 5)).toBe(5)
+    expect(add(5, 0)).toBe(5)
+  })
+
+  it('should handle large numbers', () => {
+    expect(add(Number.MAX_SAFE_INTEGER, 1)).toBe(Number.MAX_SAFE_INTEGER + 1)
+  })
+})
+",true,false,,src/add.ts,typescript,Adder,/src/add.test.ts:5:4 2304 Cannot find name 'expect'.
+yaml,code_007,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/rockskip/server_test.go,src/rockskip/server_test.go,"import ""testing""
+
+func TestRuler(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int
+		expected int
+	}{
+		{""zero"", 0, 0},
+		{""one"", 1, 0},
+		{""two"", 2, 1},
+		{""four"", 4, 2},
+		{""eight"", 8, 3},
+		{""negative"", -1, 0},
+		{""max int"", 1<<63 - 1, 0},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := ruler(test.input)
+			if result != test.expected {
+				t.Errorf(""ruler(%d) = %d, expected %d"", test.input, result, test.expected)
+			}
+		})
+	}
+}
+",false,false,,src/rockskip/server.go,go,Rockskip ruler function,
+yaml,code_009,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,zoekt/score_test.go,zoekt/score_test.go,"import (
+	""testing""
+)
+
+func TestScoreFilesUsingBM25(t *testing.T) {
+	d := &indexData{
+		boundaries: []int{0, 100, 200, 300},
+	}
+	fileMatches := []FileMatch{
+		{},
+		{},
+		{},
+	}
+	tfs := []termFrequency{
+		{
+			doc: 0,
+			tf: map[string]int{
+				""foo"": 2,
+				""bar"": 1,
+			},
+		},
+		{
+			doc: 1,
+			tf: map[string]int{
+				""foo"": 1,
+			},
+		},
+		{
+			doc: 2,
+			tf: map[string]int{
+				""bar"": 3,
+			},
+		},
+	}
+	df := termDocumentFrequency{
+		""foo"": 2,
+		""bar"": 2,
+	}
+	opts := &SearchOptions{
+		DebugScore: true,
+	}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check scores
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for first file"")
+	}
+	if fileMatches[1].Score == 0 {
+		t.Errorf(""Expected non-zero score for second file"")
+	}
+	if fileMatches[2].Score == 0 {
+		t.Errorf(""Expected non-zero score for third file"")
+	}
+
+	// Check debug output
+	if fileMatches[0].Debug == """" {
+		t.Errorf(""Expected debug output for first file"")
+	}
+	if fileMatches[1].Debug == """" {
+		t.Errorf(""Expected debug output for second file"")
+	}
+	if fileMatches[2].Debug == """" {
+		t.Errorf(""Expected debug output for third file"")
+	}
+}
+
+func TestScoreFilesUsingBM25_ZeroAverageFileLength(t *testing.T) {
+	d := &indexData{
+		boundaries: []int{0, 0, 0},
+	}
+	fileMatches := []FileMatch{
+		{},
+	}
+	tfs := []termFrequency{
+		{
+			doc: 0,
+			tf: map[string]int{
+				""foo"": 1,
+			},
+		},
+	}
+	df := termDocumentFrequency{
+		""foo"": 1,
+	}
+	opts := &SearchOptions{}
+
+	d.scoreFilesUsingBM25(fileMatches, tfs, df, opts)
+
+	// Check that score is non-zero even with zero average file length
+	if fileMatches[0].Score == 0 {
+		t.Errorf(""Expected non-zero score for file"")
+	}
+}
+",false,true,,zoekt/score.go,go,Zoekt BM25 scoring,

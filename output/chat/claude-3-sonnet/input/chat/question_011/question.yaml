@@ -2,18 +2,18 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided code is responsible for monitoring a directory for changes to shard files (files with the `.zoekt` extension) and notifying a `shardLoader` to load or drop those shard files accordingly.
+# CHAT_REPLY The `DirectoryWatcher` in the `shards/watcher.go` file is responsible for monitoring a directory for changes to shard files (files with the `.zoekt` extension) and notifying a `shardLoader` interface to load or drop shard files accordingly.
 # CHAT_REPLY 
 # CHAT_REPLY Here's a breakdown of what the `DirectoryWatcher` does:
 # CHAT_REPLY 
-# CHAT_REPLY 1. It scans the specified directory (`s.dir`) for `.zoekt` files on initialization and loads the latest version of each shard file into the `shardLoader`.
-# CHAT_REPLY 2. It uses the `fsnotify` package to watch the directory for file system events (create, modify, delete, etc.) related to `.zoekt` files.
-# CHAT_REPLY 3. When a file system event is detected, it scans the directory again to check for new, modified, or deleted shard files.
-# CHAT_REPLY 4. If a new or modified shard file is detected, it calls the `load` method of the `shardLoader` to load the new/updated shard file.
-# CHAT_REPLY 5. If a shard file is deleted, it calls the `drop` method of the `shardLoader` to unload the deleted shard file.
-# CHAT_REPLY 6. The `DirectoryWatcher` can be stopped by calling its `Stop` method, which closes the `quit` channel and waits for the watcher goroutine to exit.
+# CHAT_REPLY 1. It scans the specified directory (`s.dir`) for `.zoekt` files on initialization and keeps track of their modification times (`s.timestamps`).
+# CHAT_REPLY 2. It loads the shard files that have been added or modified since the last scan by calling the `load` method of the `shardLoader` interface.
+# CHAT_REPLY 3. It drops (unloads) the shard files that have been deleted since the last scan by calling the `drop` method of the `shardLoader` interface.
+# CHAT_REPLY 4. It sets up a filesystem watcher using the `fsnotify` package to watch for file system events (create, modify, delete) in the specified directory.
+# CHAT_REPLY 5. When a file system event is detected, it triggers a new scan of the directory to detect changes in shard files and updates the `shardLoader` accordingly.
+# CHAT_REPLY 6. The `DirectoryWatcher` can be stopped by calling the `Stop` method, which closes the `quit` channel and waits for the watcher goroutine to stop.
 # CHAT_REPLY 
-# CHAT_REPLY The `DirectoryWatcher` is designed to keep the shard files loaded in the `shardLoader` up-to-date with the contents of the monitored directory. It handles scenarios like new shard files being added, existing shard files being updated, and shard files being deleted.
+# CHAT_REPLY The `DirectoryWatcher` is used to keep the shard files loaded in memory up-to-date with the files on disk, allowing for dynamic loading and unloading of shard files as they change.
 
  class: code search
  files:

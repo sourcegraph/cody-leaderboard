@@ -2,52 +2,45 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY The code you provided is part of the Sourcegraph Cody Agent, a JSON-RPC server that enables non-ECMAScript clients like JetBrains and NeoVim plugins to interact with Cody.
+# CHAT_REPLY The code you provided implements a rate limiter for a Cody agent. It includes:
 # CHAT_REPLY 
-# CHAT_REPLY Here's a breakdown of the code:
+# CHAT_REPLY **1. RateLimit struct:**
+# CHAT_REPLY - Defines the rate limit configuration, including:
+# CHAT_REPLY     - `AllowedModels`: A list of allowed models for the agent.
+# CHAT_REPLY     - `Limit`: The maximum number of requests allowed within the interval.
+# CHAT_REPLY     - `Interval`: The time interval for the rate limit.
+# CHAT_REPLY     - `ConcurrentRequests`: The maximum number of concurrent requests allowed.
+# CHAT_REPLY     - `ConcurrentRequestsInterval`: The time interval for the concurrency limit.
 # CHAT_REPLY 
-# CHAT_REPLY **`agent.go`**
+# CHAT_REPLY **2. NewRateLimitWithPercentageConcurrency function:**
+# CHAT_REPLY - Creates a new RateLimit instance with a concurrency limit based on a percentage of the daily rate limit.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines the `Agent` interface, which is likely the core interface for interacting with the Cody Agent.
-# CHAT_REPLY * This file likely contains the implementation of the `Agent` interface, handling communication with Cody via stdout/stdin.
+# CHAT_REPLY **3. IsValid function:**
+# CHAT_REPLY - Checks if the RateLimit instance is valid.
 # CHAT_REPLY 
-# CHAT_REPLY **`limit.go`**
+# CHAT_REPLY **4. EvaluateAllowedModels function:**
+# CHAT_REPLY - Evaluates the allowed models based on a master allowlist and the actor's allowlist.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines a `RateLimit` struct, which represents a rate limit configuration for Cody requests.
-# CHAT_REPLY * Includes methods for:
-# CHAT_REPLY     * Creating a new `RateLimit` with concurrency limits.
-# CHAT_REPLY     * Checking if a `RateLimit` is valid.
-# CHAT_REPLY     * Evaluating allowed models based on a master allowlist and the actor's allowlist.
-# CHAT_REPLY * Defines a `concurrencyLimiter` struct, which implements a concurrency limiter using Redis.
-# CHAT_REPLY * Defines an `ErrConcurrencyLimitExceeded` error type, which is returned when the concurrency limit is exceeded.
-# CHAT_REPLY * Defines an `updateOnErrorLimiter` struct, which updates the actor's information if a rate limit or access error occurs.
+# CHAT_REPLY **5. concurrencyLimiter struct:**
+# CHAT_REPLY - Implements a concurrency limiter using a Redis store.
+# CHAT_REPLY - Uses a static limiter to enforce the concurrency limit.
+# CHAT_REPLY - Provides a TryAcquire method to acquire a permit for a concurrent request.
+# CHAT_REPLY - Provides a Usage method to get the current usage of the concurrency limiter.
 # CHAT_REPLY 
-# CHAT_REPLY **`animal.ts`**
+# CHAT_REPLY **6. ErrConcurrencyLimitExceeded struct:**
+# CHAT_REPLY - Represents an error indicating that the concurrency limit has been exceeded.
+# CHAT_REPLY - Provides methods for generating error messages and writing a response to the client.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines an `Animal` interface, which represents an animal with a name and age.
+# CHAT_REPLY **7. updateOnErrorLimiter struct:**
+# CHAT_REPLY - Wraps a limiter and updates the actor on access errors.
+# CHAT_REPLY - This allows the actor to be updated if their access has changed.
 # CHAT_REPLY 
-# CHAT_REPLY **`squirrel.ts`**
+# CHAT_REPLY **8. IsErrActorRecentlyUpdated function:**
+# CHAT_REPLY - Checks if an error is due to the actor being recently updated.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines a `CodeIntelligence` interface, which likely represents code intelligence data.
-# CHAT_REPLY * Defines a `Squirrel` interface, which represents a code intelligence API.
+# CHAT_REPLY **Overall, the code implements a robust rate limiting mechanism for a Cody agent, ensuring that the agent does not exceed its allocated resources.**
 # CHAT_REPLY 
-# CHAT_REPLY **`README.md`**
-# CHAT_REPLY 
-# CHAT_REPLY * Provides a brief overview of the Cody Agent package and its purpose.
-# CHAT_REPLY 
-# CHAT_REPLY **Overall, the codebase appears to be focused on:**
-# CHAT_REPLY 
-# CHAT_REPLY * Implementing a JSON-RPC server for Cody interaction.
-# CHAT_REPLY * Enforcing rate limits and concurrency limits for Cody requests.
-# CHAT_REPLY * Providing a way for non-ECMAScript clients to interact with Cody.
-# CHAT_REPLY 
-# CHAT_REPLY **Zoekt's Description:**
-# CHAT_REPLY 
-# CHAT_REPLY Zoekt is a code search engine, so it would likely focus on the code intelligence aspects of the codebase. It might describe the `CodeIntelligence` and `Squirrel` interfaces, and potentially highlight the use of Zoekt within the Cody Agent.
-# CHAT_REPLY 
-# CHAT_REPLY **Note:**
-# CHAT_REPLY 
-# CHAT_REPLY The codebase is incomplete, and there are likely other files and components involved in the Cody Agent. This analysis is based on the provided code snippets.
+# CHAT_REPLY **Note:** The code also uses the `github.com/sourcegraph/log` package for logging, the `go.opentelemetry.io/otel/trace` package for tracing, and the `github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter` package for rate limiting functionality.
 
  class: codebase onboarding
  files:

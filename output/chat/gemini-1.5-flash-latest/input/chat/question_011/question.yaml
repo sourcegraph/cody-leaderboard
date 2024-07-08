@@ -4,13 +4,13 @@
 
 # CHAT_REPLY The `DirectoryWatcher` in the provided codebase is responsible for monitoring a directory containing Zoekt shard files. It performs the following actions:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Initial Scan:** When initialized, it scans the directory for all `.zoekt` files and loads them into the `shardLoader`. It also keeps track of the modification timestamps of these files.
-# CHAT_REPLY 2. **File System Watching:** It uses `fsnotify` to watch for changes in the directory. This includes file creations, deletions, and modifications.
-# CHAT_REPLY 3. **Change Detection:** When a change is detected, it compares the modification timestamp of the affected file with the timestamp stored in its internal map. If the timestamp has changed, it means the file has been updated.
-# CHAT_REPLY 4. **Loading and Unloading:** For updated files, it calls the `load` method of the `shardLoader` to load the new data. For deleted files, it calls the `drop` method of the `shardLoader` to unload the data.
-# CHAT_REPLY 5. **Error Handling:** It logs any errors encountered during the watching process, but it continues to monitor the directory.
+# CHAT_REPLY 1. **Scanning:** It scans the directory for shard files (`.zoekt` files) and their associated metadata files (`.zoekt.meta`). It keeps track of the modification times of these files.
+# CHAT_REPLY 2. **Loading:** It loads new shard files that have been added or modified since the last scan. It also unloads shard files that have been deleted.
+# CHAT_REPLY 3. **Watching:** It uses `fsnotify` to watch for changes (creation, modification, deletion) in the directory. When a change is detected, it triggers a new scan.
 # CHAT_REPLY 
-# CHAT_REPLY In essence, the `DirectoryWatcher` ensures that the `shardLoader` always has the latest data from the shard files in the monitored directory. This is crucial for maintaining an up-to-date search index in Zoekt.
+# CHAT_REPLY The `DirectoryWatcher` works in conjunction with a `shardLoader` interface, which is responsible for actually loading and unloading the shard files. This allows the `DirectoryWatcher` to focus on monitoring the directory and triggering updates, while the actual loading and unloading logic is handled by the `shardLoader`.
+# CHAT_REPLY 
+# CHAT_REPLY In summary, the `DirectoryWatcher` ensures that the Zoekt index is kept up-to-date by monitoring the shard directory and loading/unloading shard files as needed.
 
  class: code search
  files:

@@ -1,0 +1,45 @@
+LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_HAS_TYPESCRIPT_ERRORS,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
+yaml,code_004,claude-3-sonnet,unit-test,test.yaml,53aaf571241a304c4e4854970b72993d585b650e,,,,0,0,0,0,,,,,,,,,,,,,,,,,,,,,,,,,,,src/test/java/LevenshteinTest.java,src/test/java/LevenshteinTest.java,"import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class LevenshteinTest {
+
+    @Test
+    void testEmptyStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate("""", """");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testSameStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""hello"");
+        assertEquals(0, distance);
+    }
+
+    @Test
+    void testDifferentStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        int distance = levenshtein.calculate(""hello"", ""world"");
+        assertEquals(4, distance);
+    }
+
+    @Test
+    void testNullString() {
+        Levenshtein levenshtein = new Levenshtein();
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(null, ""hello""));
+        assertThrows(NullPointerException.class, () -> levenshtein.calculate(""hello"", null));
+    }
+
+    @Test
+    void testLongStrings() {
+        Levenshtein levenshtein = new Levenshtein();
+        String str1 = ""thisisalongstringwithnospaces"";
+        String str2 = ""thisisadifferentlongstringwithnospaces"";
+        int distance = levenshtein.calculate(str1, str2);
+        assertEquals(8, distance);
+    }
+
+}
+",false,true,,src/main/java/Levenshtein.java,java,Levenshtein Distance,
