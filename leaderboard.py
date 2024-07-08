@@ -216,7 +216,7 @@ with fixTab:
     fix_csv_table("fix.csv")
 
 with unitTestTab:
-    st.header("Unit Test")
+    st.header("Unit Test Command")
     unit_test_csv_table("unit-test.csv")
 
 with editTab:
