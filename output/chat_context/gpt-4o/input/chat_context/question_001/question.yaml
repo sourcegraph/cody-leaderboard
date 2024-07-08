@@ -1,0 +1,253 @@
+ question: implement a new similarity metric similar to jaccard
+# CHAT
+# CHAT_QUESTION implement a new similarity metric similar to jaccard
+
+# CHAT_REPLY To implement a new similarity metric similar to Jaccard, we can follow these steps:
+# CHAT_REPLY 
+# CHAT_REPLY 1. Define the new similarity metric function.
+# CHAT_REPLY 2. Integrate this new function into the existing codebase, similar to how Jaccard similarity is used.
+# CHAT_REPLY 3. Update the relevant retriever to use the new similarity metric.
+# CHAT_REPLY 
+# CHAT_REPLY Let's define a new similarity metric called "Cosine Similarity". Cosine similarity measures the cosine of the angle between two vectors, which in this case will be the word occurrence vectors of the target and match texts.
+# CHAT_REPLY 
+# CHAT_REPLY ### Step 1: Define the Cosine Similarity Function
+# CHAT_REPLY 
+# CHAT_REPLY First, let's define the cosine similarity function in `bestJaccardMatch.ts` (we might rename this file later to reflect the new similarity metric):
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY function cosineSimilarity(left: WordOccurrences, right: WordOccurrences): number {
+# CHAT_REPLY     let dotProduct = 0
+# CHAT_REPLY     let leftMagnitude = 0
+# CHAT_REPLY     let rightMagnitude = 0
+# CHAT_REPLY 
+# CHAT_REPLY     for (const [word, count] of left.entries()) {
+# CHAT_REPLY         dotProduct += count * (right.get(word) || 0)
+# CHAT_REPLY         leftMagnitude += count * count
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     for (const count of right.values()) {
+# CHAT_REPLY         rightMagnitude += count * count
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     if (leftMagnitude === 0 || rightMagnitude === 0) {
+# CHAT_REPLY         return 0
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     return dotProduct / (Math.sqrt(leftMagnitude) * Math.sqrt(rightMagnitude))
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Step 2: Integrate the New Similarity Metric
+# CHAT_REPLY 
+# CHAT_REPLY Next, we need to integrate this new function into the existing codebase. We will modify the `bestJaccardMatches` function to use the new similarity metric.
+# CHAT_REPLY 
+# CHAT_REPLY In `bestJaccardMatch.ts`, update the `bestJaccardMatches` function to use `cosineSimilarity`:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY export function bestCosineMatches(
+# CHAT_REPLY     targetText: string,
+# CHAT_REPLY     matchText: string,
+# CHAT_REPLY     windowSize: number,
+# CHAT_REPLY     maxMatches: number
+# CHAT_REPLY ): JaccardMatch[] {
+# CHAT_REPLY     if (windowSize < 1) {
+# CHAT_REPLY         throw new Error('windowSize must be a positive integer')
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     const targetWordCounts = getWordOccurrences(targetText)
+# CHAT_REPLY     const lines = matchText.split('\n')
+# CHAT_REPLY     const windows: JaccardMatch[] = []
+# CHAT_REPLY 
+# CHAT_REPLY     for (let i = 0; i <= lines.length - windowSize; i++) {
+# CHAT_REPLY         const windowLines = lines.slice(i, i + windowSize)
+# CHAT_REPLY         const windowText = windowLines.join('\n')
+# CHAT_REPLY         const windowWordCounts = getWordOccurrences(windowText)
+# CHAT_REPLY 
+# CHAT_REPLY         const score = cosineSimilarity(targetWordCounts, windowWordCounts)
+# CHAT_REPLY 
+# CHAT_REPLY         const startLine = i
+# CHAT_REPLY         const endLine = i + windowSize - 1
+# CHAT_REPLY         windows.push({
+# CHAT_REPLY             score,
+# CHAT_REPLY             content: windowText,
+# CHAT_REPLY             startLine,
+# CHAT_REPLY             endLine,
+# CHAT_REPLY         })
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     windows.sort((a, b) => b.score - a.score)
+# CHAT_REPLY 
+# CHAT_REPLY     const retainedWindows: JaccardMatch[] = []
+# CHAT_REPLY     const includedLines: Set<number> = new Set()
+# CHAT_REPLY     for (const window of windows) {
+# CHAT_REPLY         let hasOverlap = false
+# CHAT_REPLY         for (let i = window.startLine; i <= window.endLine; i++) {
+# CHAT_REPLY             if (includedLines.has(i)) {
+# CHAT_REPLY                 hasOverlap = true
+# CHAT_REPLY                 break
+# CHAT_REPLY             }
+# CHAT_REPLY         }
+# CHAT_REPLY 
+# CHAT_REPLY         if (!hasOverlap) {
+# CHAT_REPLY             for (let i = window.startLine; i <= window.endLine; i++) {
+# CHAT_REPLY                 includedLines.add(i)
+# CHAT_REPLY             }
+# CHAT_REPLY             retainedWindows.push(window)
+# CHAT_REPLY         }
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     return retainedWindows.slice(0, maxMatches)
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Step 3: Update the Retriever
+# CHAT_REPLY 
+# CHAT_REPLY Now, we need to update the `JaccardSimilarityRetriever` to use the new similarity metric. We might also rename it to reflect the new metric.
+# CHAT_REPLY 
+# CHAT_REPLY In `jaccard-similarity-retriever.ts`, update the retriever to use `bestCosineMatches`:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY import { bestCosineMatches } from './bestJaccardMatch'
+# CHAT_REPLY 
+# CHAT_REPLY export class CosineSimilarityRetriever implements ContextRetriever {
+# CHAT_REPLY     constructor(
+# CHAT_REPLY         private snippetWindowSize: number = SNIPPET_WINDOW_SIZE,
+# CHAT_REPLY         private maxMatchesPerFile: number = MAX_MATCHES_PER_FILE
+# CHAT_REPLY     ) {}
+# CHAT_REPLY 
+# CHAT_REPLY     public identifier = 'cosine-similarity'
+# CHAT_REPLY     private history = new VSCodeDocumentHistory()
+# CHAT_REPLY 
+# CHAT_REPLY     public async retrieve({
+# CHAT_REPLY         document,
+# CHAT_REPLY         docContext,
+# CHAT_REPLY         abortSignal,
+# CHAT_REPLY     }: ContextRetrieverOptions): Promise<JaccardMatchWithFilename[]> {
+# CHAT_REPLY         const targetText = lastNLines(docContext.prefix, this.snippetWindowSize)
+# CHAT_REPLY         const files = await getRelevantFiles(document, this.history)
+# CHAT_REPLY 
+# CHAT_REPLY         const contextRange = getContextRange(document, docContext)
+# CHAT_REPLY         const contextLineRange = { start: contextRange.start.line, end: contextRange.end.line }
+# CHAT_REPLY 
+# CHAT_REPLY         const matches: JaccardMatchWithFilename[] = []
+# CHAT_REPLY         for (const { uri, contents } of files) {
+# CHAT_REPLY             if (abortSignal?.aborted) {
+# CHAT_REPLY                 continue
+# CHAT_REPLY             }
+# CHAT_REPLY             const fileMatches = bestCosineMatches(
+# CHAT_REPLY                 targetText,
+# CHAT_REPLY                 contents,
+# CHAT_REPLY                 this.snippetWindowSize,
+# CHAT_REPLY                 this.maxMatchesPerFile
+# CHAT_REPLY             )
+# CHAT_REPLY 
+# CHAT_REPLY             const relatedMatches = fileMatches.filter(match => match.score > 0)
+# CHAT_REPLY 
+# CHAT_REPLY             for (const match of relatedMatches) {
+# CHAT_REPLY                 if (
+# CHAT_REPLY                     uri.toString() === document.uri.toString() &&
+# CHAT_REPLY                     startOrEndOverlapsLineRange(
+# CHAT_REPLY                         uri,
+# CHAT_REPLY                         { start: match.startLine, end: match.endLine },
+# CHAT_REPLY                         document.uri,
+# CHAT_REPLY                         contextLineRange
+# CHAT_REPLY                     )
+# CHAT_REPLY                 ) {
+# CHAT_REPLY                     continue
+# CHAT_REPLY                 }
+# CHAT_REPLY 
+# CHAT_REPLY                 matches.push({ ...match, uri })
+# CHAT_REPLY             }
+# CHAT_REPLY         }
+# CHAT_REPLY 
+# CHAT_REPLY         matches.sort((a, b) => b.score - a.score)
+# CHAT_REPLY 
+# CHAT_REPLY         return matches
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     public isSupportedForLanguageId(): boolean {
+# CHAT_REPLY         return true
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     public dispose(): void {
+# CHAT_REPLY         this.history.dispose()
+# CHAT_REPLY     }
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Step 4: Update the Context Strategy
+# CHAT_REPLY 
+# CHAT_REPLY Finally, we need to update the context strategy to include the new retriever.
+# CHAT_REPLY 
+# CHAT_REPLY In `context-strategy.ts`, add the new strategy:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY export type ContextStrategy =
+# CHAT_REPLY     | 'bfg'
+# CHAT_REPLY     | 'jaccard-similarity'
+# CHAT_REPLY     | 'new-jaccard-similarity'
+# CHAT_REPLY     | 'cosine-similarity'
+# CHAT_REPLY     | 'bfg-mixed'
+# CHAT_REPLY     | 'local-mixed'
+# CHAT_REPLY     | 'none'
+# CHAT_REPLY 
+# CHAT_REPLY export class DefaultContextStrategyFactory implements ContextStrategyFactory {
+# CHAT_REPLY     // ...
+# CHAT_REPLY 
+# CHAT_REPLY     constructor(
+# CHAT_REPLY         private contextStrategy: ContextStrategy,
+# CHAT_REPLY         createBfgRetriever?: () => BfgRetriever
+# CHAT_REPLY     ) {
+# CHAT_REPLY         switch (contextStrategy) {
+# CHAT_REPLY             // ...
+# CHAT_REPLY             case 'cosine-similarity':
+# CHAT_REPLY                 this.localRetriever = new CosineSimilarityRetriever()
+# CHAT_REPLY                 this.disposables.push(this.localRetriever)
+# CHAT_REPLY                 break
+# CHAT_REPLY             // ...
+# CHAT_REPLY         }
+# CHAT_REPLY     }
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Step 5: Update Configuration
+# CHAT_REPLY 
+# CHAT_REPLY In `completion-provider-config.ts`, add the new strategy:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY const contextStrategy: ContextStrategy =
+# CHAT_REPLY     config.autocompleteExperimentalGraphContext === 'bfg'
+# CHAT_REPLY         ? 'bfg'
+# CHAT_REPLY         : config.autocompleteExperimentalGraphContext === 'bfg-mixed'
+# CHAT_REPLY           ? 'bfg-mixed'
+# CHAT_REPLY           : config.autocompleteExperimentalGraphContext === 'local-mixed'
+# CHAT_REPLY               ? 'local-mixed'
+# CHAT_REPLY               : config.autocompleteExperimentalGraphContext === 'jaccard-similarity'
+# CHAT_REPLY                   ? 'jaccard-similarity'
+# CHAT_REPLY                   : config.autocompleteExperimentalGraphContext === 'new-jaccard-similarity'
+# CHAT_REPLY                       ? 'new-jaccard-similarity'
+# CHAT_REPLY                       : config.autocompleteExperimentalGraphContext === 'cosine-similarity'
+# CHAT_REPLY                           ? 'cosine-similarity'
+# CHAT_REPLY                           : bfgMixedContextFlag
+# CHAT_REPLY                               ? 'bfg-mixed'
+# CHAT_REPLY                               : 'jaccard-similarity'
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY ### Step 6: Testing
+# CHAT_REPLY 
+# CHAT_REPLY Finally, we need to add tests for the new retriever. In `jaccard-similarity-retriever.test.ts`, add tests for the new retriever:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY import { CosineSimilarityRetriever } from './cosine-similarity-retriever'
+# CHAT_REPLY 
+# CHAT_REPLY describe('CosineSimilarityRetriever', () => {
+# CHAT_REPLY     // Add tests similar to the ones for JaccardSimilarityRetriever
+# CHAT_REPLY })
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY This completes the implementation of a new similarity metric similar to Jaccard. You can now test and validate the new retriever to ensure it works as expected.
+
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/jaccard-similarity/jaccard-similarity-retriever.test.tsL0-189"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/jaccard-similarity/jaccard-similarity-retriever.tsL0-236"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/offsets.tsL56-66"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/jaccard-similarity/bestJaccardMatch.tsL113-137"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/test/integration/single-root/api.test.tsL0-42"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/context-strategy.tsL25-50"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/jaccard-similarity/bestJaccardMatch.tsL137-169"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/completion-provider-config.tsL55-77"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/context-mixer.test.tsL204-233"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/context-strategy.tsL0-25"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/context-mixer.test.tsL93-123"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/jaccard-similarity/bestJaccardMatch.tsL0-30"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/jaccard-similarity/bestJaccardMatch.tsL98-113"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/get-inline-completions-tests/dynamic-multiline.test.tsL106-121"}]
+
+ class: generate code
+ 
