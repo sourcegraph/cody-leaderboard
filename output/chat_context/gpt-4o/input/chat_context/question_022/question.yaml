@@ -1,0 +1,54 @@
+ question: Where is the code that interacts with bfg binary?
+# CHAT
+# CHAT_QUESTION Where is the code that interacts with bfg binary?
+
+# CHAT_REPLY The code that interacts with the BFG (Blazingly Fast Graph) binary can be found in several places within the provided codebase context:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **Spawning the BFG Process**:
+# CHAT_REPLY    - The `spawnBfg` function in `cody_test/vscode/src/graph/bfg/spawn-bfg.ts` is responsible for starting the BFG process. It sets up the environment variables, handles the process's standard input/output, and manages the lifecycle of the BFG process.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    export async function spawnBfg(
+# CHAT_REPLY        context: vscode.ExtensionContext,
+# CHAT_REPLY        reject: (reason?: any) => void
+# CHAT_REPLY    ): Promise<MessageHandler> {
+# CHAT_REPLY        // ... code to spawn the BFG process
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY 2. **Downloading the BFG Binary**:
+# CHAT_REPLY    - The `downloadBfg` function in `cody_test/vscode/src/graph/bfg/download-bfg.ts` handles downloading the BFG binary if it is not already present. It also manages the versioning and storage of the binary.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    export async function downloadBfg(context: vscode.ExtensionContext): Promise<string | null> {
+# CHAT_REPLY        // ... code to download the BFG binary
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY 3. **Unzipping the BFG Binary**:
+# CHAT_REPLY    - The `unzipBfg` function in `cody_test/vscode/src/graph/bfg/download-bfg.ts` is responsible for unzipping the downloaded BFG binary.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    async function unzipBfg(zipFile: string, destinationDir: string): Promise<void> {
+# CHAT_REPLY        // ... code to unzip the BFG binary
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY 4. **Removing Old BFG Binaries**:
+# CHAT_REPLY    - The `removeOldBfgBinaries` function in `cody_test/vscode/src/graph/bfg/download-bfg.ts` handles the cleanup of old BFG binaries.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    async function removeOldBfgBinaries(containingDir: string, currentBfgPath: string): Promise<void> {
+# CHAT_REPLY        // ... code to remove old BFG binaries
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY 5. **Interacting with BFG via JSON-RPC**:
+# CHAT_REPLY    - The `BfgRetriever` class in `cody_test/vscode/src/completions/context/retrievers/bfg/bfg-retriever.ts` interacts with the BFG process using JSON-RPC. It sends requests to the BFG process and handles responses.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    export class BfgRetriever implements ContextRetriever {
+# CHAT_REPLY        // ... code to interact with BFG via JSON-RPC
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY These components collectively handle the lifecycle of the BFG binary, from downloading and unzipping it to spawning the process and interacting with it via JSON-RPC.
+
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/graph/bfg/download-bfg.tsL111-119"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/graph/bfg/spawn-bfg.tsL9-44"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/graph/bfg/download-bfg.tsL20-109"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/code-actions/CodeActionProvider.tsL25-38"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/services/utils/code-count.test.tsL0-57"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/commands/services/code-lenses.tsL0-203"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/services/utils/code-count.tsL0-21"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/test/e2e/code-actions.test.tsL0-73"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL2010-2012"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/retrievers/bfg/bfg-retriever.tsL0-303"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/graph/bfg/download-bfg.tsL139-145"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/graph/bfg/download-bfg.tsL121-137"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL5905-5936"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL933-953"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL5636-5662"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/TESTING.mdL123-144"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL3411-3438"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/services/SidebarCommands.tsL57-78"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL5695-5726"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL5487-5516"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/walkthroughs/commands.mdL0-13"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL1700-1723"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/jsonrpc/bfg-protocol.tsL0-39"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/context/context-strategy.tsL25-50"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL5271-5292"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/evaluate-autocomplete/evaluate-autocomplete.tsL208-243"}]
+
+ class: Find logic

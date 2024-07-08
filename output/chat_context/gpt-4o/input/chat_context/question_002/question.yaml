@@ -1,24 +1,72 @@
- question: what is symf?
+ question: What different context ranking logics are implemented in Cody?
 # CHAT
-# CHAT_QUESTION what is symf?
+# CHAT_QUESTION What different context ranking logics are implemented in Cody?
 
-# CHAT_REPLY Based on the provided codebase context, `symf` appears to be a binary tool used within the Sourcegraph Cody extension for VS Code. It is involved in indexing and querying codebases to provide enhanced search capabilities. Here are some key points about `symf`:
+# CHAT_REPLY Based on the provided codebase context, Cody implements different context ranking logics, specifically:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Purpose**: `symf` is used to index directories and perform keyword-based searches within those directories. This is likely to enhance the functionality of Cody, particularly in providing context-aware code completions and search results.
+# CHAT_REPLY 1. **Feature-Based Context Ranking**:
+# CHAT_REPLY    - **Initialization**: The context ranking service is initialized with an index path and access token.
+# CHAT_REPLY    - **Feature Computation**: Features are computed for a given repository path to aid in context ranking.
+# CHAT_REPLY    - **Context Item Ranking**: Context items are ranked based on a query and the computed features. The ranking is done by converting context items to a format suitable for the ranking service, sending a request to rank the items, and then reordering the context items based on the ranking predictions.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Configuration**: The path to the `symf` binary can be configured via the `cody.experimental.symf.path` setting in VS Code. If this setting is not provided, the extension will attempt to download the `symf` binary automatically.
+# CHAT_REPLY 2. **Embedding-Based Context Ranking**:
+# CHAT_REPLY    - **Embedding Retrieval**: Context items are retrieved based on embeddings. This involves querying an embedding model with a specific query and retrieving a set number of results.
+# CHAT_REPLY    - **Precomputation of Embeddings**: Embeddings for a query can be precomputed to speed up future retrievals.
+# CHAT_REPLY    - **Model-Specific Embeddings Search**: A specific model is used to search for embeddings, which are then used to retrieve context items.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Indexing**: `symf` creates and manages indexes for directories. It supports operations like ensuring an index exists, reindexing if the index is stale, and deleting indexes. The indexing process involves creating a temporary index and then atomically replacing the old index with the new one.
+# CHAT_REPLY ### Detailed Breakdown:
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Querying**: `symf` can run keyword queries against the indexes it creates. The results of these queries are used to provide context for code completions and other features within the Cody extension.
+# CHAT_REPLY 1. **Feature-Based Context Ranking**:
+# CHAT_REPLY    - **Initialization**:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      service.request('context-ranking/initialize', {
+# CHAT_REPLY          indexPath: indexPath.fsPath,
+# CHAT_REPLY          accessToken: this.accessToken,
+# CHAT_REPLY      })
+# CHAT_REPLY      ```
+# CHAT_REPLY    - **Feature Computation**:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      service.request('context-ranking/compute-features', {
+# CHAT_REPLY          repoPath: repoDir.fsPath,
+# CHAT_REPLY      })
+# CHAT_REPLY      ```
+# CHAT_REPLY    - **Context Item Ranking**:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      service.request('context-ranking/rank-items', {
+# CHAT_REPLY          repoPath: repoUri.path,
+# CHAT_REPLY          contextItems: rankItems,
+# CHAT_REPLY          query: query.toString(),
+# CHAT_REPLY      })
+# CHAT_REPLY      ```
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Error Handling**: The codebase includes error handling for various scenarios, such as missing `symf` binary, unauthorized access, and general indexing failures.
+# CHAT_REPLY 2. **Embedding-Based Context Ranking**:
+# CHAT_REPLY    - **Embedding Retrieval**:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      service.request('context-ranking/context-retriever-embedding', {
+# CHAT_REPLY          repoPath: repoUri.path,
+# CHAT_REPLY          query: query.toString(),
+# CHAT_REPLY          modelName: modelName,
+# CHAT_REPLY          numResults: numResults,
+# CHAT_REPLY      })
+# CHAT_REPLY      ```
+# CHAT_REPLY    - **Precomputation of Embeddings**:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      service.request('context-ranking/precompute-query-embedding', {
+# CHAT_REPLY          query: query.toString(),
+# CHAT_REPLY      })
+# CHAT_REPLY      ```
+# CHAT_REPLY    - **Model-Specific Embeddings Search**:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      const modelName = 'sentence-transformers/multi-qa-mpnet-base-dot-v1'
+# CHAT_REPLY      const embeddingsResults = await this.retrieveEmbeddingBasedContext(
+# CHAT_REPLY          text,
+# CHAT_REPLY          numResults,
+# CHAT_REPLY          modelName
+# CHAT_REPLY      )
+# CHAT_REPLY      ```
 # CHAT_REPLY 
-# CHAT_REPLY 6. **Integration**: `symf` is integrated with other components of the Cody extension, such as the `SymfRunner` class, which manages the lifecycle and operations of `symf`, and the `SimpleChatPanelProvider`, which uses `symf` to provide enhanced context for chat interactions.
-# CHAT_REPLY 
-# CHAT_REPLY Overall, `symf` is a crucial component for providing advanced code search and context features in the Sourcegraph Cody extension for VS Code.
+# CHAT_REPLY These context ranking logics allow Cody to rank and retrieve relevant context items efficiently, enhancing the overall user experience by providing more accurate and relevant suggestions.
 
-# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/symf.tsL630-642"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/symf.tsL49-486"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL566-598"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL598-626"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/chat/chat-view/SimpleChatPanelProvider.tsL137-1252"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL965-998"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL1066-1090"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/symf.tsL590-628"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/download-symf.tsL19-30"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/completions/is-completion-visible.tsL0-90"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/symf.tsL526-528"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/cli/scip-codegen/scip.tsL1531-1567"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/symf.test.tsL22-48"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/package.jsonL29-63"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/configuration.test.tsL48-70"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/download-symf.tsL116-153"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/agent/src/language-file-extensions.jsonL115-192"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/download-symf.tsL80-116"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/external-services.tsL27-61"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/chat/chat-view/CodebaseStatusProvider.tsL179-183"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/recordings/symf_3564355686/recording.har.yamlL0-37"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/download-symf.tsL55-80"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/download-symf.tsL27-55"}]
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/local-context/context-ranking.tsL0-313"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/src/jsonrpc/context-ranking-protocol.tsL0-56"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/walkthroughs/keyboard.mdL0-19"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL985-1005"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/doc/dev/quality/index.mdL0-16"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/package.jsonL940-962"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/lib/shared/src/experimentation/FeatureFlagProvider.tsL34-54"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL151-166"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL1123-1136"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/CHANGELOG.mdL0-24"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/package.jsonL1050-1068"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/doc/keyboard.mdL0-18"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/lib/shared/src/commands/types.tsL0-32"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/package.jsonL909-940"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat_context/cody_test/vscode/package.jsonL993-1016"}]
 
- class: codebase onboarding
- 
+ class: Gather information
