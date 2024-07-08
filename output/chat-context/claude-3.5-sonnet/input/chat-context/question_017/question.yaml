@@ -1,0 +1,31 @@
+ question: Where do we trigger custom actions?
+# CHAT
+# CHAT_QUESTION Where do we trigger custom actions?
+
+# CHAT_REPLY Custom actions are triggered in multiple places within the codebase:
+# CHAT_REPLY 
+# CHAT_REPLY 1. In the `CustomCommandsManager` class (`cody_test/vscode/src/commands/services/custom-commands.ts`), custom commands are registered as VS Code commands:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY this.registeredCommands.push(
+# CHAT_REPLY     vscode.commands.registerCommand(`cody.command.custom.${key}`, () =>
+# CHAT_REPLY         vscode.commands.executeCommand('cody.action.command', key, {
+# CHAT_REPLY             source: 'editor',
+# CHAT_REPLY         })
+# CHAT_REPLY     )
+# CHAT_REPLY )
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY 2. The `cody.menu.custom-commands` command is registered in the `package.json` file, which likely triggers the custom commands menu.
+# CHAT_REPLY 
+# CHAT_REPLY 3. The sidebar tree view includes custom commands, as seen in the `getCommandTreeItems` function call in the `CustomCommandsManager`.
+# CHAT_REPLY 
+# CHAT_REPLY 4. There's a quick pick menu for creating new custom commands, triggered by the `cody.menu.custom.build` command.
+# CHAT_REPLY 
+# CHAT_REPLY 5. Custom commands can also be triggered via keyboard shortcuts, as mentioned in the `keyboard.md` documentation file.
+# CHAT_REPLY 
+# CHAT_REPLY These implementations allow users to trigger custom actions through various interfaces such as the command palette, sidebar, custom menus, and keyboard shortcuts.
+
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/code-actions/document.tsL8-37"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/code-actions/CodeActionProvider.tsL10-12"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/code-actions/fixup.tsL14-45"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/code-actions/edit.tsL7-29"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/code-actions/explain.tsL7-21"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/code-actions/CodeActionProvider.tsL14-54"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/actions/TranscriptAction.tsxL6-15"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/actions/TranscriptAction.tsxL17-44"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/commands/services/custom-commands.tsL0-319"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/CHANGELOG.mdL1015-1050"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/doc/keyboard.mdL0-18"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/promptEditor/BaseEditor.tsxL77-101"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/CHANGELOG.mdL851-862"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/main.tsL27-48"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/commands/HoverCommandsProvider.tsL0-28"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/package.jsonL792-822"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/components/ChatActions.tsxL32-58"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/TESTING.mdL123-144"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/components/ChatActions.tsxL0-32"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/doc/keyboard.mdL18-24"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/package.jsonL727-760"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/package.jsonL402-435"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/jsonrpc/agent-protocol.tsL70-91"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/services/SidebarCommands.tsL0-30"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/TESTING.mdL0-32"}]
+
+ class: Find logic
