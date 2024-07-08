@@ -1,0 +1,66 @@
+ question: Where do we check for content attribution?
+# CHAT
+# CHAT_QUESTION Where do we check for content attribution?
+
+# CHAT_REPLY Content attribution is checked in the `ChatMessageContent` component within the `cody_test/vscode/webviews/chat/ChatMessageContent.tsx` file. Specifically, the attribution check is performed inside the `useEffect` hook, where the `guardrails.searchAttribution` method is called to search for attribution of the code snippet displayed in the chat.
+# CHAT_REPLY 
+# CHAT_REPLY Here is the relevant part of the code:
+# CHAT_REPLY 
+# CHAT_REPLY ```typescript
+# CHAT_REPLY useEffect(() => {
+# CHAT_REPLY     const preElements = rootRef.current?.querySelectorAll('pre')
+# CHAT_REPLY     if (!preElements?.length || !copyButtonOnSubmit) {
+# CHAT_REPLY         return
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     for (const preElement of preElements) {
+# CHAT_REPLY         const preText = preElement.textContent
+# CHAT_REPLY         if (preText?.trim() && preElement.parentNode) {
+# CHAT_REPLY             const buttons = createButtons(preText, copyButtonOnSubmit, insertButtonOnSubmit)
+# CHAT_REPLY             if (guardrails) {
+# CHAT_REPLY                 const container = document.createElement('div')
+# CHAT_REPLY                 container.classList.add(styles.attributionContainer)
+# CHAT_REPLY                 buttons.append(container)
+# CHAT_REPLY 
+# CHAT_REPLY                 const g = new GuardrailsStatusController(container)
+# CHAT_REPLY                 g.setPending()
+# CHAT_REPLY 
+# CHAT_REPLY                 guardrails
+# CHAT_REPLY                     .searchAttribution(preText)
+# CHAT_REPLY                     .then(attribution => {
+# CHAT_REPLY                         if (isError(attribution)) {
+# CHAT_REPLY                             g.setUnavailable(attribution)
+# CHAT_REPLY                         } else if (attribution.repositories.length === 0) {
+# CHAT_REPLY                             g.setSuccess()
+# CHAT_REPLY                         } else {
+# CHAT_REPLY                             g.setFailure(
+# CHAT_REPLY                                 attribution.repositories.map(r => r.name),
+# CHAT_REPLY                                 attribution.limitHit
+# CHAT_REPLY                             )
+# CHAT_REPLY                         }
+# CHAT_REPLY                     })
+# CHAT_REPLY                     .catch(error => {
+# CHAT_REPLY                         g.setUnavailable(error)
+# CHAT_REPLY                         return
+# CHAT_REPLY                     })
+# CHAT_REPLY             }
+# CHAT_REPLY 
+# CHAT_REPLY             // Insert the buttons after the pre using insertBefore() because there is no insertAfter()
+# CHAT_REPLY             preElement.parentNode.insertBefore(buttons, preElement.nextSibling)
+# CHAT_REPLY 
+# CHAT_REPLY             // capture copy events (right click or keydown) on code block
+# CHAT_REPLY             preElement.addEventListener('copy', () => {
+# CHAT_REPLY                 if (copyButtonOnSubmit) {
+# CHAT_REPLY                     copyButtonOnSubmit(preText, 'Keydown')
+# CHAT_REPLY                 }
+# CHAT_REPLY             })
+# CHAT_REPLY         }
+# CHAT_REPLY     }
+# CHAT_REPLY }, [copyButtonOnSubmit, insertButtonOnSubmit, guardrails])
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY In this code, `guardrails.searchAttribution(preText)` is the function that checks for content attribution.
+
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/configuration.tsL203-214"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/test/e2e/attribution.test.tsL12-33"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/ChatMessageContent.tsxL21-30"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/non-stop/FixupContentStore.tsL9-75"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/ChatMessageContent.tsxL235-309"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/jsonrpc/TextDocumentWithUri.tsL45-47"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/src/AgentTextDocument.tsL23-25"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/guardrails/index.tsL3-6"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseClient_3965582033/recording.har.yamlL4054-4078"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseClient_3965582033/recording.har.yamlL105-138"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseClient_3965582033/recording.har.yamlL7357-7384"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseClient_3965582033/recording.har.yamlL5321-5347"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/.github/workflows/pr-auditor.ymlL0-23"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseMainBranchClient_759014996/recording.har.yamlL1776-1804"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseClient_3965582033/recording.har.yamlL3616-3645"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/enterpriseClient_3965582033/recording.har.yamlL138-147"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/agent/recordings/rateLimitedClient_2043004676/recording.har.yamlL1047-1076"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/jsonrpc/agent-protocol.tsL156-175"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/doc/index.mdL0-8"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/README.mdL0-4"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/.github/PULL_REQUEST_TEMPLATE.mdL0-5"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/prompt/prompt-string.tsL294-320"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/ChatMessageContent.module.cssL44-100"}]
+
+ class: Find logic

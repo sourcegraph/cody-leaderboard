@@ -1,0 +1,61 @@
+ question: Where is the model used for edits configured?
+# CHAT
+# CHAT_QUESTION Where is the model used for edits configured?
+
+# CHAT_REPLY The model used for edits is configured in multiple places within the codebase. Here are the key locations:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **EditManager Configuration**:
+# CHAT_REPLY    - In `cody_test/vscode/src/edit/manager.ts`, the model is set in the `EditManager` class. Specifically, the model is determined in the following code snippet:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      const model = configuration.model || editModel.get(this.options.authProvider, this.models)
+# CHAT_REPLY      ```
+# CHAT_REPLY 
+# CHAT_REPLY 2. **Edit Input Configuration**:
+# CHAT_REPLY    - In `cody_test/vscode/src/edit/input/get-input.ts`, the model is part of the edit input configuration:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      model: activeModel,
+# CHAT_REPLY      ```
+# CHAT_REPLY 
+# CHAT_REPLY 3. **Model Selection Logic**:
+# CHAT_REPLY    - In `cody_test/vscode/src/models/index.ts`, the `getModel` function is used to retrieve the model based on the authentication status and available models:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      function getModel<T extends string>(
+# CHAT_REPLY          authProvider: AuthProvider,
+# CHAT_REPLY          models: ModelProvider[],
+# CHAT_REPLY          storageKey: string
+# CHAT_REPLY      ): T {
+# CHAT_REPLY          const authStatus = authProvider.getAuthStatus()
+# CHAT_REPLY          if (authStatus.isDotCom && authStatus.userCanUpgrade) {
+# CHAT_REPLY              return models[0].model as T
+# CHAT_REPLY          }
+# CHAT_REPLY          if (!authStatus.isDotCom) {
+# CHAT_REPLY              return models[0].model as T
+# CHAT_REPLY          }
+# CHAT_REPLY      }
+# CHAT_REPLY      ```
+# CHAT_REPLY 
+# CHAT_REPLY 4. **Model Options for User Selection**:
+# CHAT_REPLY    - In `cody_test/vscode/src/edit/input/get-items/model.ts`, the available model options are prepared for user selection:
+# CHAT_REPLY      ```typescript
+# CHAT_REPLY      export const getModelOptionItems = (
+# CHAT_REPLY          modelOptions: ModelProvider[],
+# CHAT_REPLY          isCodyPro: boolean
+# CHAT_REPLY      ): EditModelItem[] => {
+# CHAT_REPLY          const allOptions = modelOptions.map(modelOption => {
+# CHAT_REPLY              const icon = getModelProviderIcon(modelOption.provider)
+# CHAT_REPLY              return {
+# CHAT_REPLY                  label: `${QUICK_PICK_ITEM_EMPTY_INDENT_PREFIX} ${icon} ${modelOption.title}`,
+# CHAT_REPLY                  description: `by ${modelOption.provider}`,
+# CHAT_REPLY                  alwaysShow: true,
+# CHAT_REPLY                  model: modelOption.model,
+# CHAT_REPLY                  modelTitle: modelOption.title,
+# CHAT_REPLY                  codyProOnly: modelOption.codyProOnly,
+# CHAT_REPLY              }
+# CHAT_REPLY          })
+# CHAT_REPLY      ```
+# CHAT_REPLY 
+# CHAT_REPLY These snippets show how the model for edits is configured and selected based on various conditions, such as user authentication status and available models.
+
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL27-52"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL10-25"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL54-74"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/claude.tsL15-20"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/openai.tsL14-19"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/edit.tsL9-12"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/utils.tsL85-106"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/models/chatModelContext.tsxL17-20"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/models/chatModelContext.tsxL13-15"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/CHANGELOG.mdL86-114"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/chat/markdown.tsL76-79"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-input.tsL511-526"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/constants.tsL0-5"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/types.tsL0-13"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/models/index.tsL0-29"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/index.tsL0-25"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/index.tsL0-32"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/manager.tsL98-122"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/provider.tsL28-55"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/TESTING.mdL48-63"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/types.tsL0-13"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/index.tsL50-53"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/utils/edit-models.tsL0-27"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/manager.tsL25-50"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/models/types.tsL0-62"}]
+
+ class: Find logic

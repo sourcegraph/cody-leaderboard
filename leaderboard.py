@@ -207,13 +207,17 @@ with chatTab:
     st.header("Chat")
     chat_csv_table("chat.csv")
 
-    with chatContextTab:
-        st.header("Chat Context")
-        chat_csv_table("chat_context.csv")
+with chatContextTab:
+    st.header("Chat Context")
+    chat_csv_table("chat-context.csv")
 
-    with fixTab:
-        st.header("Fix Command")
-        fix_csv_table("fix.csv")
+with fixTab:
+    st.header("Fix Command")
+    fix_csv_table("fix.csv")
+
+with unitTestTab:
+    st.header("Unit Test")
+    unit_test_csv_table("unit-test.csv")
 
 with editTab:
     st.header("Edit Command")

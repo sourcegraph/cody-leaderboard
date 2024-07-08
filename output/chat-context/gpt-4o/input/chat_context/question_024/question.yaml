@@ -1,0 +1,70 @@
+ question: Where is the logic for opening a new chat window?
+# CHAT
+# CHAT_QUESTION Where is the logic for opening a new chat window?
+
+# CHAT_REPLY The logic for opening a new chat window is primarily handled in the `ChatPanelsManager` and `ChatManager` classes. Here are the relevant parts:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **`ChatPanelsManager` Class**:
+# CHAT_REPLY    - The `createWebviewPanel` method in `ChatPanelsManager` is responsible for creating a new webview panel for chat.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    public async createWebviewPanel(
+# CHAT_REPLY        chatID?: string,
+# CHAT_REPLY        chatQuestion?: string,
+# CHAT_REPLY        panel?: vscode.WebviewPanel
+# CHAT_REPLY    ): Promise<SimpleChatPanelProvider> {
+# CHAT_REPLY        if (chatID && this.panelProviders.map(p => p.sessionID).includes(chatID)) {
+# CHAT_REPLY            const provider = this.panelProviders.find(p => p.sessionID === chatID)
+# CHAT_REPLY            if (provider?.webviewPanel) {
+# CHAT_REPLY                provider.webviewPanel?.reveal()
+# CHAT_REPLY                this.activePanelProvider = provider
+# CHAT_REPLY                void this.selectTreeItem(chatID)
+# CHAT_REPLY                return provider
+# CHAT_REPLY            }
+# CHAT_REPLY        }
+# CHAT_REPLY        // Additional logic for creating a new panel
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY    - The `getNewChatPanel` method in `ChatPanelsManager` calls `createWebviewPanel` to get a new chat panel.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    public async getNewChatPanel(): Promise<SimpleChatPanelProvider> {
+# CHAT_REPLY        const provider = await this.createWebviewPanel()
+# CHAT_REPLY        return provider
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY 2. **`ChatManager` Class**:
+# CHAT_REPLY    - The `createNewWebviewPanel` method in `ChatManager` uses `ChatPanelsManager` to create a new webview panel.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    private async createNewWebviewPanel(): Promise<ChatSession | undefined> {
+# CHAT_REPLY        const debounceCreatePanel = debounce(() => this.chatPanelsManager.createWebviewPanel(), 250, {
+# CHAT_REPLY            leading: true,
+# CHAT_REPLY            trailing: true,
+# CHAT_REPLY        })
+# CHAT_REPLY 
+# CHAT_REPLY        if (this.chatPanelsManager) {
+# CHAT_REPLY            return debounceCreatePanel()
+# CHAT_REPLY        }
+# CHAT_REPLY        return undefined
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY    - The `ChatManager` class also registers the command `cody.chat.panel.new` to create a new chat panel.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    vscode.commands.registerCommand('cody.chat.panel.new', () => this.createNewWebviewPanel())
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY 3. **End-to-End Test Helper**:
+# CHAT_REPLY    - The `newChat` function in the end-to-end test helper file `helpers.ts` simulates the user action of opening a new chat window.
+# CHAT_REPLY    ```typescript
+# CHAT_REPLY    export async function newChat(page: Page): Promise<FrameLocator> {
+# CHAT_REPLY        await page.getByRole('button', { name: 'New Chat', exact: true }).click()
+# CHAT_REPLY        return page.frameLocator('iframe.webview').last().frameLocator('iframe')
+# CHAT_REPLY    }
+# CHAT_REPLY    ```
+# CHAT_REPLY 
+# CHAT_REPLY These pieces together handle the logic for opening a new chat window in the application.
+
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/test/e2e/helpers.tsL391-394"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/services/open-telemetry/OpenTelemetryService.node.tsL0-95"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/chat-helpers.test.tsL0-46"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/chat-helpers.tsL0-39"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/Chat.tsxL48-533"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatManager.tsL238-257"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatManager.tsL266-276"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatPanelsManager.tsL124-127"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/SimpleChatPanelProvider.tsL1254-1272"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/commands/utils/new-test-file.test.tsL0-128"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/commands/utils/new-test-file.tsL0-94"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/chat/chat.tsL25-59"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/CHANGELOG.mdL798-813"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatManager.tsL77-95"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/SimpleChatPanelProvider.tsL776-807"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/test/e2e/chat-history.test.tsL23-48"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/SimpleChatPanelProvider.tsL1017-1043"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/test/e2e/command-menu.test.tsL20-35"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatPanelsManager.tsL56-80"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/TESTING.mdL270-287"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatPanelsManager.tsL138-165"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/components/ChatActions.tsxL89-117"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/llm-providers/groq/index.tsL24-52"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/token/constants.tsL0-40"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/test/e2e/chat-input.test.tsL76-94"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/ChatPanelsManager.tsL165-184"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/test/e2e/chat-history.test.tsL48-73"}]
+
+ class: Find logic
