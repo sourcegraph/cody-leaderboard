@@ -4,28 +4,45 @@
 
 # CHAT_REPLY The model used for edits is configured in several places within the codebase:
 # CHAT_REPLY 
-# CHAT_REPLY 1. In the `EditManager` class (`cody_test/vscode/src/edit/manager.ts`), the model is set using:
-# CHAT_REPLY    ```typescript
-# CHAT_REPLY    const model = configuration.model || editModel.get(this.options.authProvider, this.models)
-# CHAT_REPLY    ```
+# CHAT_REPLY 1. In `vscode/src/edit/manager.ts`, the `editModel` is set as part of the edit configuration:
 # CHAT_REPLY 
-# CHAT_REPLY 2. The `editModel` is created in `cody_test/vscode/src/models/index.ts` using:
-# CHAT_REPLY    ```typescript
-# CHAT_REPLY    export const editModel = createModelAccessor<EditModel>('editModel')
-# CHAT_REPLY    ```
+# CHAT_REPLY ```typescript
+# CHAT_REPLY const model = configuration.model || editModel.get(this.options.authProvider, this.models)
+# CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY 3. The available models are defined in the `ModelProvider` class in `cody_test/lib/shared/src/models/index.ts`.
+# CHAT_REPLY 2. The `editModel` is created in `vscode/src/models/index.ts`:
 # CHAT_REPLY 
-# CHAT_REPLY 4. Users can select a model through the UI, as shown in `cody_test/vscode/src/edit/input/get-items/model.ts`, which provides options for different models.
+# CHAT_REPLY ```typescript
+# CHAT_REPLY export const editModel = createModelAccessor<EditModel>('editModel')
+# CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY 5. The selected model is stored in local storage, as seen in the `setModel` function in `cody_test/vscode/src/models/index.ts`.
+# CHAT_REPLY 3. The available edit models are defined in `vscode/src/edit/prompt/index.ts`:
 # CHAT_REPLY 
-# CHAT_REPLY 6. For specific edit intents, the model can be overridden in `getOverridenModelForIntent` function in `cody_test/vscode/src/edit/utils/edit-models.ts`.
+# CHAT_REPLY ```typescript
+# CHAT_REPLY const INTERACTION_MODELS: Record<EditModel, EditLLMInteraction> = {
+# CHAT_REPLY     'anthropic/claude-2.0': claude,
+# CHAT_REPLY     'anthropic/claude-2.1': claude,
+# CHAT_REPLY     'anthropic/claude-instant-1.2': claude,
+# CHAT_REPLY     'anthropic/claude-3-opus-20240229': claude,
+# CHAT_REPLY     'anthropic/claude-3-sonnet-20240229': claude,
+# CHAT_REPLY     'anthropic/claude-3-haiku-20240307': claude,
+# CHAT_REPLY     // ... other models
+# CHAT_REPLY }
+# CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY 7. The model can also be configured through VS Code settings, as seen in `getChatModelsFromConfiguration` in `cody_test/vscode/src/models/utils.ts`.
+# CHAT_REPLY 4. Users can select the model through the UI, as shown in `vscode/src/edit/input/get-items/edit.ts`:
 # CHAT_REPLY 
-# CHAT_REPLY This multi-layered approach allows for flexibility in model selection and configuration for edits.
+# CHAT_REPLY ```typescript
+# CHAT_REPLY export const MODEL_ITEM: vscode.QuickPickItem = {
+# CHAT_REPLY     label: 'Model',
+# CHAT_REPLY     alwaysShow: true,
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY 5. The model selection is handled in `vscode/src/edit/input/get-items/model.ts`, where model options are presented to the user based on their Cody Pro status.
+# CHAT_REPLY 
+# CHAT_REPLY This multi-layered approach allows for flexibility in model selection and configuration throughout the edit process.
 
-# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL27-52"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL54-74"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL10-25"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/openai.tsL14-19"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/claude.tsL15-20"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/edit.tsL9-12"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/utils.tsL85-106"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/models/chatModelContext.tsxL13-15"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/models/chatModelContext.tsxL17-20"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/CHANGELOG.mdL86-114"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/chat/markdown.tsL76-79"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-input.tsL511-526"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/constants.tsL0-5"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/types.tsL0-13"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/models/index.tsL0-29"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/index.tsL0-25"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/index.tsL0-32"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/manager.tsL98-122"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/provider.tsL28-55"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/TESTING.mdL48-63"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/types.tsL0-13"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/index.tsL50-53"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/utils/edit-models.tsL0-27"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/manager.tsL25-50"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/models/types.tsL0-62"}]
+# CONTEXT_ITEMS [{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL27-52"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/chat/markdown.tsL76-79"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL10-25"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-input.tsL511-526"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/model.tsL54-74"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/constants.tsL0-5"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/types.tsL0-13"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/openai.tsL14-19"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/models/index.tsL0-29"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/input/get-items/edit.tsL9-12"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/index.tsL0-25"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/claude.tsL15-20"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/index.tsL0-32"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/manager.tsL98-122"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/utils.tsL85-106"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/provider.tsL28-55"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/models/chatModelContext.tsxL17-20"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/TESTING.mdL48-63"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/chat/models/chatModelContext.tsxL13-15"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/types.tsL0-13"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/models/index.tsL50-53"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/utils/edit-models.tsL0-27"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/manager.tsL25-50"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/CHANGELOG.mdL86-114"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/models/types.tsL0-62"}]
 
  class: Find logic

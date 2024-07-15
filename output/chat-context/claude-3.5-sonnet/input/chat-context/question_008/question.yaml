@@ -1,3 +1,25 @@
  question: Where is the functionality for preventing prompt injection?
 # CHAT
+# CHAT_QUESTION Where is the functionality for preventing prompt injection?
+
+# CHAT_REPLY The functionality for preventing prompt injection is primarily implemented in the `PromptString` class and related utilities in the `prompt-string.ts` file. This file contains several mechanisms to ensure safe handling of content that gets constructed into prompts:
+# CHAT_REPLY 
+# CHAT_REPLY 1. The `ps` tagged template literal function is used to construct "safe" strings. It only allows PromptString instances, numbers, or empty strings as interpolated values.
+# CHAT_REPLY 
+# CHAT_REPLY 2. The `PromptString` class encapsulates string content and keeps track of references (like file URIs) associated with the content.
+# CHAT_REPLY 
+# CHAT_REPLY 3. Various helper methods like `fromDocumentText`, `fromDisplayPath`, etc., are provided to safely create PromptStrings from different sources.
+# CHAT_REPLY 
+# CHAT_REPLY 4. The class implements string-like methods (e.g., `slice`, `trim`, `replace`) that maintain the safety guarantees.
+# CHAT_REPLY 
+# CHAT_REPLY 5. A WeakMap is used to store the actual string content and references, making it harder to tamper with the internals of a PromptString.
+# CHAT_REPLY 
+# CHAT_REPLY 6. The `isValidPromptString` function is used to validate that an input is indeed a proper PromptString.
+# CHAT_REPLY 
+# CHAT_REPLY Additionally, there's a lint rule implemented in `safe-prompts.ts` that checks for correct usage of these safe string constructs throughout the codebase.
+# CHAT_REPLY 
+# CHAT_REPLY This approach ensures that dynamic content is properly handled and prevents arbitrary strings from being directly inserted into prompts, thus mitigating the risk of prompt injection.
+
+# CONTEXT_ITEMS [{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/commands/types.tsL32-60"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/prompt.tsL116-133"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/generic.tsL126-149"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lints/safe-prompts.tsL0-22"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/generic.tsL41-51"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/chat/chat-view/prompt.tsL80-98"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/promptEditor/PromptEditor.tsxL25-62"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/webviews/promptEditor/PromptEditor.tsxL47-138"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/edit/prompt/models/generic.tsL51-62"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/prompt/prompt-string.test.tsL0-181"},{"source":"embeddings","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/commands/menus/index.tsL152-179"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/completions/providers/openaicompatible.tsL372-380"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/prompt/prompt-string.tsL0-437"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/lib/shared/src/prompt/prompt-mixin.tsL0-56"},{"source":"search","file":"/Users/jan/repos/cody-leaderboard/input/chat-context/cody_test/vscode/src/supercompletions/prompt.tsL43-50"}]
+
  class: Find logic

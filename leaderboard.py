@@ -44,7 +44,7 @@ Average score across all **{num_questions} questions**. Scores of 1 are 'good', 
     st.subheader("Model responses")
     selected_question = st.selectbox(
         "Select question", df["CHAT_QUESTION"].unique())
-    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique())
+    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique(), key=name)
 
     rows = df[(df["CHAT_QUESTION"] == selected_question) & (
         (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
