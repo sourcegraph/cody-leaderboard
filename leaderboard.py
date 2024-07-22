@@ -1,5 +1,8 @@
+import json
+
 import streamlit as st
 import pandas as pd
+
 
 def chat_csv_table(name: str):
     df = pd.read_csv(name)
@@ -41,11 +44,16 @@ Average score across all **{num_questions} questions**. Scores of 1 are 'good', 
     st.subheader("Model responses")
     selected_question = st.selectbox(
         "Select question", df["CHAT_QUESTION"].unique())
-    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique())
+    filtered_models = st.multiselect("Filter models", df["FIXTURE"].unique(), key=name)
 
     rows = df[(df["CHAT_QUESTION"] == selected_question) & (
         (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
     fixtures = rows.groupby("FIXTURE")
+
+    if "CONTEXT_ITEMS" in rows.columns:
+        st.markdown("**Context items**")
+        context_df = pd.DataFrame(json.loads(rows["CONTEXT_ITEMS"].tolist()[0]))
+        st.dataframe(context_df, hide_index=True)
 
     for fixture, rows in fixtures:
         rows = rows.sort_values(by="LLM_JUDGE_SCORE", ascending=False)
@@ -156,7 +164,7 @@ Average score across all **{num_questions} questions**. Scores of 1 are 'good', 
         "Select a test", df["TEST_NAME"].unique())
 
     filtered_models = st.multiselect(
-        "Filter models", df["FIXTURE"].unique())
+        "Filter models", df["FIXTURE"].unique(), key=name)
 
     rows = df[(df["TEST_NAME"] == selected_test) & (
         (len(filtered_models) == 0) | (df["FIXTURE"].isin(filtered_models)))]
@@ -191,13 +199,17 @@ def emojify(b: bool):
     return "✅" if bool(b) else "❌"
 
 
-chatTab, fixTab, unitTestTab, editTab, autocompleteTab = st.tabs(
-    ["Chat", "Fix", "Unit Test", "Edit", "Autocomplete"]
+chatTab, chatContextTab, fixTab, unitTestTab, editTab, autocompleteTab = st.tabs(
+    ["Chat", "Chat Context", "Fix", "Unit Test", "Edit", "Autocomplete"]
 )
 
 with chatTab:
     st.header("Chat")
     chat_csv_table("chat.csv")
+
+with chatContextTab:
+    st.header("Chat Context")
+    chat_csv_table("chat-context.csv")
 
 with fixTab:
     st.header("Fix Command")
