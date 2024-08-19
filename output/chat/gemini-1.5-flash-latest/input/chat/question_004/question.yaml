@@ -2,83 +2,322 @@
 # CHAT
 # CHAT_QUESTION how do slices work in go?
 
-# CHAT_REPLY Here's a breakdown of how slices work in Go, along with examples from the provided codebase:
+# CHAT_REPLY ```go:mocked/enhanced_context/limit.go
+# CHAT_REPLY package actor
 # CHAT_REPLY 
-# CHAT_REPLY **Understanding Slices**
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"slices"
+# CHAT_REPLY 	"strconv"
+# CHAT_REPLY 	"time"
 # CHAT_REPLY 
-# CHAT_REPLY * **Dynamic Arrays:** Slices are like dynamic arrays in other languages. They provide a way to hold a sequence of elements of the same type, but their size can grow or shrink as needed.
-# CHAT_REPLY * **Underlying Array:**  A slice is a reference to an underlying array. It doesn't own the array, but it points to a portion of it. This means changes to the slice directly affect the underlying array.
-# CHAT_REPLY * **Zero Value:** The zero value of a slice is `nil`, indicating an empty slice.
+# CHAT_REPLY 	"github.com/sourcegraph/log"
+# CHAT_REPLY 	"go.opentelemetry.io/otel/attribute"
+# CHAT_REPLY 	oteltrace "go.opentelemetry.io/otel/trace"
 # CHAT_REPLY 
-# CHAT_REPLY **Key Concepts**
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/internal/codygateway"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/internal/trace"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/lib/errors"
+# CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Declaration:**
-# CHAT_REPLY    ```go
-# CHAT_REPLY    var mySlice []int // Declares a slice of integers
-# CHAT_REPLY    mySlice = []int{1, 2, 3} // Initializes the slice with values
-# CHAT_REPLY    ```
+# CHAT_REPLY type RateLimit struct {
+# CHAT_REPLY 	// AllowedModels is a set of models in Cody Gateway's model configuration
+# CHAT_REPLY 	// format, "$PROVIDER/$MODEL_NAME". A single-item slice with value '*' means
+# CHAT_REPLY 	// that all models in the 'master allowlist' are allowed.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)
+# CHAT_REPLY 	// instead.
+# CHAT_REPLY 	AllowedModels []string `json:"allowedModels"`
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Length and Capacity:**
-# CHAT_REPLY    * **Length:** The number of elements currently in the slice.
-# CHAT_REPLY    * **Capacity:** The maximum number of elements the slice can hold without reallocation.
-# CHAT_REPLY    * Example:
-# CHAT_REPLY      ```go
-# CHAT_REPLY      mySlice := []int{1, 2, 3}
-# CHAT_REPLY      fmt.Println("Length:", len(mySlice)) // Output: Length: 3
-# CHAT_REPLY      fmt.Println("Capacity:", cap(mySlice)) // Output: Capacity: 3
-# CHAT_REPLY      ```
+# CHAT_REPLY 	Limit    int64         `json:"limit"`
+# CHAT_REPLY 	Interval time.Duration `json:"interval"`
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Appending Elements:**
-# CHAT_REPLY    ```go
-# CHAT_REPLY    mySlice = append(mySlice, 4, 5) // Appends two elements
-# CHAT_REPLY    fmt.Println(mySlice) // Output: [1 2 3 4 5]
-# CHAT_REPLY    ```
+# CHAT_REPLY 	// ConcurrentRequests, ConcurrentRequestsInterval are generally applied
+# CHAT_REPLY 	// with NewRateLimitWithPercentageConcurrency.
+# CHAT_REPLY 	ConcurrentRequests         int           `json:"concurrentRequests"`
+# CHAT_REPLY 	ConcurrentRequestsInterval time.Duration `json:"concurrentRequestsInterval"`
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Slicing (Creating Sub-Slices):**
-# CHAT_REPLY    ```go
-# CHAT_REPLY    subSlice := mySlice[1:3] // Creates a sub-slice from index 1 (inclusive) to 3 (exclusive)
-# CHAT_REPLY    fmt.Println(subSlice) // Output: [2 3]
-# CHAT_REPLY    ```
+# CHAT_REPLY func NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {
+# CHAT_REPLY 	// The actual type of time.Duration is int64, so we can use it to compute the
+# CHAT_REPLY 	// ratio of the rate limit interval to a day (24 hours).
+# CHAT_REPLY 	ratioToDay := float32(interval) / float32(24*time.Hour)
+# CHAT_REPLY 	// Then use the ratio to compute the rate limit for a day.
+# CHAT_REPLY 	dailyLimit := float32(limit) / ratioToDay
+# CHAT_REPLY 	// Finally, compute the concurrency limit with the given percentage of the daily limit.
+# CHAT_REPLY 	concurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)
+# CHAT_REPLY 	// Just in case a poor choice of percentage results in a concurrency limit less than 1.
+# CHAT_REPLY 	if concurrencyLimit < 1 {
+# CHAT_REPLY 		concurrencyLimit = 1
+# CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Iterating:**
-# CHAT_REPLY    ```go
-# CHAT_REPLY    for i := 0; i < len(mySlice); i++ {
-# CHAT_REPLY        fmt.Println(mySlice[i])
-# CHAT_REPLY    }
-# CHAT_REPLY    ```
+# CHAT_REPLY 	return RateLimit{
+# CHAT_REPLY 		AllowedModels: allowedModels,
+# CHAT_REPLY 		Limit:         limit,
+# CHAT_REPLY 		Interval:      interval,
 # CHAT_REPLY 
-# CHAT_REPLY 6. **Range-Based Iteration:**
-# CHAT_REPLY    ```go
-# CHAT_REPLY    for _, value := range mySlice {
-# CHAT_REPLY        fmt.Println(value)
-# CHAT_REPLY    }
-# CHAT_REPLY    ```
+# CHAT_REPLY 		ConcurrentRequests:         concurrencyLimit,
+# CHAT_REPLY 		ConcurrentRequestsInterval: concurrencyConfig.Interval,
+# CHAT_REPLY 	}
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY **Examples from the Codebase**
+# CHAT_REPLY func (r *RateLimit) IsValid() bool {
+# CHAT_REPLY 	return r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY * **`EvaluateAllowedModels`:** This function uses `slices.Contains` to check if an element exists in a slice.
-# CHAT_REPLY    ```go
-# CHAT_REPLY    for _, val := range r.AllowedModels {
-# CHAT_REPLY        if slices.Contains(prefixedMasterAllowlist, val) {
-# CHAT_REPLY            result = append(result, val)
-# CHAT_REPLY        }
-# CHAT_REPLY    }
-# CHAT_REPLY    ```
+# CHAT_REPLY // EvaluateAllowedModels returns the intersection of a 'master' allowlist and
+# CHAT_REPLY // the actor's allowlist, where only values on the 'master' allowlist are returned.
+# CHAT_REPLY // The provided allowlist MUST be prefixed with the provider name (e.g. "anthropic/").
+# CHAT_REPLY //
+# CHAT_REPLY // If the actor's allowlist is a single value '*', then the master allowlist is
+# CHAT_REPLY // returned (i.e. all models are allowed).
+# CHAT_REPLY func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
+# CHAT_REPLY 	if len(r.AllowedModels) == 1 && r.AllowedModels[0] == "*" {
+# CHAT_REPLY 		return prefixedMasterAllowlist // all models allowed
+# CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY * **`NewRateLimitWithPercentageConcurrency`:** This function uses `slices.Contains` to check if an element exists in a slice.
-# CHAT_REPLY    ```go
-# CHAT_REPLY    if slices.Contains(prefixedMasterAllowlist, val) {
-# CHAT_REPLY        result = append(result, val)
-# CHAT_REPLY    }
-# CHAT_REPLY    ```
+# CHAT_REPLY 	var result []string
+# CHAT_REPLY 	for _, val := range r.AllowedModels {
+# CHAT_REPLY 		if slices.Contains(prefixedMasterAllowlist, val) {
+# CHAT_REPLY 			result = append(result, val)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return result
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY **Key Points**
+# CHAT_REPLY type concurrencyLimiter struct {
+# CHAT_REPLY 	logger  log.Logger
+# CHAT_REPLY 	actor   *Actor
+# CHAT_REPLY 	feature codygateway.Feature
 # CHAT_REPLY 
-# CHAT_REPLY * **Efficiency:** Slices are designed to be efficient for common operations like appending and slicing.
-# CHAT_REPLY * **Memory Management:** Go's garbage collector handles memory management for slices, so you don't need to worry about manual allocation and deallocation.
-# CHAT_REPLY * **Mutability:** Slices are mutable, meaning you can modify their contents.
+# CHAT_REPLY 	// redis must be a prefixed store
+# CHAT_REPLY 	redis limiter.RedisStore
 # CHAT_REPLY 
-# CHAT_REPLY Let me know if you have any other questions about slices in Go!
+# CHAT_REPLY 	concurrentRequests int
+# CHAT_REPLY 	concurrentInterval time.Duration
+# CHAT_REPLY 
+# CHAT_REPLY 	nextLimiter limiter.Limiter
+# CHAT_REPLY 
+# CHAT_REPLY 	nowFunc func() time.Time
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
+# CHAT_REPLY 	commit, err := (limiter.StaticLimiter{
+# CHAT_REPLY 		LimiterName:        "actor.concurrencyLimiter",
+# CHAT_REPLY 		Identifier:         l.actor.ID,
+# CHAT_REPLY 		Redis:              l.redis,
+# CHAT_REPLY 		Limit:              int64(l.concurrentRequests),
+# CHAT_REPLY 		Interval:           l.concurrentInterval,
+# CHAT_REPLY 		UpdateRateLimitTTL: true, // always adjust
+# CHAT_REPLY 		NowFunc:            l.nowFunc,
+# CHAT_REPLY 	}).TryAcquire(ctx)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
+# CHAT_REPLY 			retryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)
+# CHAT_REPLY 			if err != nil {
+# CHAT_REPLY 				return nil, errors.Wrap(err, "failed to get TTL for rate limit counter")
+# CHAT_REPLY 			}
+# CHAT_REPLY 			return nil, ErrConcurrencyLimitExceeded{
+# CHAT_REPLY 				feature:    l.feature,
+# CHAT_REPLY 				limit:      l.concurrentRequests,
+# CHAT_REPLY 				retryAfter: retryAfter,
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 		return nil, errors.Wrap(err, "check concurrent limit")
+# CHAT_REPLY 	}
+# CHAT_REPLY 	if err = commit(ctx, 1); err != nil {
+# CHAT_REPLY 		trace.Logger(ctx, l.logger).Error("failed to commit concurrency limit consumption", log.Error(err))
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return l.nextLimiter.TryAcquire(ctx)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {
+# CHAT_REPLY 	return l.nextLimiter.Usage(ctx)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY type ErrConcurrencyLimitExceeded struct {
+# CHAT_REPLY 	feature    codygateway.Feature
+# CHAT_REPLY 	limit      int
+# CHAT_REPLY 	retryAfter time.Time
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Error generates a simple string that is fairly static for use in logging.
+# CHAT_REPLY // This helps with categorizing errors. For more detailed output use Summary().
+# CHAT_REPLY func (e ErrConcurrencyLimitExceeded) Error() string {
+# CHAT_REPLY 	return fmt.Sprintf("%q: concurrency limit exceeded", e.feature)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (e ErrConcurrencyLimitExceeded) Summary() string {
+# CHAT_REPLY 	return fmt.Sprintf("you have exceeded the concurrency limit of %d requests for %q. Retry after %s",
+# CHAT_REPLY 		e.limit, e.feature, e.retryAfter.Truncate(time.Second))
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {
+# CHAT_REPLY 	// Rate limit exceeded, write well known headers and return correct status code.
+# CHAT_REPLY 	w.Header().Set("x-ratelimit-limit", strconv.Itoa(e.limit))
+# CHAT_REPLY 	w.Header().Set("x-ratelimit-remaining", "0")
+# CHAT_REPLY 	w.Header().Set("retry-after", e.retryAfter.Format(time.RFC1123))
+# CHAT_REPLY 	// Use Summary instead of Error for more informative text
+# CHAT_REPLY 	http.Error(w, e.Summary(), http.StatusTooManyRequests)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain
+# CHAT_REPLY // access errors.
+# CHAT_REPLY type updateOnErrorLimiter struct {
+# CHAT_REPLY 	logger log.Logger
+# CHAT_REPLY 	actor  *Actor
+# CHAT_REPLY 
+# CHAT_REPLY 	nextLimiter limiter.Limiter
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {
+# CHAT_REPLY 	commit, err := u.nextLimiter.TryAcquire(ctx)
+# CHAT_REPLY 	// If we have an access issue, try to update the actor in case they have
+# CHAT_REPLY 	// been granted updated access.
+# CHAT_REPLY 	if errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {
+# CHAT_REPLY 		oteltrace.SpanFromContext(ctx).
+# CHAT_REPLY 			SetAttributes(attribute.Bool("update-on-error", true))
+# CHAT_REPLY 		// Do update transiently, outside request hotpath
+# CHAT_REPLY 		go func() {
+# CHAT_REPLY 			if updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&
+# CHAT_REPLY 				!IsErrActorRecentlyUpdated(updateErr) {
+# CHAT_REPLY 				u.logger.Warn("unexpected error updating actor",
+# CHAT_REPLY 					log.Error(updateErr),
+# CHAT_REPLY 					log.NamedError("originalError", err))
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}()
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return commit, err
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {
+# CHAT_REPLY 	return u.nextLimiter.Usage(ctx)
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY Slices in Go are a dynamic data structure that can hold a sequence of elements of the same type. They are similar to arrays but have the following key differences:
+# CHAT_REPLY 
+# CHAT_REPLY * **Dynamic Size:** Slices can grow or shrink in size at runtime. You don't need to specify the size upfront.
+# CHAT_REPLY * **Underlying Array:** A slice is a reference to an underlying array. It doesn't own the data; it just points to a portion of the array.
+# CHAT_REPLY * **Zero Value:** The zero value of a slice is `nil`, meaning it doesn't point to any array.
+# CHAT_REPLY 
+# CHAT_REPLY Here's a breakdown of how slices work in Go:
+# CHAT_REPLY 
+# CHAT_REPLY **1. Declaration and Initialization:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY var mySlice []int // Declares a slice of integers (empty)
+# CHAT_REPLY mySlice = []int{1, 2, 3} // Initializes with values
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **2. Accessing Elements:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY fmt.Println(mySlice[0]) // Output: 1
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **3. Length and Capacity:**
+# CHAT_REPLY 
+# CHAT_REPLY * `len(mySlice)`: Returns the number of elements in the slice.
+# CHAT_REPLY * `cap(mySlice)`: Returns the capacity of the slice, which is the maximum number of elements it can hold without reallocation.
+# CHAT_REPLY 
+# CHAT_REPLY **4. Slicing:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY newSlice := mySlice[1:3] // Creates a new slice from index 1 to 3 (exclusive)
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **5. Appending Elements:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY mySlice = append(mySlice, 4) // Appends a new element to the end
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **6. Making Copies:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY copiedSlice := make([]int, len(mySlice))
+# CHAT_REPLY copy(copiedSlice, mySlice) // Creates a deep copy of the slice
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **7. Iterating over Slices:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY for i := 0; i < len(mySlice); i++ {
+# CHAT_REPLY     fmt.Println(mySlice[i])
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Or using a range loop:
+# CHAT_REPLY for _, value := range mySlice {
+# CHAT_REPLY     fmt.Println(value)
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **Example:**
+# CHAT_REPLY 
+# CHAT_REPLY ```go
+# CHAT_REPLY package main
+# CHAT_REPLY 
+# CHAT_REPLY import "fmt"
+# CHAT_REPLY 
+# CHAT_REPLY func main() {
+# CHAT_REPLY     numbers := []int{1, 2, 3, 4, 5}
+# CHAT_REPLY 
+# CHAT_REPLY     // Accessing elements
+# CHAT_REPLY     fmt.Println(numbers[0]) // Output: 1
+# CHAT_REPLY 
+# CHAT_REPLY     // Slicing
+# CHAT_REPLY     newNumbers := numbers[2:4] // [3, 4]
+# CHAT_REPLY     fmt.Println(newNumbers)
+# CHAT_REPLY 
+# CHAT_REPLY     // Appending
+# CHAT_REPLY     numbers = append(numbers, 6)
+# CHAT_REPLY     fmt.Println(numbers) // [1, 2, 3, 4, 5, 6]
+# CHAT_REPLY 
+# CHAT_REPLY     // Iterating
+# CHAT_REPLY     for _, number := range numbers {
+# CHAT_REPLY         fmt.Println(number)
+# CHAT_REPLY     }
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY **Key Points:**
+# CHAT_REPLY 
+# CHAT_REPLY * Slices are a powerful and flexible data structure in Go.
+# CHAT_REPLY * They provide dynamic resizing, efficient memory management, and easy manipulation.
+# CHAT_REPLY * Understanding slices is essential for working with collections of data in Go.
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined",
+# CONTEXT_ITEMS     "content": "interface CodeIntelligence {\n    symbols: string[]\n}\n\n/**\n * Squirrel is a code intelligence API.\n */\ninterface Squirrel {\n    symbolInformation(file: string): CodeIntelligence\n}\n\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/animal.ts:undefined-undefined",
+# CONTEXT_ITEMS     "content": "interface Animal {\n    name: string;\n    age: number;\n}\n\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/agent.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package agent\n\n// Agent is an agent"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/limit.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package actor\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"net/http\"\n\t\"slices\"\n\t\"strconv\"\n\t\"time\"\n\n\t\"github.com/sourcegraph/log\"\n\t\"go.opentelemetry.io/otel/attribute\"\n\toteltrace \"go.opentelemetry.io/otel/trace\"\n\n\t\"github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter\"\n\t\"github.com/sourcegraph/sourcegraph/internal/codygateway\"\n\t\"github.com/sourcegraph/sourcegraph/internal/trace\"\n\t\"github.com/sourcegraph/sourcegraph/lib/errors\"\n)\n\ntype RateLimit struct {\n\t// AllowedModels is a set of models in Cody Gateway's model configuration\n\t// format, \"$PROVIDER/$MODEL_NAME\". A single-item slice with value '*' means\n\t// that all models in the 'master allowlist' are allowed.\n\t//\n\t// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)\n\t// instead.\n\tAllowedModels []string `json:\"allowedModels\"`\n\n\tLimit    int64         `json:\"limit\"`\n\tInterval time.Duration `json:\"interval\"`\n\n\t// ConcurrentRequests, ConcurrentRequestsInterval are generally applied\n\t// with NewRateLimitWithPercentageConcurrency.\n\tConcurrentRequests         int           `json:\"concurrentRequests\"`\n\tConcurrentRequestsInterval time.Duration `json:\"concurrentRequestsInterval\"`\n}\n\nfunc NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {\n\t// The actual type of time.Duration is int64, so we can use it to compute the\n\t// ratio of the rate limit interval to a day (24 hours).\n\tratioToDay := float32(interval) / float32(24*time.Hour)\n\t// Then use the ratio to compute the rate limit for a day.\n\tdailyLimit := float32(limit) / ratioToDay\n\t// Finally, compute the concurrency limit with the given percentage of the daily limit.\n\tconcurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)\n\t// Just in case a poor choice of percentage results in a concurrency limit less than 1.\n\tif concurrencyLimit < 1 {\n\t\tconcurrencyLimit = 1\n\t}\n\n\treturn RateLimit{\n\t\tAllowedModels: allowedModels,\n\t\tLimit:         limit,\n\t\tInterval:      interval,\n\n\t\tConcurrentRequests:         concurrencyLimit,\n\t\tConcurrentRequestsInterval: concurrencyConfig.Interval,\n\t}\n}\n\nfunc (r *RateLimit) IsValid() bool {\n\treturn r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0\n}\n\n// EvaluateAllowedModels returns the intersection of a 'master' allowlist and\n// the actor's allowlist, where only values on the 'master' allowlist are returned.\n// The provided allowlist MUST be prefixed with the provider name (e.g. \"anthropic/\").\n//\n// If the actor's allowlist is a single value '*', then the master allowlist is\n// returned (i.e. all models are allowed).\nfunc (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {\n\tif len(r.AllowedModels) == 1 && r.AllowedModels[0] == \"*\" {\n\t\treturn prefixedMasterAllowlist // all models allowed\n\t}\n\n\tvar result []string\n\tfor _, val := range r.AllowedModels {\n\t\tif slices.Contains(prefixedMasterAllowlist, val) {\n\t\t\tresult = append(result, val)\n\t\t}\n\t}\n\treturn result\n}\n\ntype concurrencyLimiter struct {\n\tlogger  log.Logger\n\tactor   *Actor\n\tfeature codygateway.Feature\n\n\t// redis must be a prefixed store\n\tredis limiter.RedisStore\n\n\tconcurrentRequests int\n\tconcurrentInterval time.Duration\n\n\tnextLimiter limiter.Limiter\n\n\tnowFunc func() time.Time\n}\n\nfunc (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := (limiter.StaticLimiter{\n\t\tLimiterName:        \"actor.concurrencyLimiter\",\n\t\tIdentifier:         l.actor.ID,\n\t\tRedis:              l.redis,\n\t\tLimit:              int64(l.concurrentRequests),\n\t\tInterval:           l.concurrentInterval,\n\t\tUpdateRateLimitTTL: true, // always adjust\n\t\tNowFunc:            l.nowFunc,\n\t}).TryAcquire(ctx)\n\tif err != nil {\n\t\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\t\tretryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, errors.Wrap(err, \"failed to get TTL for rate limit counter\")\n\t\t\t}\n\t\t\treturn nil, ErrConcurrencyLimitExceeded{\n\t\t\t\tfeature:    l.feature,\n\t\t\t\tlimit:      l.concurrentRequests,\n\t\t\t\tretryAfter: retryAfter,\n\t\t\t}\n\t\t}\n\t\treturn nil, errors.Wrap(err, \"check concurrent limit\")\n\t}\n\tif err = commit(ctx, 1); err != nil {\n\t\ttrace.Logger(ctx, l.logger).Error(\"failed to commit concurrency limit consumption\", log.Error(err))\n\t}\n\n\treturn l.nextLimiter.TryAcquire(ctx)\n}\n\nfunc (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn l.nextLimiter.Usage(ctx)\n}\n\ntype ErrConcurrencyLimitExceeded struct {\n\tfeature    codygateway.Feature\n\tlimit      int\n\tretryAfter time.Time\n}\n\n// Error generates a simple string that is fairly static for use in logging.\n// This helps with categorizing errors. For more detailed output use Summary().\nfunc (e ErrConcurrencyLimitExceeded) Error() string {\n\treturn fmt.Sprintf(\"%q: concurrency limit exceeded\", e.feature)\n}\n\nfunc (e ErrConcurrencyLimitExceeded) Summary() string {\n\treturn fmt.Sprintf(\"you have exceeded the concurrency limit of %d requests for %q. Retry after %s\",\n\t\te.limit, e.feature, e.retryAfter.Truncate(time.Second))\n}\n\nfunc (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {\n\t// Rate limit exceeded, write well known headers and return correct status code.\n\tw.Header().Set(\"x-ratelimit-limit\", strconv.Itoa(e.limit))\n\tw.Header().Set(\"x-ratelimit-remaining\", \"0\")\n\tw.Header().Set(\"retry-after\", e.retryAfter.Format(time.RFC1123))\n\t// Use Summary instead of Error for more informative text\n\thttp.Error(w, e.Summary(), http.StatusTooManyRequests)\n}\n\n// updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain\n// access errors.\ntype updateOnErrorLimiter struct {\n\tlogger log.Logger\n\tactor  *Actor\n\n\tnextLimiter limiter.Limiter\n}\n\nfunc (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := u.nextLimiter.TryAcquire(ctx)\n\t// If we have an access issue, try to update the actor in case they have\n\t// been granted updated access.\n\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\toteltrace.SpanFromContext(ctx).\n\t\t\tSetAttributes(attribute.Bool(\"update-on-error\", true))\n\t\t// Do update transiently, outside request hotpath\n\t\tgo func() {\n\t\t\tif updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&\n\t\t\t\t!IsErrActorRecentlyUpdated(updateErr) {\n\t\t\t\tu.logger.Warn(\"unexpected error updating actor\",\n\t\t\t\t\tlog.Error(updateErr),\n\t\t\t\t\tlog.NamedError(\"originalError\", err))\n\t\t\t}\n\t\t}()\n\t}\n\treturn commit, err\n}\n\nfunc (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn u.nextLimiter.Usage(ctx)\n}\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: general coding
  files:

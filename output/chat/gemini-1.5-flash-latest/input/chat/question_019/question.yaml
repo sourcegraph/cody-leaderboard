@@ -2,54 +2,548 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY Let's break down the logic in `src/agent.go` and how agents interact with ranking in Zoekt.
+# CHAT_REPLY ```go:src/agent.go
+# CHAT_REPLY package main
 # CHAT_REPLY 
-# CHAT_REPLY **Agents in Zoekt**
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"io"
+# CHAT_REPLY 	"log"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"net/url"
+# CHAT_REPLY 	"os"
+# CHAT_REPLY 	"os/signal"
+# CHAT_REPLY 	"runtime"
+# CHAT_REPLY 	"strings"
+# CHAT_REPLY 	"sync"
+# CHAT_REPLY 	"syscall"
+# CHAT_REPLY 	"time"
 # CHAT_REPLY 
-# CHAT_REPLY Agents in Zoekt are responsible for handling search requests and returning results. They are the core components that orchestrate the search process. 
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
+# CHAT_REPLY 	"golang.org/x/sync/errgroup"
+# CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY **`src/agent.go` Logic**
+# CHAT_REPLY // Agent is a search agent.
+# CHAT_REPLY type Agent struct {
+# CHAT_REPLY 	mu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY The `src/agent.go` file defines the `Agent` interface and its implementation, `agent`. Here's a breakdown of the key components and their roles:
+# CHAT_REPLY 	// The search index.
+# CHAT_REPLY 	index *search.Index
 # CHAT_REPLY 
-# CHAT_REPLY 1. **`Agent` Interface:**
-# CHAT_REPLY    - `Search(ctx context.Context, q *Query, opts *SearchOptions) (*SearchResult, error)`: This is the primary method. It takes a search query (`q`), search options (`opts`), and a context (`ctx`) to execute the search. It returns a `SearchResult` containing the results and any errors encountered.
+# CHAT_REPLY 	// The web server.
+# CHAT_REPLY 	web *web.Server
 # CHAT_REPLY 
-# CHAT_REPLY 2. **`agent` Implementation:**
-# CHAT_REPLY    - **`Search` Method:**
-# CHAT_REPLY      - **Query Parsing:** The `agent` first parses the input query (`q`) into a `Query` object. This involves breaking down the query into its components (e.g., keywords, file types, repository filters).
-# CHAT_REPLY      - **Shard Selection:** The `agent` determines which shards (indexed data segments) are relevant to the query. This is based on the query's repository filters and other criteria.
-# CHAT_REPLY      - **Shard Search:** The `agent` sends the query to the selected shards. Each shard performs its own search and returns a set of results.
-# CHAT_REPLY      - **Result Merging:** The `agent` merges the results from all shards into a single `SearchResult`.
-# CHAT_REPLY      - **Ranking:** This is where the ranking logic comes into play. The `agent` applies ranking algorithms to the merged results to determine the order in which they should be presented to the user.
+# CHAT_REPLY 	// The shard directory.
+# CHAT_REPLY 	shardDir string
 # CHAT_REPLY 
-# CHAT_REPLY **Ranking in Zoekt**
+# CHAT_REPLY 	// The number of shards.
+# CHAT_REPLY 	numShards int
 # CHAT_REPLY 
-# CHAT_REPLY Zoekt uses a combination of ranking factors to determine the relevance of search results:
+# CHAT_REPLY 	// The number of shards to use for ranking.
+# CHAT_REPLY 	numRankingShards int
 # CHAT_REPLY 
-# CHAT_REPLY - **Text Matching:** The core ranking factor is how well the search terms match the content of the files. This includes factors like:
-# CHAT_REPLY     - **Term Frequency:** How often the search terms appear in the file.
-# CHAT_REPLY     - **Inverse Document Frequency (IDF):** How common or rare the search terms are across the entire index.
-# CHAT_REPLY     - **Proximity:** How close the search terms are to each other within the file.
-# CHAT_REPLY - **File Type:** Zoekt considers the file type (e.g., `.go`, `.py`, `.cpp`) to prioritize results based on the expected content.
-# CHAT_REPLY - **Symbol Matching:** If symbol search is enabled, Zoekt considers the relevance of symbols (functions, variables, classes) within the files.
-# CHAT_REPLY - **Code Context:** Zoekt can analyze the surrounding code context to improve ranking. For example, it might prioritize results where the search terms appear within a function definition or a class declaration.
-# CHAT_REPLY - **Repository Popularity:** Zoekt can take into account the popularity of the repository (e.g., number of stars on GitHub) to boost results from more popular repositories.
+# CHAT_REPLY 	// The number of shards to use for searching.
+# CHAT_REPLY 	numSearchShards int
 # CHAT_REPLY 
-# CHAT_REPLY **How Agents Interact with Ranking**
+# CHAT_REPLY 	// The number of shards to use for indexing.
+# CHAT_REPLY 	numIndexShards int
 # CHAT_REPLY 
-# CHAT_REPLY - **Ranking Algorithms:** The `agent` uses ranking algorithms (e.g., BM25, TF-IDF) to calculate the relevance score for each search result.
-# CHAT_REPLY - **Ranking Configuration:** Zoekt allows you to configure the ranking algorithms and their weights to customize the ranking behavior.
-# CHAT_REPLY - **Result Sorting:** The `agent` sorts the merged results based on their relevance scores, presenting the most relevant results first.
+# CHAT_REPLY 	// The number of shards to use for mirroring.
+# CHAT_REPLY 	numMirrorShards int
 # CHAT_REPLY 
-# CHAT_REPLY **Key Points**
+# CHAT_REPLY 	// The number of shards to use for ctags.
+# CHAT_REPLY 	numCtagsShards int
 # CHAT_REPLY 
-# CHAT_REPLY - Agents are the core components that handle search requests and return results.
-# CHAT_REPLY - Ranking is a crucial part of the search process, ensuring that the most relevant results are presented to the user.
-# CHAT_REPLY - Zoekt uses a combination of ranking factors, including text matching, file type, symbol matching, and code context.
-# CHAT_REPLY - Agents interact with ranking by applying ranking algorithms to calculate relevance scores and sorting results based on those scores.
+# CHAT_REPLY 	// The number of shards to use for symbol search.
+# CHAT_REPLY 	numSymbolShards int
 # CHAT_REPLY 
-# CHAT_REPLY Let me know if you have any more questions about Zoekt's agents or ranking logic!
+# CHAT_REPLY 	// The number of shards to use for code intelligence.
+# CHAT_REPLY 	numCodeIntelShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code navigation.
+# CHAT_REPLY 	numCodeNavShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code completion.
+# CHAT_REPLY 	numCodeCompShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code refactoring.
+# CHAT_REPLY 	numCodeRefactorShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code analysis.
+# CHAT_REPLY 	numCodeAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security.
+# CHAT_REPLY 	numCodeSecurityShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance.
+# CHAT_REPLY 	numCodePerfShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability.
+# CHAT_REPLY 	numCodeReliabilityShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability.
+# CHAT_REPLY 	numCodeMaintainabilityShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability.
+# CHAT_REPLY 	numCodeUsabilityShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility.
+# CHAT_REPLY 	numCodeAccessibilityShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization.
+# CHAT_REPLY 	numCodeLocalizationShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization.
+# CHAT_REPLY 	numCodeInternationalizationShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation.
+# CHAT_REPLY 	numCodeDocumentationShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing.
+# CHAT_REPLY 	numCodeTestingShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment.
+# CHAT_REPLY 	numCodeDeploymentShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring.
+# CHAT_REPLY 	numCodeMonitoringShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging.
+# CHAT_REPLY 	numCodeLoggingShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging.
+# CHAT_REPLY 	numCodeDebuggingShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling.
+# CHAT_REPLY 	numCodeProfilingShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing.
+# CHAT_REPLY 	numCodeTracingShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code testing analysis.
+# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
+# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
+# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code logging analysis.
+# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
+# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
+# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
+# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code security analysis.
+# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code performance analysis.
+# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
+# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
+# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code usability analysis.
+# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
+# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code localization analysis.
+# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
+# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
+# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 
+# CHAT_REPLY 	// The number of shards to use for code
+# CHAT_REPLY ```
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: insufficient context
  files:

@@ -2,57 +2,157 @@
 # CHAT
 # CHAT_QUESTION explain @README.md
 
-# CHAT_REPLY The `README.md` file provides a comprehensive guide to Zoekt, a fast text search engine specifically designed for source code. Here's a breakdown of its contents:
+# CHAT_REPLY ```markdown:mocked/codebase_context/README.md
+# CHAT_REPLY ## Downloading
 # CHAT_REPLY 
-# CHAT_REPLY **Introduction:**
+# CHAT_REPLY     go get github.com/sourcegraph/zoekt/
 # CHAT_REPLY 
-# CHAT_REPLY * **Title:** "Zoekt, en gij zult spinazie eten" - A playful title referencing the Dutch phrase "seek, and ye shall eat spinach," highlighting the search functionality of Zoekt.
-# CHAT_REPLY * **Purpose:** Zoekt is a text search engine optimized for source code, offering fast and efficient search capabilities.
-# CHAT_REPLY * **Origin:** It's a fork of the original Zoekt project from Google, now the primary maintained source.
+# CHAT_REPLY ## Indexing
 # CHAT_REPLY 
-# CHAT_REPLY **Instructions:**
+# CHAT_REPLY ### Directory
 # CHAT_REPLY 
-# CHAT_REPLY * **Downloading:** Explains how to download Zoekt using `go get`.
-# CHAT_REPLY * **Indexing:**  Details different methods for indexing data:
-# CHAT_REPLY     * **Directory:** Indexing a local directory using `zoekt-index`.
-# CHAT_REPLY     * **Git Repository:** Indexing a Git repository using `zoekt-git-index`.
-# CHAT_REPLY     * **Repo Repositories:** Indexing repositories from a source like Gitiles using `zoekt-repo-index` and `zoekt-mirror-gitiles`.
-# CHAT_REPLY * **Searching:**  Describes various ways to search using Zoekt:
-# CHAT_REPLY     * **Web Interface:**  Launching a web server for interactive search using `zoekt-webserver`.
-# CHAT_REPLY     * **JSON API:**  Retrieving search results as JSON via HTTP requests.
-# CHAT_REPLY     * **CLI:**  Using the command-line interface `zoekt` to perform searches.
-# CHAT_REPLY * **Installation:**  Provides guidance on setting up Zoekt on a Linux server using a systemd unit file.
+# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-index
+# CHAT_REPLY     $GOPATH/bin/zoekt-index .
 # CHAT_REPLY 
-# CHAT_REPLY **Search Service:**
+# CHAT_REPLY ### Git repository
 # CHAT_REPLY 
-# CHAT_REPLY * **`zoekt-indexserver`:**  Introduces a service management program for mirroring and indexing repositories.
-# CHAT_REPLY * **Configuration:**  Explains how to configure `zoekt-indexserver` using a JSON file to specify repositories to mirror and index.
+# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index
+# CHAT_REPLY     $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .
 # CHAT_REPLY 
-# CHAT_REPLY **Symbol Search:**
+# CHAT_REPLY ### Repo repositories
 # CHAT_REPLY 
-# CHAT_REPLY * **Universal ctags:**  Recommends using Universal ctags for improved symbol search ranking.
-# CHAT_REPLY * **Documentation:**  Points to additional documentation on ctags integration.
+# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}
+# CHAT_REPLY     zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com
+# CHAT_REPLY     zoekt-repo-index /n        -name gfiber /n        -base_url https://gfiber.googlesource.com/ /n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git /n        -repo_cache ~/repos /n        -manifest_rev_prefix=refs/heads/ --rev_prefix= /n        master:default_unrestricted.xml
 # CHAT_REPLY 
-# CHAT_REPLY **Acknowledgements:**
+# CHAT_REPLY ## Searching
 # CHAT_REPLY 
-# CHAT_REPLY * **Credits:**  Acknowledges the creators of Zoekt, Han-Wen Nienhuys and Alexander Neubeck.
+# CHAT_REPLY ### Web interface
 # CHAT_REPLY 
-# CHAT_REPLY **Fork Details:**
+# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver
+# CHAT_REPLY     $GOPATH/bin/zoekt-webserver -listen :6070
 # CHAT_REPLY 
-# CHAT_REPLY * **Historical Context:**  Explains the differences between the original Google Zoekt and the Sourcegraph fork.
-# CHAT_REPLY * **Changes:**  Highlights key changes introduced in the Sourcegraph fork, such as:
-# CHAT_REPLY     * Sourcegraph-specific index server.
-# CHAT_REPLY     * RPC integration for API communication.
-# CHAT_REPLY     * Efficient repository selection using `BranchesRepos`.
-# CHAT_REPLY     * Support for empty shard directories.
-# CHAT_REPLY     * Symbol search capabilities.
-# CHAT_REPLY     * Shard ranking and other minor improvements.
+# CHAT_REPLY ### JSON API
 # CHAT_REPLY 
-# CHAT_REPLY **Disclaimer:**
+# CHAT_REPLY You can retrieve search results as JSON by sending a GET request to zoekt-webserver.
 # CHAT_REPLY 
-# CHAT_REPLY * **Non-Official:**  Clarifies that this fork is not an official Google product.
+# CHAT_REPLY     curl --get /n        --url "http://localhost:6070/search" /n        --data-urlencode "q=ngram f:READ" /n        --data-urlencode "num=50" /n        --data-urlencode "format=json"
 # CHAT_REPLY 
-# CHAT_REPLY Overall, the `README.md` provides a comprehensive guide to installing, configuring, and using Zoekt for efficient source code search. It covers various aspects of the tool, from basic usage to advanced features and integration with other tools.
+# CHAT_REPLY The response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.
+# CHAT_REPLY 
+# CHAT_REPLY ### CLI
+# CHAT_REPLY 
+# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt
+# CHAT_REPLY     $GOPATH/bin/zoekt 'ngram f:READ'
+# CHAT_REPLY 
+# CHAT_REPLY ## Installation
+# CHAT_REPLY A more organized installation on a Linux server should use a systemd unit file,
+# CHAT_REPLY eg.
+# CHAT_REPLY 
+# CHAT_REPLY     [Unit]
+# CHAT_REPLY     Description=zoekt webserver
+# CHAT_REPLY 
+# CHAT_REPLY     [Service]
+# CHAT_REPLY     ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem
+# CHAT_REPLY     Restart=always
+# CHAT_REPLY 
+# CHAT_REPLY     [Install]
+# CHAT_REPLY     WantedBy=default.target
+# CHAT_REPLY 
+# CHAT_REPLY 
+# CHAT_REPLY # SEARCH SERVICE
+# CHAT_REPLY 
+# CHAT_REPLY Zoekt comes with a small service management program:
+# CHAT_REPLY 
+# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver
+# CHAT_REPLY 
+# CHAT_REPLY     cat << EOF > config.json
+# CHAT_REPLY     [{"GithubUser": "username"},
+# CHAT_REPLY      {"GithubOrg": "org"},
+# CHAT_REPLY      {"GitilesURL": "https://gerrit.googlesource.com", "Name": "zoekt" }
+# CHAT_REPLY     ]
+# CHAT_REPLY     EOF
+# CHAT_REPLY 
+# CHAT_REPLY     $GOPATH/bin/zoekt-indexserver -mirror_config config.json
+# CHAT_REPLY 
+# CHAT_REPLY This will mirror all repos under 'github.com/username', 'github.com/org', as
+# CHAT_REPLY well as the 'zoekt' repository. It will index the repositories.
+# CHAT_REPLY 
+# CHAT_REPLY It takes care of fetching and indexing new data and cleaning up logfiles.
+# CHAT_REPLY 
+# CHAT_REPLY The webserver can be started from a standard service management framework, such
+# CHAT_REPLY as systemd.
+# CHAT_REPLY 
+# CHAT_REPLY 
+# CHAT_REPLY # SYMBOL SEARCH
+# CHAT_REPLY 
+# CHAT_REPLY It is recommended to install [Universal
+# CHAT_REPLY ctags](https://github.com/universal-ctags/ctags) to improve
+# CHAT_REPLY ranking. See [here](doc/ctags.md) for more information.
+# CHAT_REPLY 
+# CHAT_REPLY 
+# CHAT_REPLY # ACKNOWLEDGEMENTS
+# CHAT_REPLY 
+# CHAT_REPLY Thanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for
+# CHAT_REPLY coming up with this idea, and helping Han-Wen Nienhuys flesh it out.
+# CHAT_REPLY 
+# CHAT_REPLY 
+# CHAT_REPLY # FORK DETAILS
+# CHAT_REPLY 
+# CHAT_REPLY Originally this fork contained some changes that do not make sense to upstream
+# CHAT_REPLY and or have not yet been upstreamed. However, this is now the defacto source
+# CHAT_REPLY for Zoekt. This section will remain for historical reasons and contains
+# CHAT_REPLY outdated information. It can be removed once the dust settles on moving from
+# CHAT_REPLY google/zoekt to sourcegraph/zoekt. Differences:
+# CHAT_REPLY 
+# CHAT_REPLY - [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)
+# CHAT_REPLY   is a Sourcegraph specific command which indexes all enabled repositories on
+# CHAT_REPLY   Sourcegraph, as well as keeping the indexes up to date.
+# CHAT_REPLY - We have exposed the API via
+# CHAT_REPLY   [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`
+# CHAT_REPLY   which supports cancellation).
+# CHAT_REPLY - Query primitive `BranchesRepos` to efficiently specify a set of repositories to
+# CHAT_REPLY   search.
+# CHAT_REPLY - Allow empty shard directories on startup. Needed when starting a fresh
+# CHAT_REPLY   instance which hasn't indexed anything yet.
+# CHAT_REPLY - We can return symbol/ctag data in results. Additionally we can run symbol regex queries.
+# CHAT_REPLY - We search shards in order of repo name and ignore shard ranking.
+# CHAT_REPLY - Other minor changes.
+# CHAT_REPLY 
+# CHAT_REPLY Assuming you have the gerrit upstream configured, a useful way to see what we
+# CHAT_REPLY changed is:
+# CHAT_REPLY 
+# CHAT_REPLY ``` shellsession
+# CHAT_REPLY $ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY # DISCLAIMER
+# CHAT_REPLY 
+# CHAT_REPLY This is not an official Google product
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY This README.md file provides a comprehensive guide to Zoekt, a fast text search engine designed for source code. It covers various aspects, including:
+# CHAT_REPLY 
+# CHAT_REPLY * **Introduction:** Briefly introduces Zoekt and its purpose.
+# CHAT_REPLY * **Downloading:** Explains how to obtain the Zoekt codebase using `go get`.
+# CHAT_REPLY * **Indexing:** Details the process of indexing different types of data sources, including directories, Git repositories, and repositories hosted on services like Gitiles.
+# CHAT_REPLY * **Searching:** Outlines various methods for searching, including a web interface, JSON API, and command-line interface (CLI).
+# CHAT_REPLY * **Installation:** Provides instructions for setting up Zoekt on a Linux server using systemd unit files.
+# CHAT_REPLY * **Search Service:** Introduces a service management program (`zoekt-indexserver`) for mirroring and indexing repositories.
+# CHAT_REPLY * **Symbol Search:** Recommends using Universal ctags for improved ranking in symbol searches.
+# CHAT_REPLY * **Acknowledgements:** Credits the creators and contributors to Zoekt.
+# CHAT_REPLY * **Fork Details:** Explains the differences between this fork and the original Google Zoekt repository.
+# CHAT_REPLY * **Disclaimer:** Emphasizes that this is not an official Google product.
+# CHAT_REPLY 
+# CHAT_REPLY The README.md serves as a valuable resource for users who want to understand, install, and use Zoekt effectively. It provides clear instructions and explanations for various tasks, making it easy for developers to leverage Zoekt's capabilities for code search.
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: explain code
  files:

@@ -2,19 +2,42 @@
 # CHAT
 # CHAT_QUESTION where do we test the grpc chunker
 
-# CHAT_REPLY Based on the provided context, there isn't enough information to determine where the gRPC chunker is specifically tested. The file `mocked/enhanced_context/chunker_test.go` contains a type definition for a `server` struct, but it doesn't provide any details about the tests themselves.
+# CHAT_REPLY Based on the provided context, it looks like the `grpc chunker` might be tested in the file `mocked/enhanced_context/chunker_test.go`. 
 # CHAT_REPLY 
-# CHAT_REPLY To find where the gRPC chunker is tested, you can search for test functions within the `chunker_test.go` file or other test files that might be related to gRPC chunking. Typically, test functions in Go are named with the prefix `Test`, such as `TestChunker`, `TestChunking`, or similar.
+# CHAT_REPLY To confirm this, you would typically look for test functions within that file that are related to the `grpc chunker`. These functions would generally start with `Test` and include assertions to verify the behavior of the `grpc chunker`.
 # CHAT_REPLY 
-# CHAT_REPLY Here is a general approach to find the relevant tests:
+# CHAT_REPLY Here is an example of how you might find such a test:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Search for Test Functions**: Look for functions in `chunker_test.go` that start with `Test`. These functions are standard Go test functions.
-# CHAT_REPLY 2. **Check for gRPC Calls**: Within these test functions, look for calls to gRPC methods that might involve chunking.
-# CHAT_REPLY 3. **Review Test Files**: If `chunker_test.go` does not contain the relevant tests, check other test files in the same directory or related directories.
+# CHAT_REPLY ```go:mocked/enhanced_context/chunker_test.go
+# CHAT_REPLY package enhanced_context
 # CHAT_REPLY 
-# CHAT_REPLY If you have access to the entire codebase, you can use a search tool to look for keywords like `chunker`, `grpc`, `Test`, etc., to locate the relevant tests.
+# CHAT_REPLY import (
+# CHAT_REPLY     "testing"
+# CHAT_REPLY     "github.com/stretchr/testify/assert"
+# CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY Would you like me to provide an example of how to structure a test for a gRPC chunker in Go?
+# CHAT_REPLY func TestGrpcChunker(t *testing.T) {
+# CHAT_REPLY     // Setup code for grpc chunker test
+# CHAT_REPLY 
+# CHAT_REPLY     // Assertions to verify the behavior of grpc chunker
+# CHAT_REPLY     assert.Equal(t, expected, actual)
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY You can search for similar test functions in the `mocked/enhanced_context/chunker_test.go` file to locate where the `grpc chunker` is tested.
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/chunker_test.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "type server struct {\n\tgrpc_testing.UnimplementedTestServiceServer\n}"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: code search
  files:

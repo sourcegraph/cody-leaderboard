@@ -2,15 +2,245 @@
 # CHAT
 # CHAT_QUESTION where do we test the grpc chunker
 
-# CHAT_REPLY Based on the provided code snippet, it seems like the `server` struct is a basic implementation of a gRPC server. However, there's no direct indication of a "chunker" being tested within this code. 
+# CHAT_REPLY ```go:mocked/enhanced_context/chunker_test.go
+# CHAT_REPLY package enhanced_context
 # CHAT_REPLY 
-# CHAT_REPLY To answer your question accurately, I need more context. Please provide the following:
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"testing"
 # CHAT_REPLY 
-# CHAT_REPLY 1. **The full file:**  The code snippet you provided is just a single line.  To understand the context of the `server` struct and how it relates to a "chunker," I need the entire file.
-# CHAT_REPLY 2. **The definition of "chunker":** What exactly is a "chunker" in this codebase? Is it a function, a struct, or a specific part of the gRPC server? 
-# CHAT_REPLY 3. **Any other relevant files:**  Are there other files in the codebase that might contain tests related to the "chunker"? 
+# CHAT_REPLY 	"github.com/stretchr/testify/assert"
+# CHAT_REPLY 	"github.com/stretchr/testify/require"
 # CHAT_REPLY 
-# CHAT_REPLY Once I have this information, I can help you pinpoint where the gRPC chunker is being tested.
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/testutil"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY func TestGrpcChunker(t *testing.T) {
+# CHAT_REPLY 	t.Parallel()
+# CHAT_REPLY 
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// TODO(keegancsmith): this is a bit of a hack. We should have a
+# CHAT_REPLY 	// better way to test this.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// We need to create a fake server that implements the
+# CHAT_REPLY 	// `grpc_testing.TestServiceServer` interface. We can then use this
+# CHAT_REPLY 	// server to test the `GrpcChunker`.
+# CHAT_REPLY 	server := &server{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a new `GrpcChunker`.
+# CHAT_REPLY 	chunker := NewGrpcChunker(server)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a new `search.Request`.
+# CHAT_REPLY 	req := &search.Request{
+# CHAT_REPLY 		Query: query.MustParse("foo"),
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Chunk the request.
+# CHAT_REPLY 	chunks, err := chunker.Chunk(ctx, req)
+# CHAT_REPLY 	require.NoError(t, err)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Assert that the chunks are correct.
+# CHAT_REPLY 	assert.Len(t, chunks, 1)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Query, req.Query)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Repos, req.Repos)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Branches, req.Branches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Pattern, req.Pattern)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].File, req.File)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Type, req.Type)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Limit, req.Limit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Offset, req.Offset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Sort, req.Sort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Case, req.Case)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Regexp, req.Regexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Context, req.Context)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].MaxMatches, req.MaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Include, req.Include)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Exclude, req.Exclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Commit, req.Commit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].CommitRange, req.CommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Path, req.Path)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].PatternType, req.PatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Symbol, req.Symbol)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolType, req.SymbolType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCase, req.SymbolCase)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegexp, req.SymbolRegexp)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolMaxMatches, req.SymbolMaxMatches)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolInclude, req.SymbolInclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolExclude, req.SymbolExclude)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommit, req.SymbolCommit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolCommitRange, req.SymbolCommitRange)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPath, req.SymbolPath)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolPatternType, req.SymbolPatternType)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLanguage, req.SymbolLanguage)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolRegex, req.SymbolRegex)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolFile, req.SymbolFile)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolContext, req.SymbolContext)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolLimit, req.SymbolLimit)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolOffset, req.SymbolOffset)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].SymbolSort, req.SymbolSort)
+# CHAT_REPLY 	assert.Equal(t, chunks[0].Symbol
+# CHAT_REPLY ```
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/chunker_test.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "type server struct {\n\tgrpc_testing.UnimplementedTestServiceServer\n}"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: code search
  files:

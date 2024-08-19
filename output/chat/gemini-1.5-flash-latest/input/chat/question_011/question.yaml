@@ -2,15 +2,290 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided codebase is responsible for monitoring a directory containing Zoekt shard files. It performs the following actions:
+# CHAT_REPLY ```go:mocked/codebase_context/shards/watcher.go
+# CHAT_REPLY package shards
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Scanning:** It scans the directory for shard files (`.zoekt` files) and their associated metadata files (`.zoekt.meta`). It keeps track of the modification times of these files.
-# CHAT_REPLY 2. **Loading:** It loads new shard files that have been added or modified since the last scan. It also unloads shard files that have been deleted.
-# CHAT_REPLY 3. **Watching:** It uses `fsnotify` to watch for changes (creation, modification, deletion) in the directory. When a change is detected, it triggers a new scan.
+# CHAT_REPLY import (
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"log"
+# CHAT_REPLY 	"os"
+# CHAT_REPLY 	"path/filepath"
+# CHAT_REPLY 	"sort"
+# CHAT_REPLY 	"strconv"
+# CHAT_REPLY 	"strings"
+# CHAT_REPLY 	"sync"
+# CHAT_REPLY 	"time"
 # CHAT_REPLY 
-# CHAT_REPLY The `DirectoryWatcher` works in conjunction with a `shardLoader` interface, which is responsible for actually loading and unloading the shard files. This allows the `DirectoryWatcher` to focus on monitoring the directory and triggering updates, while the actual loading and unloading logic is handled by the `shardLoader`.
+# CHAT_REPLY 	"github.com/fsnotify/fsnotify"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt"
+# CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` ensures that the Zoekt index is kept up-to-date by monitoring the shard directory and loading/unloading shard files as needed.
+# CHAT_REPLY type shardLoader interface {
+# CHAT_REPLY 	// Load a new file.
+# CHAT_REPLY 	load(filenames ...string)
+# CHAT_REPLY 	drop(filenames ...string)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY type DirectoryWatcher struct {
+# CHAT_REPLY 	dir        string
+# CHAT_REPLY 	timestamps map[string]time.Time
+# CHAT_REPLY 	loader     shardLoader
+# CHAT_REPLY 
+# CHAT_REPLY 	// closed once ready
+# CHAT_REPLY 	ready    chan struct{}
+# CHAT_REPLY 	readyErr error
+# CHAT_REPLY 
+# CHAT_REPLY 	closeOnce sync.Once
+# CHAT_REPLY 	// quit is closed by Close to signal the directory watcher to stop.
+# CHAT_REPLY 	quit chan struct{}
+# CHAT_REPLY 	// stopped is closed once the directory watcher has stopped.
+# CHAT_REPLY 	stopped chan struct{}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (sw *DirectoryWatcher) Stop() {
+# CHAT_REPLY 	sw.closeOnce.Do(func() {
+# CHAT_REPLY 		close(sw.quit)
+# CHAT_REPLY 		<-sw.stopped
+# CHAT_REPLY 	})
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func newDirectoryWatcher(dir string, loader shardLoader) (*DirectoryWatcher, error) {
+# CHAT_REPLY 	sw := &DirectoryWatcher{
+# CHAT_REPLY 		dir:        dir,
+# CHAT_REPLY 		timestamps: map[string]time.Time{},
+# CHAT_REPLY 		loader:     loader,
+# CHAT_REPLY 		ready:      make(chan struct{}),
+# CHAT_REPLY 		quit:       make(chan struct{}),
+# CHAT_REPLY 		stopped:    make(chan struct{}),
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer close(sw.ready)
+# CHAT_REPLY 
+# CHAT_REPLY 		if err := sw.scan(); err != nil {
+# CHAT_REPLY 			sw.readyErr = err
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if err := sw.watch(); err != nil {
+# CHAT_REPLY 			sw.readyErr = err
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	return sw, nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (s *DirectoryWatcher) WaitUntilReady() error {
+# CHAT_REPLY 	<-s.ready
+# CHAT_REPLY 	return s.readyErr
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (s *DirectoryWatcher) String() string {
+# CHAT_REPLY 	return fmt.Sprintf("shardWatcher(%s)", s.dir)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // versionFromPath extracts url encoded repository name and
+# CHAT_REPLY // index format version from a shard name from builder.
+# CHAT_REPLY func versionFromPath(path string) (string, int) {
+# CHAT_REPLY 	und := strings.LastIndex(path, "_")
+# CHAT_REPLY 	if und < 0 {
+# CHAT_REPLY 		return path, 0
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	dot := strings.Index(path[und:], ".")
+# CHAT_REPLY 	if dot < 0 {
+# CHAT_REPLY 		return path, 0
+# CHAT_REPLY 	}
+# CHAT_REPLY 	dot += und
+# CHAT_REPLY 
+# CHAT_REPLY 	version, err := strconv.Atoi(path[und+2 : dot])
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return path, 0
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return path[:und], version
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (s *DirectoryWatcher) scan() error {
+# CHAT_REPLY 	fs, err := filepath.Glob(filepath.Join(s.dir, "*.zoekt"))
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return err
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	latest := map[string]int{}
+# CHAT_REPLY 	for _, fn := range fs {
+# CHAT_REPLY 		name, version := versionFromPath(fn)
+# CHAT_REPLY 
+# CHAT_REPLY 		// In the case of downgrades, avoid reading
+# CHAT_REPLY 		// newer index formats.
+# CHAT_REPLY 		if version > zoekt.IndexFormatVersion && version > zoekt.NextIndexFormatVersion {
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if latest[name] < version {
+# CHAT_REPLY 			latest[name] = version
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	ts := map[string]time.Time{}
+# CHAT_REPLY 	for _, fn := range fs {
+# CHAT_REPLY 		if name, version := versionFromPath(fn); latest[name] != version {
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		fi, err := os.Lstat(fn)
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		ts[fn] = fi.ModTime()
+# CHAT_REPLY 
+# CHAT_REPLY 		fiMeta, err := os.Lstat(fn + ".meta")
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if fiMeta.ModTime().After(fi.ModTime()) {
+# CHAT_REPLY 			ts[fn] = fiMeta.ModTime()
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	var toLoad []string
+# CHAT_REPLY 	for k, mtime := range ts {
+# CHAT_REPLY 		if t, ok := s.timestamps[k]; !ok || t != mtime {
+# CHAT_REPLY 			toLoad = append(toLoad, k)
+# CHAT_REPLY 			s.timestamps[k] = mtime
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	var toDrop []string
+# CHAT_REPLY 	// Unload deleted shards.
+# CHAT_REPLY 	for k := range s.timestamps {
+# CHAT_REPLY 		if _, ok := ts[k]; !ok {
+# CHAT_REPLY 			toDrop = append(toDrop, k)
+# CHAT_REPLY 			delete(s.timestamps, k)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	if len(toDrop) > 0 {
+# CHAT_REPLY 		log.Printf("unloading %d shard(s): %s", len(toDrop), humanTruncateList(toDrop, 5))
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	s.loader.drop(toDrop...)
+# CHAT_REPLY 	s.loader.load(toLoad...)
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func humanTruncateList(paths []string, max int) string {
+# CHAT_REPLY 	sort.Strings(paths)
+# CHAT_REPLY 	var b strings.Builder
+# CHAT_REPLY 	for i, p := range paths {
+# CHAT_REPLY 		if i >= max {
+# CHAT_REPLY 			fmt.Fprintf(&b, "... %d more", len(paths)-i)
+# CHAT_REPLY 			break
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if i > 0 {
+# CHAT_REPLY 			b.WriteString(", ")
+# CHAT_REPLY 		}
+# CHAT_REPLY 		b.WriteString(filepath.Base(p))
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return b.String()
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (s *DirectoryWatcher) watch() error {
+# CHAT_REPLY 	watcher, err := fsnotify.NewWatcher()
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return err
+# CHAT_REPLY 	}
+# CHAT_REPLY 	if err := watcher.Add(s.dir); err != nil {
+# CHAT_REPLY 		return err
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// intermediate signal channel so if there are multiple watcher.Events we
+# CHAT_REPLY 	// only call scan once.
+# CHAT_REPLY 	signal := make(chan struct{}, 1)
+# CHAT_REPLY 
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		for {
+# CHAT_REPLY 			select {
+# CHAT_REPLY 			case <-watcher.Events:
+# CHAT_REPLY 				select {
+# CHAT_REPLY 				case signal <- struct{}{}:
+# CHAT_REPLY 				default:
+# CHAT_REPLY 				}
+# CHAT_REPLY 			case err := <-watcher.Errors:
+# CHAT_REPLY 				// Ignore ErrEventOverflow since we rely on the presence of events so
+# CHAT_REPLY 				// safe to ignore.
+# CHAT_REPLY 				if err != nil && err != fsnotify.ErrEventOverflow {
+# CHAT_REPLY 					log.Println("watcher error:", err)
+# CHAT_REPLY 				}
+# CHAT_REPLY 			case <-s.quit:
+# CHAT_REPLY 				watcher.Close()
+# CHAT_REPLY 				close(signal)
+# CHAT_REPLY 				return
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer close(s.stopped)
+# CHAT_REPLY 		for range signal {
+# CHAT_REPLY 			if err := s.scan(); err != nil {
+# CHAT_REPLY 				log.Println("watcher error:", err)
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY The `DirectoryWatcher` is responsible for monitoring a directory containing Zoekt shards (index files). It performs the following actions:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **Scanning:** It scans the directory for `.zoekt` files, identifying the latest version of each shard. It also checks the modification times of the shard files and their associated `.meta` files to determine if they have been updated.
+# CHAT_REPLY 2. **Loading and Dropping:** Based on the scan results, it loads new or updated shards and drops (unloads) deleted shards.
+# CHAT_REPLY 3. **Watching:** It uses `fsnotify` to watch for changes in the directory. When a change is detected, it triggers a new scan to update the loaded shards.
+# CHAT_REPLY 
+# CHAT_REPLY Essentially, the `DirectoryWatcher` ensures that the Zoekt index is kept up-to-date by automatically loading new shards, unloading deleted shards, and reloading updated shards. This allows for efficient and dynamic indexing of data.
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined",
+# CONTEXT_ITEMS     "content": "interface CodeIntelligence {\n    symbols: string[]\n}\n\n/**\n * Squirrel is a code intelligence API.\n */\ninterface Squirrel {\n    symbolInformation(file: string): CodeIntelligence\n}\n\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/animal.ts:undefined-undefined",
+# CONTEXT_ITEMS     "content": "interface Animal {\n    name: string;\n    age: number;\n}\n\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/agent.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package agent\n\n// Agent is an agent"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/limit.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package actor\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"net/http\"\n\t\"slices\"\n\t\"strconv\"\n\t\"time\"\n\n\t\"github.com/sourcegraph/log\"\n\t\"go.opentelemetry.io/otel/attribute\"\n\toteltrace \"go.opentelemetry.io/otel/trace\"\n\n\t\"github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter\"\n\t\"github.com/sourcegraph/sourcegraph/internal/codygateway\"\n\t\"github.com/sourcegraph/sourcegraph/internal/trace\"\n\t\"github.com/sourcegraph/sourcegraph/lib/errors\"\n)\n\ntype RateLimit struct {\n\t// AllowedModels is a set of models in Cody Gateway's model configuration\n\t// format, \"$PROVIDER/$MODEL_NAME\". A single-item slice with value '*' means\n\t// that all models in the 'master allowlist' are allowed.\n\t//\n\t// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)\n\t// instead.\n\tAllowedModels []string `json:\"allowedModels\"`\n\n\tLimit    int64         `json:\"limit\"`\n\tInterval time.Duration `json:\"interval\"`\n\n\t// ConcurrentRequests, ConcurrentRequestsInterval are generally applied\n\t// with NewRateLimitWithPercentageConcurrency.\n\tConcurrentRequests         int           `json:\"concurrentRequests\"`\n\tConcurrentRequestsInterval time.Duration `json:\"concurrentRequestsInterval\"`\n}\n\nfunc NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {\n\t// The actual type of time.Duration is int64, so we can use it to compute the\n\t// ratio of the rate limit interval to a day (24 hours).\n\tratioToDay := float32(interval) / float32(24*time.Hour)\n\t// Then use the ratio to compute the rate limit for a day.\n\tdailyLimit := float32(limit) / ratioToDay\n\t// Finally, compute the concurrency limit with the given percentage of the daily limit.\n\tconcurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)\n\t// Just in case a poor choice of percentage results in a concurrency limit less than 1.\n\tif concurrencyLimit < 1 {\n\t\tconcurrencyLimit = 1\n\t}\n\n\treturn RateLimit{\n\t\tAllowedModels: allowedModels,\n\t\tLimit:         limit,\n\t\tInterval:      interval,\n\n\t\tConcurrentRequests:         concurrencyLimit,\n\t\tConcurrentRequestsInterval: concurrencyConfig.Interval,\n\t}\n}\n\nfunc (r *RateLimit) IsValid() bool {\n\treturn r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0\n}\n\n// EvaluateAllowedModels returns the intersection of a 'master' allowlist and\n// the actor's allowlist, where only values on the 'master' allowlist are returned.\n// The provided allowlist MUST be prefixed with the provider name (e.g. \"anthropic/\").\n//\n// If the actor's allowlist is a single value '*', then the master allowlist is\n// returned (i.e. all models are allowed).\nfunc (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {\n\tif len(r.AllowedModels) == 1 && r.AllowedModels[0] == \"*\" {\n\t\treturn prefixedMasterAllowlist // all models allowed\n\t}\n\n\tvar result []string\n\tfor _, val := range r.AllowedModels {\n\t\tif slices.Contains(prefixedMasterAllowlist, val) {\n\t\t\tresult = append(result, val)\n\t\t}\n\t}\n\treturn result\n}\n\ntype concurrencyLimiter struct {\n\tlogger  log.Logger\n\tactor   *Actor\n\tfeature codygateway.Feature\n\n\t// redis must be a prefixed store\n\tredis limiter.RedisStore\n\n\tconcurrentRequests int\n\tconcurrentInterval time.Duration\n\n\tnextLimiter limiter.Limiter\n\n\tnowFunc func() time.Time\n}\n\nfunc (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := (limiter.StaticLimiter{\n\t\tLimiterName:        \"actor.concurrencyLimiter\",\n\t\tIdentifier:         l.actor.ID,\n\t\tRedis:              l.redis,\n\t\tLimit:              int64(l.concurrentRequests),\n\t\tInterval:           l.concurrentInterval,\n\t\tUpdateRateLimitTTL: true, // always adjust\n\t\tNowFunc:            l.nowFunc,\n\t}).TryAcquire(ctx)\n\tif err != nil {\n\t\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\t\tretryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, errors.Wrap(err, \"failed to get TTL for rate limit counter\")\n\t\t\t}\n\t\t\treturn nil, ErrConcurrencyLimitExceeded{\n\t\t\t\tfeature:    l.feature,\n\t\t\t\tlimit:      l.concurrentRequests,\n\t\t\t\tretryAfter: retryAfter,\n\t\t\t}\n\t\t}\n\t\treturn nil, errors.Wrap(err, \"check concurrent limit\")\n\t}\n\tif err = commit(ctx, 1); err != nil {\n\t\ttrace.Logger(ctx, l.logger).Error(\"failed to commit concurrency limit consumption\", log.Error(err))\n\t}\n\n\treturn l.nextLimiter.TryAcquire(ctx)\n}\n\nfunc (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn l.nextLimiter.Usage(ctx)\n}\n\ntype ErrConcurrencyLimitExceeded struct {\n\tfeature    codygateway.Feature\n\tlimit      int\n\tretryAfter time.Time\n}\n\n// Error generates a simple string that is fairly static for use in logging.\n// This helps with categorizing errors. For more detailed output use Summary().\nfunc (e ErrConcurrencyLimitExceeded) Error() string {\n\treturn fmt.Sprintf(\"%q: concurrency limit exceeded\", e.feature)\n}\n\nfunc (e ErrConcurrencyLimitExceeded) Summary() string {\n\treturn fmt.Sprintf(\"you have exceeded the concurrency limit of %d requests for %q. Retry after %s\",\n\t\te.limit, e.feature, e.retryAfter.Truncate(time.Second))\n}\n\nfunc (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {\n\t// Rate limit exceeded, write well known headers and return correct status code.\n\tw.Header().Set(\"x-ratelimit-limit\", strconv.Itoa(e.limit))\n\tw.Header().Set(\"x-ratelimit-remaining\", \"0\")\n\tw.Header().Set(\"retry-after\", e.retryAfter.Format(time.RFC1123))\n\t// Use Summary instead of Error for more informative text\n\thttp.Error(w, e.Summary(), http.StatusTooManyRequests)\n}\n\n// updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain\n// access errors.\ntype updateOnErrorLimiter struct {\n\tlogger log.Logger\n\tactor  *Actor\n\n\tnextLimiter limiter.Limiter\n}\n\nfunc (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := u.nextLimiter.TryAcquire(ctx)\n\t// If we have an access issue, try to update the actor in case they have\n\t// been granted updated access.\n\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\toteltrace.SpanFromContext(ctx).\n\t\t\tSetAttributes(attribute.Bool(\"update-on-error\", true))\n\t\t// Do update transiently, outside request hotpath\n\t\tgo func() {\n\t\t\tif updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&\n\t\t\t\t!IsErrActorRecentlyUpdated(updateErr) {\n\t\t\t\tu.logger.Warn(\"unexpected error updating actor\",\n\t\t\t\t\tlog.Error(updateErr),\n\t\t\t\t\tlog.NamedError(\"originalError\", err))\n\t\t\t}\n\t\t}()\n\t}\n\treturn commit, err\n}\n\nfunc (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn u.nextLimiter.Usage(ctx)\n}\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/shards/watcher.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "// Copyright 2017 Google Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//    http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage shards\n\nimport (\n\t\"fmt\"\n\t\"log\"\n\t\"os\"\n\t\"path/filepath\"\n\t\"sort\"\n\t\"strconv\"\n\t\"strings\"\n\t\"sync\"\n\t\"time\"\n\n\t\"github.com/fsnotify/fsnotify\"\n\t\"github.com/sourcegraph/zoekt\"\n)\n\ntype shardLoader interface {\n\t// Load a new file.\n\tload(filenames ...string)\n\tdrop(filenames ...string)\n}\n\ntype DirectoryWatcher struct {\n\tdir        string\n\ttimestamps map[string]time.Time\n\tloader     shardLoader\n\n\t// closed once ready\n\tready    chan struct{}\n\treadyErr error\n\n\tcloseOnce sync.Once\n\t// quit is closed by Close to signal the directory watcher to stop.\n\tquit chan struct{}\n\t// stopped is closed once the directory watcher has stopped.\n\tstopped chan struct{}\n}\n\nfunc (sw *DirectoryWatcher) Stop() {\n\tsw.closeOnce.Do(func() {\n\t\tclose(sw.quit)\n\t\t<-sw.stopped\n\t})\n}\n\nfunc newDirectoryWatcher(dir string, loader shardLoader) (*DirectoryWatcher, error) {\n\tsw := &DirectoryWatcher{\n\t\tdir:        dir,\n\t\ttimestamps: map[string]time.Time{},\n\t\tloader:     loader,\n\t\tready:      make(chan struct{}),\n\t\tquit:       make(chan struct{}),\n\t\tstopped:    make(chan struct{}),\n\t}\n\n\tgo func() {\n\t\tdefer close(sw.ready)\n\n\t\tif err := sw.scan(); err != nil {\n\t\t\tsw.readyErr = err\n\t\t\treturn\n\t\t}\n\n\t\tif err := sw.watch(); err != nil {\n\t\t\tsw.readyErr = err\n\t\t\treturn\n\t\t}\n\t}()\n\n\treturn sw, nil\n}\n\nfunc (s *DirectoryWatcher) WaitUntilReady() error {\n\t<-s.ready\n\treturn s.readyErr\n}\n\nfunc (s *DirectoryWatcher) String() string {\n\treturn fmt.Sprintf(\"shardWatcher(%s)\", s.dir)\n}\n\n// versionFromPath extracts url encoded repository name and\n// index format version from a shard name from builder.\nfunc versionFromPath(path string) (string, int) {\n\tund := strings.LastIndex(path, \"_\")\n\tif und < 0 {\n\t\treturn path, 0\n\t}\n\n\tdot := strings.Index(path[und:], \".\")\n\tif dot < 0 {\n\t\treturn path, 0\n\t}\n\tdot += und\n\n\tversion, err := strconv.Atoi(path[und+2 : dot])\n\tif err != nil {\n\t\treturn path, 0\n\t}\n\n\treturn path[:und], version\n}\n\nfunc (s *DirectoryWatcher) scan() error {\n\tfs, err := filepath.Glob(filepath.Join(s.dir, \"*.zoekt\"))\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tlatest := map[string]int{}\n\tfor _, fn := range fs {\n\t\tname, version := versionFromPath(fn)\n\n\t\t// In the case of downgrades, avoid reading\n\t\t// newer index formats.\n\t\tif version > zoekt.IndexFormatVersion && version > zoekt.NextIndexFormatVersion {\n\t\t\tcontinue\n\t\t}\n\n\t\tif latest[name] < version {\n\t\t\tlatest[name] = version\n\t\t}\n\t}\n\n\tts := map[string]time.Time{}\n\tfor _, fn := range fs {\n\t\tif name, version := versionFromPath(fn); latest[name] != version {\n\t\t\tcontinue\n\t\t}\n\n\t\tfi, err := os.Lstat(fn)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\n\t\tts[fn] = fi.ModTime()\n\n\t\tfiMeta, err := os.Lstat(fn + \".meta\")\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tif fiMeta.ModTime().After(fi.ModTime()) {\n\t\t\tts[fn] = fiMeta.ModTime()\n\t\t}\n\t}\n\n\tvar toLoad []string\n\tfor k, mtime := range ts {\n\t\tif t, ok := s.timestamps[k]; !ok || t != mtime {\n\t\t\ttoLoad = append(toLoad, k)\n\t\t\ts.timestamps[k] = mtime\n\t\t}\n\t}\n\n\tvar toDrop []string\n\t// Unload deleted shards.\n\tfor k := range s.timestamps {\n\t\tif _, ok := ts[k]; !ok {\n\t\t\ttoDrop = append(toDrop, k)\n\t\t\tdelete(s.timestamps, k)\n\t\t}\n\t}\n\n\tif len(toDrop) > 0 {\n\t\tlog.Printf(\"unloading %d shard(s): %s\", len(toDrop), humanTruncateList(toDrop, 5))\n\t}\n\n\ts.loader.drop(toDrop...)\n\ts.loader.load(toLoad...)\n\n\treturn nil\n}\n\nfunc humanTruncateList(paths []string, max int) string {\n\tsort.Strings(paths)\n\tvar b strings.Builder\n\tfor i, p := range paths {\n\t\tif i >= max {\n\t\t\tfmt.Fprintf(&b, \"... %d more\", len(paths)-i)\n\t\t\tbreak\n\t\t}\n\t\tif i > 0 {\n\t\t\tb.WriteString(\", \")\n\t\t}\n\t\tb.WriteString(filepath.Base(p))\n\t}\n\treturn b.String()\n}\n\nfunc (s *DirectoryWatcher) watch() error {\n\twatcher, err := fsnotify.NewWatcher()\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := watcher.Add(s.dir); err != nil {\n\t\treturn err\n\t}\n\n\t// intermediate signal channel so if there are multiple watcher.Events we\n\t// only call scan once.\n\tsignal := make(chan struct{}, 1)\n\n\tgo func() {\n\t\tfor {\n\t\t\tselect {\n\t\t\tcase <-watcher.Events:\n\t\t\t\tselect {\n\t\t\t\tcase signal <- struct{}{}:\n\t\t\t\tdefault:\n\t\t\t\t}\n\t\t\tcase err := <-watcher.Errors:\n\t\t\t\t// Ignore ErrEventOverflow since we rely on the presence of events so\n\t\t\t\t// safe to ignore.\n\t\t\t\tif err != nil && err != fsnotify.ErrEventOverflow {\n\t\t\t\t\tlog.Println(\"watcher error:\", err)\n\t\t\t\t}\n\t\t\tcase <-s.quit:\n\t\t\t\twatcher.Close()\n\t\t\t\tclose(signal)\n\t\t\t\treturn\n\t\t\t}\n\t\t}\n\t}()\n\n\tgo func() {\n\t\tdefer close(s.stopped)\n\t\tfor range signal {\n\t\t\tif err := s.scan(); err != nil {\n\t\t\t\tlog.Println(\"watcher error:\", err)\n\t\t\t}\n\t\t}\n\t}()\n\n\treturn nil\n}\n"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: code search
  files:

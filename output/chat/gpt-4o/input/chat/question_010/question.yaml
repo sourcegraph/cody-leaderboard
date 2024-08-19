@@ -2,30 +2,110 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY Based on the provided codebase context, here's a brief description of your code:
+# CHAT_REPLY Sure, I'll provide a description of the code based on the provided context.
 # CHAT_REPLY 
-# CHAT_REPLY 1. **TypeScript Interfaces**:
-# CHAT_REPLY    - **CodeIntelligence**: This interface represents a structure with a single property `symbols`, which is an array of strings.
-# CHAT_REPLY    - **Squirrel**: This interface represents a code intelligence API with a method `symbolInformation` that takes a file path as a string and returns a `CodeIntelligence` object.
-# CHAT_REPLY    - **Animal**: This interface represents an animal with properties `name` (a string) and `age` (a number).
+# CHAT_REPLY ### Overview of the Codebase
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Go Code**:
-# CHAT_REPLY    - **agent.go**: This file defines an `Agent` package, but the provided snippet only includes a comment.
-# CHAT_REPLY    - **limit.go**: This file is part of the `actor` package and includes several components related to rate limiting:
-# CHAT_REPLY      - **RateLimit**: A struct that defines rate limiting parameters such as allowed models, limit, interval, and concurrent request settings.
-# CHAT_REPLY      - **NewRateLimitWithPercentageConcurrency**: A function to create a new `RateLimit` with concurrency settings based on a percentage of the daily limit.
-# CHAT_REPLY      - **IsValid**: A method to check if a `RateLimit` instance is valid.
-# CHAT_REPLY      - **EvaluateAllowedModels**: A method to evaluate allowed models based on a master allowlist.
-# CHAT_REPLY      - **concurrencyLimiter**: A struct that implements concurrency limiting logic using a Redis store.
-# CHAT_REPLY      - **TryAcquire**: A method to attempt acquiring a concurrency limit.
-# CHAT_REPLY      - **Usage**: A method to get the current usage of the limiter.
-# CHAT_REPLY      - **ErrConcurrencyLimitExceeded**: An error type for concurrency limit exceeded scenarios.
-# CHAT_REPLY      - **updateOnErrorLimiter**: A struct that updates the actor if access errors occur.
+# CHAT_REPLY 1. **Cody Agent (`mocked/enhanced_context/README.md`)**
+# CHAT_REPLY    - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. This package is intended to be used by non-ECMAScript clients such as the JetBrains and NeoVim plugins.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **README.md**:
-# CHAT_REPLY    - The `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact with Cody via stdout/stdin. It is intended for use by non-ECMAScript clients such as JetBrains and NeoVim plugins.
+# CHAT_REPLY 2. **Rate Limiting (`mocked/enhanced_context/limit.go`)**
+# CHAT_REPLY    - This file defines rate limiting functionality for actors. It includes structures and methods to handle rate limits, concurrency limits, and error handling related to rate limits.
+# CHAT_REPLY    - Key components:
+# CHAT_REPLY      - `RateLimit` struct: Defines rate limits, allowed models, and concurrency configurations.
+# CHAT_REPLY      - `NewRateLimitWithPercentageConcurrency` function: Creates a new `RateLimit` with concurrency limits based on a percentage of the daily limit.
+# CHAT_REPLY      - `concurrencyLimiter` struct: Manages concurrency limits for actors.
+# CHAT_REPLY      - `ErrConcurrencyLimitExceeded` struct: Custom error type for concurrency limit exceedance.
+# CHAT_REPLY      - `updateOnErrorLimiter` struct: Updates actor information if access errors occur.
 # CHAT_REPLY 
-# CHAT_REPLY Overall, your codebase includes TypeScript interfaces for code intelligence and animal representation, Go code for rate limiting and concurrency control, and documentation for a JSON-RPC server package used by Cody.
+# CHAT_REPLY 3. **Agent (`mocked/enhanced_context/agent.go`)**
+# CHAT_REPLY    - A placeholder file defining an `Agent` type.
+# CHAT_REPLY 
+# CHAT_REPLY 4. **Animal Interface (`mocked/enhanced_context/animal.ts`)**
+# CHAT_REPLY    - Defines a TypeScript interface `Animal` with properties `name` and `age`.
+# CHAT_REPLY 
+# CHAT_REPLY 5. **Squirrel Interface (`mocked/enhanced_context/squirrel.ts`)**
+# CHAT_REPLY    - Defines a TypeScript interface `Squirrel` which represents a code intelligence API.
+# CHAT_REPLY    - Includes a method `symbolInformation` that returns `CodeIntelligence` for a given file.
+# CHAT_REPLY 
+# CHAT_REPLY ### Example Code Snippets
+# CHAT_REPLY 
+# CHAT_REPLY #### `mocked/enhanced_context/limit.go`
+# CHAT_REPLY ```go:mocked/enhanced_context/limit.go
+# CHAT_REPLY package actor
+# CHAT_REPLY 
+# CHAT_REPLY import (
+# CHAT_REPLY 	"context"
+# CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"slices"
+# CHAT_REPLY 	"strconv"
+# CHAT_REPLY 	"time"
+# CHAT_REPLY 
+# CHAT_REPLY 	"github.com/sourcegraph/log"
+# CHAT_REPLY 	"go.opentelemetry.io/otel/attribute"
+# CHAT_REPLY 	oteltrace "go.opentelemetry.io/otel/trace"
+# CHAT_REPLY 
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/internal/codygateway"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/internal/trace"
+# CHAT_REPLY 	"github.com/sourcegraph/sourcegraph/lib/errors"
+# CHAT_REPLY )
+# CHAT_REPLY 
+# CHAT_REPLY // RateLimit struct and methods...
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY #### `mocked/enhanced_context/animal.ts`
+# CHAT_REPLY ```typescript:mocked/enhanced_context/animal.ts
+# CHAT_REPLY interface Animal {
+# CHAT_REPLY     name: string;
+# CHAT_REPLY     age: number;
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY #### `mocked/enhanced_context/squirrel.ts`
+# CHAT_REPLY ```typescript:mocked/enhanced_context/squirrel.ts
+# CHAT_REPLY interface CodeIntelligence {
+# CHAT_REPLY     symbols: string[]
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY /**
+# CHAT_REPLY  * Squirrel is a code intelligence API.
+# CHAT_REPLY  */
+# CHAT_REPLY interface Squirrel {
+# CHAT_REPLY     symbolInformation(file: string): CodeIntelligence
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY These snippets provide a brief overview of the structure and functionality of the codebase. If you need more detailed descriptions or specific explanations, feel free to ask!
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined",
+# CONTEXT_ITEMS     "content": "interface CodeIntelligence {\n    symbols: string[]\n}\n\n/**\n * Squirrel is a code intelligence API.\n */\ninterface Squirrel {\n    symbolInformation(file: string): CodeIntelligence\n}\n\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/animal.ts:undefined-undefined",
+# CONTEXT_ITEMS     "content": "interface Animal {\n    name: string;\n    age: number;\n}\n\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/agent.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package agent\n\n// Agent is an agent"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/limit.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package actor\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"net/http\"\n\t\"slices\"\n\t\"strconv\"\n\t\"time\"\n\n\t\"github.com/sourcegraph/log\"\n\t\"go.opentelemetry.io/otel/attribute\"\n\toteltrace \"go.opentelemetry.io/otel/trace\"\n\n\t\"github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter\"\n\t\"github.com/sourcegraph/sourcegraph/internal/codygateway\"\n\t\"github.com/sourcegraph/sourcegraph/internal/trace\"\n\t\"github.com/sourcegraph/sourcegraph/lib/errors\"\n)\n\ntype RateLimit struct {\n\t// AllowedModels is a set of models in Cody Gateway's model configuration\n\t// format, \"$PROVIDER/$MODEL_NAME\". A single-item slice with value '*' means\n\t// that all models in the 'master allowlist' are allowed.\n\t//\n\t// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)\n\t// instead.\n\tAllowedModels []string `json:\"allowedModels\"`\n\n\tLimit    int64         `json:\"limit\"`\n\tInterval time.Duration `json:\"interval\"`\n\n\t// ConcurrentRequests, ConcurrentRequestsInterval are generally applied\n\t// with NewRateLimitWithPercentageConcurrency.\n\tConcurrentRequests         int           `json:\"concurrentRequests\"`\n\tConcurrentRequestsInterval time.Duration `json:\"concurrentRequestsInterval\"`\n}\n\nfunc NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {\n\t// The actual type of time.Duration is int64, so we can use it to compute the\n\t// ratio of the rate limit interval to a day (24 hours).\n\tratioToDay := float32(interval) / float32(24*time.Hour)\n\t// Then use the ratio to compute the rate limit for a day.\n\tdailyLimit := float32(limit) / ratioToDay\n\t// Finally, compute the concurrency limit with the given percentage of the daily limit.\n\tconcurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)\n\t// Just in case a poor choice of percentage results in a concurrency limit less than 1.\n\tif concurrencyLimit < 1 {\n\t\tconcurrencyLimit = 1\n\t}\n\n\treturn RateLimit{\n\t\tAllowedModels: allowedModels,\n\t\tLimit:         limit,\n\t\tInterval:      interval,\n\n\t\tConcurrentRequests:         concurrencyLimit,\n\t\tConcurrentRequestsInterval: concurrencyConfig.Interval,\n\t}\n}\n\nfunc (r *RateLimit) IsValid() bool {\n\treturn r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0\n}\n\n// EvaluateAllowedModels returns the intersection of a 'master' allowlist and\n// the actor's allowlist, where only values on the 'master' allowlist are returned.\n// The provided allowlist MUST be prefixed with the provider name (e.g. \"anthropic/\").\n//\n// If the actor's allowlist is a single value '*', then the master allowlist is\n// returned (i.e. all models are allowed).\nfunc (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {\n\tif len(r.AllowedModels) == 1 && r.AllowedModels[0] == \"*\" {\n\t\treturn prefixedMasterAllowlist // all models allowed\n\t}\n\n\tvar result []string\n\tfor _, val := range r.AllowedModels {\n\t\tif slices.Contains(prefixedMasterAllowlist, val) {\n\t\t\tresult = append(result, val)\n\t\t}\n\t}\n\treturn result\n}\n\ntype concurrencyLimiter struct {\n\tlogger  log.Logger\n\tactor   *Actor\n\tfeature codygateway.Feature\n\n\t// redis must be a prefixed store\n\tredis limiter.RedisStore\n\n\tconcurrentRequests int\n\tconcurrentInterval time.Duration\n\n\tnextLimiter limiter.Limiter\n\n\tnowFunc func() time.Time\n}\n\nfunc (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := (limiter.StaticLimiter{\n\t\tLimiterName:        \"actor.concurrencyLimiter\",\n\t\tIdentifier:         l.actor.ID,\n\t\tRedis:              l.redis,\n\t\tLimit:              int64(l.concurrentRequests),\n\t\tInterval:           l.concurrentInterval,\n\t\tUpdateRateLimitTTL: true, // always adjust\n\t\tNowFunc:            l.nowFunc,\n\t}).TryAcquire(ctx)\n\tif err != nil {\n\t\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\t\tretryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, errors.Wrap(err, \"failed to get TTL for rate limit counter\")\n\t\t\t}\n\t\t\treturn nil, ErrConcurrencyLimitExceeded{\n\t\t\t\tfeature:    l.feature,\n\t\t\t\tlimit:      l.concurrentRequests,\n\t\t\t\tretryAfter: retryAfter,\n\t\t\t}\n\t\t}\n\t\treturn nil, errors.Wrap(err, \"check concurrent limit\")\n\t}\n\tif err = commit(ctx, 1); err != nil {\n\t\ttrace.Logger(ctx, l.logger).Error(\"failed to commit concurrency limit consumption\", log.Error(err))\n\t}\n\n\treturn l.nextLimiter.TryAcquire(ctx)\n}\n\nfunc (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn l.nextLimiter.Usage(ctx)\n}\n\ntype ErrConcurrencyLimitExceeded struct {\n\tfeature    codygateway.Feature\n\tlimit      int\n\tretryAfter time.Time\n}\n\n// Error generates a simple string that is fairly static for use in logging.\n// This helps with categorizing errors. For more detailed output use Summary().\nfunc (e ErrConcurrencyLimitExceeded) Error() string {\n\treturn fmt.Sprintf(\"%q: concurrency limit exceeded\", e.feature)\n}\n\nfunc (e ErrConcurrencyLimitExceeded) Summary() string {\n\treturn fmt.Sprintf(\"you have exceeded the concurrency limit of %d requests for %q. Retry after %s\",\n\t\te.limit, e.feature, e.retryAfter.Truncate(time.Second))\n}\n\nfunc (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {\n\t// Rate limit exceeded, write well known headers and return correct status code.\n\tw.Header().Set(\"x-ratelimit-limit\", strconv.Itoa(e.limit))\n\tw.Header().Set(\"x-ratelimit-remaining\", \"0\")\n\tw.Header().Set(\"retry-after\", e.retryAfter.Format(time.RFC1123))\n\t// Use Summary instead of Error for more informative text\n\thttp.Error(w, e.Summary(), http.StatusTooManyRequests)\n}\n\n// updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain\n// access errors.\ntype updateOnErrorLimiter struct {\n\tlogger log.Logger\n\tactor  *Actor\n\n\tnextLimiter limiter.Limiter\n}\n\nfunc (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := u.nextLimiter.TryAcquire(ctx)\n\t// If we have an access issue, try to update the actor in case they have\n\t// been granted updated access.\n\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\toteltrace.SpanFromContext(ctx).\n\t\t\tSetAttributes(attribute.Bool(\"update-on-error\", true))\n\t\t// Do update transiently, outside request hotpath\n\t\tgo func() {\n\t\t\tif updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&\n\t\t\t\t!IsErrActorRecentlyUpdated(updateErr) {\n\t\t\t\tu.logger.Warn(\"unexpected error updating actor\",\n\t\t\t\t\tlog.Error(updateErr),\n\t\t\t\t\tlog.NamedError(\"originalError\", err))\n\t\t\t}\n\t\t}()\n\t}\n\treturn commit, err\n}\n\nfunc (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn u.nextLimiter.Usage(ctx)\n}\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: codebase onboarding
  files:

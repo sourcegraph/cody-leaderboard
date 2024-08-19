@@ -2,27 +2,53 @@
 # CHAT
 # CHAT_QUESTION explain @README.md
 
-# CHAT_REPLY The provided README.md file contains information about Zoekt, a fast text search engine intended for use with source code. Here's a summary of the key points:
+# CHAT_REPLY Here is the explanation for the `README.md` file in the provided codebase context:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Introduction**: It explains that Zoekt is a fast text search engine for source code, and provides the pronunciation of the name.
+# CHAT_REPLY ```go:mocked/codebase_context/README.md
+# CHAT_REPLY // Zoekt is a fast text search engine intended for use with source code.
+# CHAT_REPLY // This is a fork of the original Zoekt project from Google, now maintained by Sourcegraph.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Instructions**:
-# CHAT_REPLY    - **Downloading**: Instructions for downloading the Zoekt source code using `go get`.
-# CHAT_REPLY    - **Indexing**: Instructions for indexing directories, Git repositories, and repositories hosted on repo.
-# CHAT_REPLY    - **Searching**: Instructions for searching using the web interface, JSON API, and CLI.
-# CHAT_REPLY    - **Installation**: Guidance for installing Zoekt as a service on a Linux server using systemd.
+# CHAT_REPLY // Downloading
+# CHAT_REPLY go get github.com/sourcegraph/zoekt/
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Search Service**: Information about the `zoekt-indexserver` tool, which can mirror and index repositories from various sources (GitHub users, organizations, and Gitiles URLs).
+# CHAT_REPLY // Indexing
+# CHAT_REPLY // Index a directory:
+# CHAT_REPLY go install github.com/sourcegraph/zoekt/cmd/zoekt-index
+# CHAT_REPLY $GOPATH/bin/zoekt-index .
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Symbol Search**: A recommendation to install Universal ctags for improved symbol search and ranking.
+# CHAT_REPLY // Index a Git repository:
+# CHAT_REPLY go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index
+# CHAT_REPLY $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Acknowledgements**: Credits to the original creators of Zoekt.
+# CHAT_REPLY // Index multiple repositories:
+# CHAT_REPLY go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}
+# CHAT_REPLY zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com
+# CHAT_REPLY zoekt-repo-index ... // See README for full command
 # CHAT_REPLY 
-# CHAT_REPLY 6. **Fork Details**: Explains that this is a fork of the original Google/zoekt repository, and lists the differences between this fork and the upstream version. It mentions that this is now the main source for Zoekt development.
+# CHAT_REPLY // Searching
+# CHAT_REPLY // Web interface:
+# CHAT_REPLY go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver
+# CHAT_REPLY $GOPATH/bin/zoekt-webserver -listen :6070
 # CHAT_REPLY 
-# CHAT_REPLY 7. **Disclaimer**: A note stating that this is not an official Google product.
+# CHAT_REPLY // JSON API:
+# CHAT_REPLY curl --get --url "http://localhost:6070/search" --data-urlencode "q=ngram f:READ" ...
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the README provides comprehensive instructions for downloading, indexing, searching, and running Zoekt as a service, as well as background information and acknowledgements.
+# CHAT_REPLY // CLI:
+# CHAT_REPLY go install github.com/sourcegraph/zoekt/cmd/zoekt
+# CHAT_REPLY $GOPATH/bin/zoekt 'ngram f:READ'
+# CHAT_REPLY 
+# CHAT_REPLY // The README also covers installation, search service, symbol search, acknowledgements, and details about this Sourcegraph fork.
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY The `README.md` file provides instructions for downloading, indexing, and searching with Zoekt. It covers indexing directories, Git repositories, and multiple repositories. It also explains how to use the web interface, JSON API, and CLI for searching. Additionally, it mentions installation, running Zoekt as a service, symbol search, acknowledgements, and details about this Sourcegraph fork of the original Zoekt project.
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: explain code
  files:
