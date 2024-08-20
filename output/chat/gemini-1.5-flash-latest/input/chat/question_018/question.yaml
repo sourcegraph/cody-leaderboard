@@ -16,9 +16,9 @@
 # CHAT_REPLY // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # CHAT_REPLY // See the License for the specific language governing permissions and
 # CHAT_REPLY // limitations under the License.
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY package zoekt
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY import (
 # CHAT_REPLY 	"context"
 # CHAT_REPLY 	"fmt"
@@ -27,13 +27,13 @@
 # CHAT_REPLY 	"sort"
 # CHAT_REPLY 	"strings"
 # CHAT_REPLY 	"time"
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	enry_data "github.com/go-enry/go-enry/v2/data"
 # CHAT_REPLY 	"github.com/grafana/regexp"
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
 # CHAT_REPLY )
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY // simplifyMultiRepo takes a query and a predicate. It returns Const(true) if all
 # CHAT_REPLY // repository names fulfill the predicate, Const(false) if none of them do, and q
 # CHAT_REPLY // otherwise.
@@ -55,7 +55,7 @@
 # CHAT_REPLY 	}
 # CHAT_REPLY 	return &query.Const{Value: false}
 # CHAT_REPLY }
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY func (d *indexData) simplify(in query.Q) query.Q {
 # CHAT_REPLY 	eval := query.Map(in, func(q query.Q) query.Q {
 # CHAT_REPLY 		switch r := q.(type) {
@@ -124,7 +124,7 @@
 # CHAT_REPLY 	})
 # CHAT_REPLY 	return query.Simplify(eval)
 # CHAT_REPLY }
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY func (o *SearchOptions) SetDefaults() {
 # CHAT_REPLY 	if o.ShardMaxMatchCount == 0 {
 # CHAT_REPLY 		// We cap the total number of matches, so overly broad
@@ -135,46 +135,46 @@
 # CHAT_REPLY 		o.TotalMaxMatchCount = 10 * o.ShardMaxMatchCount
 # CHAT_REPLY 	}
 # CHAT_REPLY }
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY func (d *indexData) Search(ctx context.Context, q query.Q, opts *SearchOptions) (sr *SearchResult, err error) {
 # CHAT_REPLY 	timer := newTimer()
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	copyOpts := *opts
 # CHAT_REPLY 	opts = &copyOpts
 # CHAT_REPLY 	opts.SetDefaults()
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	var res SearchResult
 # CHAT_REPLY 	if len(d.fileNameIndex) == 0 {
 # CHAT_REPLY 		return &res, nil
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	select {
 # CHAT_REPLY 	case <-ctx.Done():
 # CHAT_REPLY 		res.Stats.ShardsSkipped++
 # CHAT_REPLY 		return &res, nil
 # CHAT_REPLY 	default:
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	q = d.simplify(q)
 # CHAT_REPLY 	if c, ok := q.(*query.Const); ok && !c.Value {
 # CHAT_REPLY 		return &res, nil
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	if opts.EstimateDocCount {
 # CHAT_REPLY 		res.Stats.ShardFilesConsidered = len(d.fileBranchMasks)
 # CHAT_REPLY 		return &res, nil
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	q = query.Map(q, query.ExpandFileContent)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	mt, err := d.newMatchTree(q, matchTreeOpt{})
 # CHAT_REPLY 	if err != nil {
 # CHAT_REPLY 		return nil, err
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	// Capture the costs of construction before pruning
 # CHAT_REPLY 	updateMatchTreeStats(mt, &res.Stats)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	mt, err = pruneMatchTree(mt)
 # CHAT_REPLY 	if err != nil {
 # CHAT_REPLY 		return nil, err
@@ -184,24 +184,24 @@
 # CHAT_REPLY 		res.Stats.ShardsSkippedFilter++
 # CHAT_REPLY 		return &res, nil
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	res.Stats.ShardsScanned++
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	cp := &contentProvider{
 # CHAT_REPLY 		id:    d,
 # CHAT_REPLY 		stats: &res.Stats,
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	// Track the number of documents found in a repository for
 # CHAT_REPLY 	// ShardRepoMaxMatchCount
 # CHAT_REPLY 	var (
 # CHAT_REPLY 		lastRepoID     uint16
 # CHAT_REPLY 		repoMatchCount int
 # CHAT_REPLY 	)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	docCount := uint32(len(d.fileBranchMasks))
 # CHAT_REPLY 	lastDoc := int(-1)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY nextFileMatch:
 # CHAT_REPLY 	for {
 # CHAT_REPLY 		canceled := false
@@ -210,28 +210,28 @@
 # CHAT_REPLY 			canceled = true
 # CHAT_REPLY 		default:
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		nextDoc := mt.nextDoc()
 # CHAT_REPLY 		if int(nextDoc) <= lastDoc {
 # CHAT_REPLY 			nextDoc = uint32(lastDoc + 1)
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		for ; nextDoc < docCount; nextDoc++ {
 # CHAT_REPLY 			repoID := d.repos[nextDoc]
 # CHAT_REPLY 			repoMetadata := &d.repoMetaData[repoID]
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 			// Skip tombstoned repositories
 # CHAT_REPLY 			if repoMetadata.Tombstone {
 # CHAT_REPLY 				continue
 # CHAT_REPLY 			}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 			// Skip documents that are tombstoned
 # CHAT_REPLY 			if len(repoMetadata.FileTombstones) > 0 {
 # CHAT_REPLY 				if _, tombstoned := repoMetadata.FileTombstones[string(d.fileName(nextDoc))]; tombstoned {
 # CHAT_REPLY 					continue
 # CHAT_REPLY 				}
 # CHAT_REPLY 			}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 			// Skip documents over ShardRepoMaxMatchCount if specified.
 # CHAT_REPLY 			if opts.ShardRepoMaxMatchCount > 0 {
 # CHAT_REPLY 				if repoMatchCount >= opts.ShardRepoMaxMatchCount && repoID == lastRepoID {
@@ -239,35 +239,35 @@
 # CHAT_REPLY 					continue
 # CHAT_REPLY 				}
 # CHAT_REPLY 			}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 			break
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if nextDoc >= docCount {
 # CHAT_REPLY 			break
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		lastDoc = int(nextDoc)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		// We track lastRepoID for ShardRepoMaxMatchCount
 # CHAT_REPLY 		if lastRepoID != d.repos[nextDoc] {
 # CHAT_REPLY 			lastRepoID = d.repos[nextDoc]
 # CHAT_REPLY 			repoMatchCount = 0
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if canceled || (res.Stats.MatchCount >= opts.ShardMaxMatchCount && opts.ShardMaxMatchCount > 0) {
 # CHAT_REPLY 			res.Stats.FilesSkipped += int(docCount - nextDoc)
 # CHAT_REPLY 			break
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		res.Stats.FilesConsidered++
 # CHAT_REPLY 		mt.prepare(nextDoc)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		cp.setDocument(nextDoc)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		known := make(map[matchTree]bool)
 # CHAT_REPLY 		md := d.repoMetaData[d.repos[nextDoc]]
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		for cost := costMin; cost <= costMax; cost++ {
 # CHAT_REPLY 			switch evalMatchTree(cp, cost, known, mt) {
 # CHAT_REPLY 			case matchesRequiresHigherCost:
@@ -282,7 +282,7 @@
 # CHAT_REPLY 				continue nextFileMatch
 # CHAT_REPLY 			}
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		fileMatch := FileMatch{
 # CHAT_REPLY 			Repository:         md.Name,
 # CHAT_REPLY 			RepositoryID:       md.ID,
@@ -291,7 +291,7 @@
 # CHAT_REPLY 			Checksum:           d.getChecksum(nextDoc),
 # CHAT_REPLY 			Language:           d.languageMap[d.getLanguage(nextDoc)],
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if s := d.subRepos[nextDoc]; s > 0 {
 # CHAT_REPLY 			if s >= uint32(len(d.subRepoPaths[d.repos[nextDoc]])) {
 # CHAT_REPLY 				log.Panicf("corrupt index: subrepo %d beyond %v", s, d.subRepoPaths)
@@ -309,51 +309,51 @@
 # CHAT_REPLY 				fileMatch.Version = md.Branches[idx].Version
 # CHAT_REPLY 			}
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		// Important invariant for performance: finalCands is sorted by offset and
 # CHAT_REPLY 		// non-overlapping. gatherMatches respects this invariant and all later
 # CHAT_REPLY 		// transformations respect this.
 # CHAT_REPLY 		shouldMergeMatches := !opts.ChunkMatches
 # CHAT_REPLY 		finalCands := d.gatherMatches(nextDoc, mt, known, shouldMergeMatches)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if opts.ChunkMatches {
 # CHAT_REPLY 			fileMatch.ChunkMatches = cp.fillChunkMatches(finalCands, opts.NumContextLines, fileMatch.Language, opts.DebugScore)
 # CHAT_REPLY 		} else {
 # CHAT_REPLY 			fileMatch.LineMatches = cp.fillMatches(finalCands, opts.NumContextLines, fileMatch.Language, opts.DebugScore)
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if opts.UseBM25Scoring {
 # CHAT_REPLY 			d.scoreFileUsingBM25(&fileMatch, nextDoc, finalCands, opts)
 # CHAT_REPLY 		} else {
 # CHAT_REPLY 			// Use the standard, non-experimental scoring method by default
 # CHAT_REPLY 			d.scoreFile(&fileMatch, nextDoc, mt, known, opts)
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		fileMatch.Branches = d.gatherBranches(nextDoc, mt, known)
 # CHAT_REPLY 		sortMatchesByScore(fileMatch.LineMatches)
 # CHAT_REPLY 		sortChunkMatchesByScore(fileMatch.ChunkMatches)
 # CHAT_REPLY 		if opts.Whole {
 # CHAT_REPLY 			fileMatch.Content = cp.data(false)
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		matchedChunkRanges := 0
 # CHAT_REPLY 		for _, cm := range fileMatch.ChunkMatches {
 # CHAT_REPLY 			matchedChunkRanges += len(cm.Ranges)
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		repoMatchCount += len(fileMatch.LineMatches)
 # CHAT_REPLY 		repoMatchCount += matchedChunkRanges
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if opts.DebugScore {
 # CHAT_REPLY 			fileMatch.Debug = fmt.Sprintf("score:%.2f <- %s", fileMatch.Score, fileMatch.Debug)
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		res.Files = append(res.Files, fileMatch)
 # CHAT_REPLY 		res.Stats.MatchCount += len(fileMatch.LineMatches)
 # CHAT_REPLY 		res.Stats.MatchCount += matchedChunkRanges
 # CHAT_REPLY 		res.Stats.FileCount++
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	for _, md := range d.repoMetaData {
 # CHAT_REPLY 		r := md
 # CHAT_REPLY 		addRepo(&res, &r)
@@ -361,32 +361,32 @@
 # CHAT_REPLY 			addRepo(&res, v)
 # CHAT_REPLY 		}
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	// Update stats based on work done during document search.
 # CHAT_REPLY 	updateMatchTreeStats(mt, &res.Stats)
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	// If document ranking is enabled, then we can rank and truncate the files to save memory.
 # CHAT_REPLY 	if opts.UseDocumentRanks {
 # CHAT_REPLY 		res.Files = SortAndTruncateFiles(res.Files, opts)
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	res.Stats.MatchTreeSearch = timer.Elapsed()
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	return &res, nil
 # CHAT_REPLY }
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY func addRepo(res *SearchResult, repo *Repository) {
 # CHAT_REPLY 	if res.RepoURLs == nil {
 # CHAT_REPLY 		res.RepoURLs = map[string]string{}
 # CHAT_REPLY 	}
 # CHAT_REPLY 	res.RepoURLs[repo.Name] = repo.FileURLTemplate
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	if res.LineFragments == nil {
 # CHAT_REPLY 		res.LineFragments = map[string]string{}
 # CHAT_REPLY 	}
 # CHAT_REPLY 	res.LineFragments[repo.Name] = repo.LineFragmentTemplate
 # CHAT_REPLY }
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY // Gather matches from this document. The matches are returned in document
 # CHAT_REPLY // order and are non-overlapping. All filename and content matches are
 # CHAT_REPLY // returned, with filename matches first.
@@ -410,7 +410,7 @@
 # CHAT_REPLY 			cands = append(cands, setScoreWeight(scoreWeight, smt.found)...)
 # CHAT_REPLY 		}
 # CHAT_REPLY 	})
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	// If we found no candidate matches at all, assume there must have been a match on filename.
 # CHAT_REPLY 	if len(cands) == 0 {
 # CHAT_REPLY 		nm := d.fileName(nextDoc)
@@ -425,7 +425,7 @@
 # CHAT_REPLY 			byteMatchSz:   uint32(len(nm)),
 # CHAT_REPLY 		}}
 # CHAT_REPLY 	}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 	sort.Sort((sortByOffsetSlice)(cands))
 # CHAT_REPLY 	res := cands[:0]
 # CHAT_REPLY 	mergeRun := 1
@@ -434,27 +434,18 @@
 # CHAT_REPLY 			res = append(res, c)
 # CHAT_REPLY 			continue
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		last := res[len(res)-1]
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		// Never compare filename and content matches
 # CHAT_REPLY 		if last.fileName != c.fileName {
 # CHAT_REPLY 			res = append(res, c)
 # CHAT_REPLY 			continue
 # CHAT_REPLY 		}
-# CHAT_REPLY 
+# CHAT_REPLY //
 # CHAT_REPLY 		if merge {
 # CHAT_REPLY 			// Merge adjacent candidates. This guarantees that the matches
-# CHAT_REPLY 			// are non-overlapping.
-# CHAT_REPLY 			lastEnd := last.byteOffset + last.byteMatchSz
-# CHAT_REPLY 			end := c.byteOffset + c.byteMatchSz
-# CHAT_REPLY 			if lastEnd >= c.byteOffset {
-# CHAT_REPLY 				mergeRun++
-# CHAT_REPLY 				// Average out the score across the merged candidates. Only do it if
-# CHAT_REPLY 				// we are boosting to avoid floating point funkiness in the normal
-# CHAT_REPLY 				// case.
-# CHAT_REPLY 				if !(epsilonEqualsOne(last.scoreWeight) && epsilonEqualsOne(c.scoreWeight)) {
-# CHAT_REPLY 					last.scoreWeight = ((last.score
+# CHAT_REPLY 			// are non-
 # CHAT_REPLY ```
 
 # CONTEXT_ITEMS [

@@ -2,19 +2,19 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY Based on the code in `mocked/codebase_context/shards/watcher.go`, the `DirectoryWatcher` is responsible for watching a directory for changes to files with the `.zoekt` extension. It uses the `fsnotify` package to monitor the directory for file events like creation, modification, or deletion.
+# CHAT_REPLY The `DirectoryWatcher` in `mocked/codebase_context/shards/watcher.go` is responsible for watching a directory for changes to files with the `.zoekt` extension. It uses the `fsnotify` package to monitor the directory for file system events like file creation, modification, or deletion.
 # CHAT_REPLY 
-# CHAT_REPLY Here's a summary of what the `DirectoryWatcher` does:
+# CHAT_REPLY When a change is detected, the `DirectoryWatcher` scans the directory to determine which files need to be loaded or dropped from the `shardLoader`. It compares the modification times of the files with the previously recorded timestamps to identify new, modified, or deleted files.
 # CHAT_REPLY 
-# CHAT_REPLY 1. On initialization, it scans the directory and loads any existing `.zoekt` files using the provided `shardLoader` interface.
-# CHAT_REPLY 2. It starts a goroutine to watch the directory for file events using `fsnotify.Watcher`.
-# CHAT_REPLY 3. When a file event is detected, it scans the directory again to check for new, modified, or deleted `.zoekt` files.
-# CHAT_REPLY 4. If new files are found, it calls `shardLoader.load(filenames...)` to load them.
-# CHAT_REPLY 5. If files are deleted, it calls `shardLoader.drop(filenames...)` to unload them.
-# CHAT_REPLY 6. The `WaitUntilReady` method blocks until the initial scan and watch setup is complete.
-# CHAT_REPLY 7. The `Stop` method can be called to stop the directory watcher and clean up resources.
+# CHAT_REPLY Here's a summary of its responsibilities:
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` continuously monitors a directory for changes to `.zoekt` files and updates the `shardLoader` accordingly, allowing for dynamic loading and unloading of these files.
+# CHAT_REPLY 1. Scan the directory on startup to load the initial set of files.
+# CHAT_REPLY 2. Watch the directory for file system events using `fsnotify`.
+# CHAT_REPLY 3. When a change is detected, rescan the directory to identify new, modified, or deleted files.
+# CHAT_REPLY 4. Call the `load` method of the `shardLoader` to load new or modified files.
+# CHAT_REPLY 5. Call the `drop` method of the `shardLoader` to unload deleted files.
+# CHAT_REPLY 
+# CHAT_REPLY The `DirectoryWatcher` is designed to work with a `shardLoader` interface, which is responsible for actually loading and dropping the files. This separation of concerns allows the `DirectoryWatcher` to focus on monitoring the directory and delegating the file loading/dropping to the `shardLoader` implementation.
 # CHAT_REPLY 
 # CHAT_REPLY ```go:mocked/codebase_context/shards/watcher.go
 # CHAT_REPLY type DirectoryWatcher struct {
@@ -22,15 +22,13 @@
 # CHAT_REPLY     timestamps map[string]time.Time
 # CHAT_REPLY     loader     shardLoader
 # CHAT_REPLY 
-# CHAT_REPLY     // closed once ready
-# CHAT_REPLY     ready    chan struct{}
-# CHAT_REPLY     readyErr error
+# CHAT_REPLY     // ... (omitted for brevity)
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY     closeOnce sync.Once
-# CHAT_REPLY     // quit is closed by Close to signal the directory watcher to stop.
-# CHAT_REPLY     quit chan struct{}
-# CHAT_REPLY     // stopped is closed once the directory watcher has stopped.
-# CHAT_REPLY     stopped chan struct{}
+# CHAT_REPLY type shardLoader interface {
+# CHAT_REPLY     // Load a new file.
+# CHAT_REPLY     load(filenames ...string)
+# CHAT_REPLY     drop(filenames ...string)
 # CHAT_REPLY }
 # CHAT_REPLY ```
 

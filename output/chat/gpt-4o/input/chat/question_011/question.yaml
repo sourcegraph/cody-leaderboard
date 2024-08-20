@@ -2,103 +2,71 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is responsible for monitoring a specified directory for changes to files that match a certain pattern (in this case, files with the `.zoekt` extension). Here is a summary of its functionality:
+# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is responsible for monitoring a specified directory for changes to files with a `.zoekt` extension. It performs the following key functions:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Initialization**: 
-# CHAT_REPLY    - The `newDirectoryWatcher` function initializes a `DirectoryWatcher` instance with the specified directory and a `shardLoader` to handle loading and dropping files.
-# CHAT_REPLY    - It starts a goroutine to scan the directory and set up the file system watcher.
+# CHAT_REPLY 1. **Initialization**: When a `DirectoryWatcher` is created using `newDirectoryWatcher`, it initializes its internal state and starts two goroutines:
+# CHAT_REPLY    - One for scanning the directory and loading the initial state of files.
+# CHAT_REPLY    - Another for watching the directory for changes using the `fsnotify` package.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Scanning**:
-# CHAT_REPLY    - The `scan` method scans the directory for files matching the `.zoekt` pattern.
-# CHAT_REPLY    - It keeps track of the latest versions of these files and their modification times.
-# CHAT_REPLY    - It determines which files need to be loaded or dropped based on changes in the directory.
+# CHAT_REPLY 2. **Scanning**: The `scan` method is used to:
+# CHAT_REPLY    - Identify the latest versions of `.zoekt` files in the directory.
+# CHAT_REPLY    - Track the modification times of these files.
+# CHAT_REPLY    - Determine which files need to be loaded or dropped based on changes in the directory.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Watching**:
-# CHAT_REPLY    - The `watch` method sets up a file system watcher using the `fsnotify` package to monitor the directory for changes.
-# CHAT_REPLY    - When a change is detected, it triggers a scan to update the list of files to be loaded or dropped.
+# CHAT_REPLY 3. **Watching**: The `watch` method sets up a file system watcher using `fsnotify` to listen for events such as file creation, modification, or deletion. When an event is detected, it triggers a scan to update the state of the directory.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Concurrency and Synchronization**:
-# CHAT_REPLY    - The `DirectoryWatcher` uses channels and synchronization primitives (like `sync.Once`) to manage the lifecycle of the watcher and ensure it stops gracefully.
+# CHAT_REPLY 4. **Loading and Dropping Files**: Based on the results of the scan, the `DirectoryWatcher` will call the `load` and `drop` methods of the `shardLoader` interface to manage the loading and unloading of files.
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Error Handling**:
-# CHAT_REPLY    - The `DirectoryWatcher` handles errors during scanning and watching, logging them appropriately.
+# CHAT_REPLY 5. **Concurrency Management**: The `DirectoryWatcher` uses channels and synchronization primitives to manage its lifecycle and ensure that it stops gracefully when requested.
 # CHAT_REPLY 
-# CHAT_REPLY Here is the relevant code snippet for the `DirectoryWatcher`:
+# CHAT_REPLY Here's a relevant snippet from the codebase:
 # CHAT_REPLY 
 # CHAT_REPLY ```go:mocked/codebase_context/shards/watcher.go
-# CHAT_REPLY package shards
-# CHAT_REPLY 
-# CHAT_REPLY import (
-# CHAT_REPLY     // imports
-# CHAT_REPLY )
-# CHAT_REPLY 
-# CHAT_REPLY type shardLoader interface {
-# CHAT_REPLY     load(filenames ...string)
-# CHAT_REPLY     drop(filenames ...string)
-# CHAT_REPLY }
-# CHAT_REPLY 
 # CHAT_REPLY type DirectoryWatcher struct {
-# CHAT_REPLY     dir        string
-# CHAT_REPLY     timestamps map[string]time.Time
-# CHAT_REPLY     loader     shardLoader
+# CHAT_REPLY 	dir        string
+# CHAT_REPLY 	timestamps map[string]time.Time
+# CHAT_REPLY 	loader     shardLoader
 # CHAT_REPLY 
-# CHAT_REPLY     ready    chan struct{}
-# CHAT_REPLY     readyErr error
+# CHAT_REPLY 	// closed once ready
+# CHAT_REPLY 	ready    chan struct{}
+# CHAT_REPLY 	readyErr error
 # CHAT_REPLY 
-# CHAT_REPLY     closeOnce sync.Once
-# CHAT_REPLY     quit      chan struct{}
-# CHAT_REPLY     stopped   chan struct{}
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (sw *DirectoryWatcher) Stop() {
-# CHAT_REPLY     sw.closeOnce.Do(func() {
-# CHAT_REPLY         close(sw.quit)
-# CHAT_REPLY         <-sw.stopped
-# CHAT_REPLY     })
+# CHAT_REPLY 	closeOnce sync.Once
+# CHAT_REPLY 	// quit is closed by Close to signal the directory watcher to stop.
+# CHAT_REPLY 	quit chan struct{}
+# CHAT_REPLY 	// stopped is closed once the directory watcher has stopped.
+# CHAT_REPLY 	stopped chan struct{}
 # CHAT_REPLY }
 # CHAT_REPLY 
 # CHAT_REPLY func newDirectoryWatcher(dir string, loader shardLoader) (*DirectoryWatcher, error) {
-# CHAT_REPLY     sw := &DirectoryWatcher{
-# CHAT_REPLY         dir:        dir,
-# CHAT_REPLY         timestamps: map[string]time.Time{},
-# CHAT_REPLY         loader:     loader,
-# CHAT_REPLY         ready:      make(chan struct{}),
-# CHAT_REPLY         quit:       make(chan struct{}),
-# CHAT_REPLY         stopped:    make(chan struct{}),
-# CHAT_REPLY     }
+# CHAT_REPLY 	sw := &DirectoryWatcher{
+# CHAT_REPLY 		dir:        dir,
+# CHAT_REPLY 		timestamps: map[string]time.Time{},
+# CHAT_REPLY 		loader:     loader,
+# CHAT_REPLY 		ready:      make(chan struct{}),
+# CHAT_REPLY 		quit:       make(chan struct{}),
+# CHAT_REPLY 		stopped:    make(chan struct{}),
+# CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY     go func() {
-# CHAT_REPLY         defer close(sw.ready)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer close(sw.ready)
 # CHAT_REPLY 
-# CHAT_REPLY         if err := sw.scan(); err != nil {
-# CHAT_REPLY             sw.readyErr = err
-# CHAT_REPLY             return
-# CHAT_REPLY         }
+# CHAT_REPLY 		if err := sw.scan(); err != nil {
+# CHAT_REPLY 			sw.readyErr = err
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
 # CHAT_REPLY 
-# CHAT_REPLY         if err := sw.watch(); err != nil {
-# CHAT_REPLY             sw.readyErr = err
-# CHAT_REPLY             return
-# CHAT_REPLY         }
-# CHAT_REPLY     }()
+# CHAT_REPLY 		if err := sw.watch(); err != nil {
+# CHAT_REPLY 			sw.readyErr = err
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
 # CHAT_REPLY 
-# CHAT_REPLY     return sw, nil
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (s *DirectoryWatcher) WaitUntilReady() error {
-# CHAT_REPLY     <-s.ready
-# CHAT_REPLY     return s.readyErr
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (s *DirectoryWatcher) scan() error {
-# CHAT_REPLY     // scanning logic
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func (s *DirectoryWatcher) watch() error {
-# CHAT_REPLY     // watching logic
+# CHAT_REPLY 	return sw, nil
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` is designed to monitor a directory for changes to specific files, load new or updated files, and drop deleted files, ensuring that the system stays up-to-date with the current state of the directory.
+# CHAT_REPLY In summary, the `DirectoryWatcher` is designed to keep track of changes in a directory, ensuring that the latest versions of relevant files are loaded and outdated or deleted files are unloaded, all while handling concurrency and synchronization.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

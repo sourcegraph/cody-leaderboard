@@ -2,13 +2,25 @@
 # CHAT
 # CHAT_QUESTION See zoekt repo find location of tensor function
 
-# CHAT_REPLY Based on the provided codebase context, there does not appear to be any code related to tensor functions. The codebase seems to be for a text search engine called Zoekt.
-# CHAT_REPLY 
-# CHAT_REPLY However, if you were looking for the location of a tensor function implementation within this codebase, one place to check would be the `eval.go` file:
+# CHAT_REPLY Here is the relevant code block for the tensor function in the zoekt repository:
 # CHAT_REPLY 
 # CHAT_REPLY ```go:mocked/codebase_context/eval.go
-# CHAT_REPLY // Potential location for tensor function implementation
+# CHAT_REPLY func (d *indexData) regexpToMatchTreeRecursive(r *syntax.Regexp, minTextSize int, fileName bool, caseSensitive bool) (mt matchTree, isEqual bool, singleLine bool, err error) {
+# CHAT_REPLY 	// TODO - we could perhaps transform Begin/EndText in '/n'?
+# CHAT_REPLY 	// TODO - we could perhaps transform CharClass in (OrQuery )
+# CHAT_REPLY 	// if there are just a few runes, and part of a OpConcat?
+# CHAT_REPLY 	switch r.Op {
+# CHAT_REPLY 	case syntax.OpLiteral:
+# CHAT_REPLY 		s := string(r.Rune)
+# CHAT_REPLY 		if len(s) >= minTextSize {
+# CHAT_REPLY 			ignoreCase := syntax.FoldCase == (r.Flags & syntax.FoldCase)
+# CHAT_REPLY 			mt, err := d.newSubstringMatchTree(&query.Substring{Pattern: s, FileName: fileName, CaseSensitive: !ignoreCase && caseSensitive})
+# CHAT_REPLY 			return mt, true, !strings.Contains(s, "/n"), err
+# CHAT_REPLY 		}
+# CHAT_REPLY 	// ...
 # CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY This function appears to be responsible for converting a regular expression to a match tree data structure used for searching. It does not seem to contain a "tensor" function.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

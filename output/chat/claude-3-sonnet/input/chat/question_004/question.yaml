@@ -2,9 +2,9 @@
 # CHAT
 # CHAT_QUESTION how do slices work in go?
 
-# CHAT_REPLY To explain how slices work in Go, I'll use the code from `mocked/enhanced_context/limit.go`:
+# CHAT_REPLY To explain how slices work in Go, I'll use the code from the provided `limit.go` file:
 # CHAT_REPLY 
-# CHAT_REPLY ```go:mocked/enhanced_context/limit.go
+# CHAT_REPLY ```go:github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/actor/limit.go
 # CHAT_REPLY func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
 # CHAT_REPLY 	if len(r.AllowedModels) == 1 && r.AllowedModels[0] == "*" {
 # CHAT_REPLY 		return prefixedMasterAllowlist // all models allowed
@@ -20,27 +20,27 @@
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY In this function, we see a few key operations with slices:
+# CHAT_REPLY In this function:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Checking length**: `len(r.AllowedModels)` returns the number of elements in the `r.AllowedModels` slice.
+# CHAT_REPLY 1. `prefixedMasterAllowlist` is a slice of strings representing the "master" list of allowed models.
+# CHAT_REPLY 2. `r.AllowedModels` is also a slice of strings representing the models allowed for a specific actor.
+# CHAT_REPLY 3. The function first checks if `r.AllowedModels` has only one element `"*"`, which means all models are allowed.
+# CHAT_REPLY 4. If not, it creates a new slice `result` to store the intersection of `prefixedMasterAllowlist` and `r.AllowedModels`.
+# CHAT_REPLY 5. It iterates over `r.AllowedModels` using a `for` loop with the `range` keyword.
+# CHAT_REPLY 6. For each `val` in `r.AllowedModels`, it checks if `val` is present in `prefixedMasterAllowlist` using `slices.Contains`.
+# CHAT_REPLY 7. If `val` is present, it appends `val` to the `result` slice using `append(result, val)`.
+# CHAT_REPLY 8. Finally, it returns the `result` slice containing the intersection of the two slices.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Accessing elements**: `r.AllowedModels[0]` accesses the first element of the slice.
+# CHAT_REPLY Some key points about slices in Go:
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Iterating over a slice**: `for _, val := range r.AllowedModels` iterates over each element in the slice, assigning the value to `val` in each iteration.
+# CHAT_REPLY - Slices are reference types, meaning they refer to an underlying array.
+# CHAT_REPLY - You can create a slice using `[]type{}` syntax or by slicing an array.
+# CHAT_REPLY - You can append elements to a slice using the `append` function.
+# CHAT_REPLY - You can iterate over a slice using the `range` keyword in a `for` loop.
+# CHAT_REPLY - The `len` function returns the length of a slice.
+# CHAT_REPLY - Slices have a capacity, which is the maximum length they can grow to before requiring a reallocation.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Creating a new slice**: `var result []string` creates a new, empty slice of strings.
-# CHAT_REPLY 
-# CHAT_REPLY 5. **Appending to a slice**: `result = append(result, val)` appends the `val` element to the `result` slice.
-# CHAT_REPLY 
-# CHAT_REPLY Some key things to know about slices in Go:
-# CHAT_REPLY 
-# CHAT_REPLY - Slices are built on top of arrays, providing a way to work with arrays in a more flexible and efficient way.
-# CHAT_REPLY - Slices have a length and capacity. The length is the number of elements, and the capacity is the maximum number of elements the slice can hold before needing to reallocate memory.
-# CHAT_REPLY - Slices are reference types, meaning they point to an underlying array. Modifying the slice modifies the underlying array.
-# CHAT_REPLY - The `append` function can grow the slice's capacity as needed when adding new elements.
-# CHAT_REPLY - Slices can be sliced using the `slice[low:high]` syntax to create new slices that reference the same underlying array.
-# CHAT_REPLY 
-# CHAT_REPLY Overall, slices provide a convenient and efficient way to work with arrays in Go, with built-in functionality for common operations like appending, iterating, and slicing.
+# CHAT_REPLY So in summary, slices in Go are lightweight, resizable arrays that provide convenient ways to work with collections of elements, including iterating, appending, and checking for membership.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

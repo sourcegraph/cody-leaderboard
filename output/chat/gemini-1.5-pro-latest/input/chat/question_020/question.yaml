@@ -2,147 +2,19 @@
 # CHAT
 # CHAT_QUESTION explain @README.md
 
-# CHAT_REPLY ```text
-# CHAT_REPLY "Zoekt, en gij zult spinazie eten" - Jan Eertink
+# CHAT_REPLY The file `mocked/codebase_context/README.md` provides instructions on how to download, index, and search code using Zoekt, a fast text search engine for source code. 
 # CHAT_REPLY 
-# CHAT_REPLY ("seek, and ye shall eat spinach" - My primary school teacher)
+# CHAT_REPLY Here's a breakdown of the sections:
 # CHAT_REPLY 
-# CHAT_REPLY This is a fast text search engine, intended for use with source
-# CHAT_REPLY code. (Pronunciation: roughly as you would pronounce "zooked" in English)
-# CHAT_REPLY 
-# CHAT_REPLY **Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork
-# CHAT_REPLY of [github.com/google/zoekt](https://github.com/google/zoekt). It is now the
-# CHAT_REPLY main maintained source of Zoekt.
-# CHAT_REPLY 
-# CHAT_REPLY # INSTRUCTIONS
-# CHAT_REPLY 
-# CHAT_REPLY ## Downloading
-# CHAT_REPLY 
-# CHAT_REPLY     go get github.com/sourcegraph/zoekt/
-# CHAT_REPLY 
-# CHAT_REPLY ## Indexing
-# CHAT_REPLY 
-# CHAT_REPLY ### Directory
-# CHAT_REPLY 
-# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-index
-# CHAT_REPLY     $GOPATH/bin/zoekt-index .
-# CHAT_REPLY 
-# CHAT_REPLY ### Git repository
-# CHAT_REPLY 
-# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index
-# CHAT_REPLY     $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .
-# CHAT_REPLY 
-# CHAT_REPLY ### Repo repositories
-# CHAT_REPLY 
-# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}
-# CHAT_REPLY     zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com
-# CHAT_REPLY     zoekt-repo-index /n        -name gfiber /n        -base_url https://gfiber.googlesource.com/ /n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git /n        -repo_cache ~/repos /n        -manifest_rev_prefix=refs/heads/ --rev_prefix= /n        master:default_unrestricted.xml
-# CHAT_REPLY 
-# CHAT_REPLY ## Searching
-# CHAT_REPLY 
-# CHAT_REPLY ### Web interface
-# CHAT_REPLY 
-# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver
-# CHAT_REPLY     $GOPATH/bin/zoekt-webserver -listen :6070
-# CHAT_REPLY 
-# CHAT_REPLY ### JSON API
-# CHAT_REPLY 
-# CHAT_REPLY You can retrieve search results as JSON by sending a GET request to zoekt-webserver.
-# CHAT_REPLY 
-# CHAT_REPLY     curl --get /n        --url "http://localhost:6070/search" /n        --data-urlencode "q=ngram f:READ" /n        --data-urlencode "num=50" /n        --data-urlencode "format=json"
-# CHAT_REPLY 
-# CHAT_REPLY The response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.
-# CHAT_REPLY 
-# CHAT_REPLY ### CLI
-# CHAT_REPLY 
-# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt
-# CHAT_REPLY     $GOPATH/bin/zoekt 'ngram f:READ'
-# CHAT_REPLY 
-# CHAT_REPLY ## Installation
-# CHAT_REPLY A more organized installation on a Linux server should use a systemd unit file,
-# CHAT_REPLY eg.
-# CHAT_REPLY 
-# CHAT_REPLY     [Unit]
-# CHAT_REPLY     Description=zoekt webserver
-# CHAT_REPLY 
-# CHAT_REPLY     [Service]
-# CHAT_REPLY     ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem
-# CHAT_REPLY     Restart=always
-# CHAT_REPLY 
-# CHAT_REPLY     [Install]
-# CHAT_REPLY     WantedBy=default.target
-# CHAT_REPLY 
-# CHAT_REPLY 
-# CHAT_REPLY # SEARCH SERVICE
-# CHAT_REPLY 
-# CHAT_REPLY Zoekt comes with a small service management program:
-# CHAT_REPLY 
-# CHAT_REPLY     go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver
-# CHAT_REPLY 
-# CHAT_REPLY     cat << EOF > config.json
-# CHAT_REPLY     [{"GithubUser": "username"},
-# CHAT_REPLY      {"GithubOrg": "org"},
-# CHAT_REPLY      {"GitilesURL": "https://gerrit.googlesource.com", "Name": "zoekt" }
-# CHAT_REPLY     ]
-# CHAT_REPLY     EOF
-# CHAT_REPLY 
-# CHAT_REPLY     $GOPATH/bin/zoekt-indexserver -mirror_config config.json
-# CHAT_REPLY 
-# CHAT_REPLY This will mirror all repos under 'github.com/username', 'github.com/org', as
-# CHAT_REPLY well as the 'zoekt' repository. It will index the repositories.
-# CHAT_REPLY 
-# CHAT_REPLY It takes care of fetching and indexing new data and cleaning up logfiles.
-# CHAT_REPLY 
-# CHAT_REPLY The webserver can be started from a standard service management framework, such
-# CHAT_REPLY as systemd.
-# CHAT_REPLY 
-# CHAT_REPLY 
-# CHAT_REPLY # SYMBOL SEARCH
-# CHAT_REPLY 
-# CHAT_REPLY It is recommended to install [Universal
-# CHAT_REPLY ctags](https://github.com/universal-ctags/ctags) to improve
-# CHAT_REPLY ranking. See [here](doc/ctags.md) for more information.
-# CHAT_REPLY 
-# CHAT_REPLY 
-# CHAT_REPLY # ACKNOWLEDGEMENTS
-# CHAT_REPLY 
-# CHAT_REPLY Thanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for
-# CHAT_REPLY coming up with this idea, and helping Han-Wen Nienhuys flesh it out.
-# CHAT_REPLY 
-# CHAT_REPLY 
-# CHAT_REPLY # FORK DETAILS
-# CHAT_REPLY 
-# CHAT_REPLY Originally this fork contained some changes that do not make sense to upstream
-# CHAT_REPLY and or have not yet been upstreamed. However, this is now the defacto source
-# CHAT_REPLY for Zoekt. This section will remain for historical reasons and contains
-# CHAT_REPLY outdated information. It can be removed once the dust settles on moving from
-# CHAT_REPLY google/zoekt to sourcegraph/zoekt. Differences:
-# CHAT_REPLY 
-# CHAT_REPLY - [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)
-# CHAT_REPLY   is a Sourcegraph specific command which indexes all enabled repositories on
-# CHAT_REPLY   Sourcegraph, as well as keeping the indexes up to date.
-# CHAT_REPLY - We have exposed the API via
-# CHAT_REPLY   [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`
-# CHAT_REPLY   which supports cancellation).
-# CHAT_REPLY - Query primitive `BranchesRepos` to efficiently specify a set of repositories to
-# CHAT_REPLY   search.
-# CHAT_REPLY - Allow empty shard directories on startup. Needed when starting a fresh
-# CHAT_REPLY   instance which hasn't indexed anything yet.
-# CHAT_REPLY - We can return symbol/ctag data in results. Additionally we can run symbol regex queries.
-# CHAT_REPLY - We search shards in order of repo name and ignore shard ranking.
-# CHAT_REPLY - Other minor changes.
-# CHAT_REPLY 
-# CHAT_REPLY Assuming you have the gerrit upstream configured, a useful way to see what we
-# CHAT_REPLY changed is:
-# CHAT_REPLY 
-# CHAT_REPLY ``` shellsession
-# CHAT_REPLY $ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'
-# CHAT_REPLY ```
-# CHAT_REPLY 
-# CHAT_REPLY # DISCLAIMER
-# CHAT_REPLY 
-# CHAT_REPLY This is not an official Google product
-# CHAT_REPLY ```
+# CHAT_REPLY * **Downloading:** Explains how to download Zoekt using `go get`.
+# CHAT_REPLY * **Indexing:** Details how to index codebases for searching. This includes indexing directories, Git repositories, and multiple repositories from sources like Gerrit.
+# CHAT_REPLY * **Searching:** Describes various ways to search using Zoekt, including a web interface, JSON API, and command-line interface.
+# CHAT_REPLY * **Installation:** Provides an example systemd unit file for running the Zoekt webserver.
+# CHAT_REPLY * **SEARCH SERVICE:** Explains how to use `zoekt-indexserver` to manage mirroring and indexing of repositories from GitHub and Gerrit.
+# CHAT_REPLY * **SYMBOL SEARCH:** Recommends installing Universal ctags for improved ranking in symbol searches.
+# CHAT_REPLY * **ACKNOWLEDGEMENTS:** Thanks the original creators and contributors of Zoekt.
+# CHAT_REPLY * **FORK DETAILS:** Explains that this version of Zoekt is a fork maintained by Sourcegraph and highlights the differences from the original Google version.
+# CHAT_REPLY * **DISCLAIMER:** Clarifies that this is not an official Google product.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

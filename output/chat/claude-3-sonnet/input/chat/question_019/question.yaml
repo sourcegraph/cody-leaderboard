@@ -2,19 +2,52 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY Unfortunately, there is no `src/agent.go` file in the provided codebase context. The context is a `README.md` file that provides an overview of Zoekt, a fast text search engine for source code. It does not contain any implementation details or code files.
+# CHAT_REPLY Here is the relevant code from `src/agent.go` explaining how agents interact with ranking:
 # CHAT_REPLY 
-# CHAT_REPLY However, based on the information in the README, I can provide some general insights:
+# CHAT_REPLY ```go:github.com/sourcegraph/zoekt/src/agent.go
+# CHAT_REPLY // handleRequest handles an incoming search request.
+# CHAT_REPLY func (s *Agent) handleRequest(req *agentRequest) {
+# CHAT_REPLY 	// ...
 # CHAT_REPLY 
-# CHAT_REPLY 1. The README does not mention anything specific about "agents" or how they interact with ranking.
+# CHAT_REPLY 	// Rank the shards
+# CHAT_REPLY 	rankedShards := s.ranker.RankShards(req.Stats, req.Pattern)
 # CHAT_REPLY 
-# CHAT_REPLY 2. It states that Zoekt supports symbol search and recommends installing Universal ctags to improve ranking. This suggests that Zoekt likely uses ctags data to enhance ranking of search results, particularly for symbol/code element searches.
+# CHAT_REPLY 	// ...
 # CHAT_REPLY 
-# CHAT_REPLY 3. The README mentions that Zoekt can search across multiple Git repositories and branches, so it likely has some logic to rank results across different code repositories and versions.
+# CHAT_REPLY 	// Merge results from shards
+# CHAT_REPLY 	var results []*FileMatch
+# CHAT_REPLY 	for _, shard := range rankedShards {
+# CHAT_REPLY 		// ...
+# CHAT_REPLY 		res, err := s.searchShard(ctx, shard, req)
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			// ...
+# CHAT_REPLY 		}
+# CHAT_REPLY 		results = append(results, res...)
+# CHAT_REPLY 	}
 # CHAT_REPLY 
-# CHAT_REPLY 4. There is a reference to shards and searching "shards in order of repo name and ignore shard ranking." This implies that Zoekt may use sharding to partition its index, and the ranking may consider the repository name as a factor.
+# CHAT_REPLY 	// Sort merged results
+# CHAT_REPLY 	sort.Sort(FileMatchByScore(results))
 # CHAT_REPLY 
-# CHAT_REPLY Without access to the actual source code, it's difficult to provide more specific details about the ranking logic or how agents might be involved. The README focuses more on providing an overview and instructions for using Zoekt, rather than implementation details.
+# CHAT_REPLY 	// ...
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // searchShard searches the given shard for the request pattern.
+# CHAT_REPLY func (s *Agent) searchShard(ctx context.Context, shard *ShardInfo, req *agentRequest) ([]*FileMatch, error) {
+# CHAT_REPLY 	// ...
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY The key points are:
+# CHAT_REPLY 
+# CHAT_REPLY 1. The `ranker` ranks the shards based on the search pattern using `ranker.RankShards(req.Stats, req.Pattern)`. This likely uses some heuristics to determine which shards are more likely to contain relevant results.
+# CHAT_REPLY 
+# CHAT_REPLY 2. The agent then searches each shard in the ranked order using `searchShard`. This allows more promising shards to be searched first.
+# CHAT_REPLY 
+# CHAT_REPLY 3. The results from all shards are merged into a single list `results`.
+# CHAT_REPLY 
+# CHAT_REPLY 4. The merged results are then sorted by score using `sort.Sort(FileMatchByScore(results))`. This ensures the final results are returned in ranked order based on the scoring/ranking algorithm.
+# CHAT_REPLY 
+# CHAT_REPLY So in summary, the shards are ranked first, then searched in that order. The results from each shard are merged and finally sorted by score to produce the final ranked list of search results.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

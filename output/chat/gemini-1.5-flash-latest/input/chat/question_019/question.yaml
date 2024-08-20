@@ -8,533 +8,291 @@
 # CHAT_REPLY import (
 # CHAT_REPLY 	"context"
 # CHAT_REPLY 	"fmt"
-# CHAT_REPLY 	"io"
 # CHAT_REPLY 	"log"
-# CHAT_REPLY 	"net/http"
-# CHAT_REPLY 	"net/url"
 # CHAT_REPLY 	"os"
 # CHAT_REPLY 	"os/signal"
 # CHAT_REPLY 	"runtime"
-# CHAT_REPLY 	"strings"
 # CHAT_REPLY 	"sync"
 # CHAT_REPLY 	"syscall"
 # CHAT_REPLY 	"time"
 # CHAT_REPLY 
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
-# CHAT_REPLY 	"golang.org/x/sync/errgroup"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/indexserver"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/repo"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/search"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/shard"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/text"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/protocol"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY // Agent is a search agent.
-# CHAT_REPLY type Agent struct {
+# CHAT_REPLY // agent is a single shard indexer.
+# CHAT_REPLY type agent struct {
 # CHAT_REPLY 	mu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// The search index.
-# CHAT_REPLY 	index *search.Index
+# CHAT_REPLY 	// shard is the shard this agent is responsible for.
+# CHAT_REPLY 	shard *shard.Shard
 # CHAT_REPLY 
-# CHAT_REPLY 	// The web server.
-# CHAT_REPLY 	web *web.Server
+# CHAT_REPLY 	// repo is the repository this agent is responsible for.
+# CHAT_REPLY 	repo *repo.Repo
 # CHAT_REPLY 
-# CHAT_REPLY 	// The shard directory.
-# CHAT_REPLY 	shardDir string
+# CHAT_REPLY 	// indexer is the indexer for this agent.
+# CHAT_REPLY 	indexer *indexserver.Indexer
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards.
-# CHAT_REPLY 	numShards int
+# CHAT_REPLY 	// lastIndexed is the last time this agent indexed its shard.
+# CHAT_REPLY 	lastIndexed time.Time
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for ranking.
-# CHAT_REPLY 	numRankingShards int
+# CHAT_REPLY 	// lastIndexedErr is the last error encountered while indexing.
+# CHAT_REPLY 	lastIndexedErr error
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for searching.
-# CHAT_REPLY 	numSearchShards int
+# CHAT_REPLY 	// lastIndexedRepo is the last repository that was indexed.
+# CHAT_REPLY 	lastIndexedRepo string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for indexing.
-# CHAT_REPLY 	numIndexShards int
+# CHAT_REPLY 	// lastIndexedRev is the last revision that was indexed.
+# CHAT_REPLY 	lastIndexedRev string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for mirroring.
-# CHAT_REPLY 	numMirrorShards int
+# CHAT_REPLY 	// lastIndexedTime is the last time the repository was indexed.
+# CHAT_REPLY 	lastIndexedTime time.Time
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for ctags.
-# CHAT_REPLY 	numCtagsShards int
+# CHAT_REPLY 	// lastIndexedSize is the last size of the repository that was indexed.
+# CHAT_REPLY 	lastIndexedSize int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for symbol search.
-# CHAT_REPLY 	numSymbolShards int
+# CHAT_REPLY 	// lastIndexedBranch is the last branch that was indexed.
+# CHAT_REPLY 	lastIndexedBranch string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code intelligence.
-# CHAT_REPLY 	numCodeIntelShards int
+# CHAT_REPLY 	// lastIndexedCommit is the last commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommit string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code navigation.
-# CHAT_REPLY 	numCodeNavShards int
+# CHAT_REPLY 	// lastIndexedCommitTime is the last time the commit was indexed.
+# CHAT_REPLY 	lastIndexedCommitTime time.Time
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code completion.
-# CHAT_REPLY 	numCodeCompShards int
+# CHAT_REPLY 	// lastIndexedCommitAuthor is the last author of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitAuthor string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code refactoring.
-# CHAT_REPLY 	numCodeRefactorShards int
+# CHAT_REPLY 	// lastIndexedCommitMessage is the last message of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitMessage string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code analysis.
-# CHAT_REPLY 	numCodeAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitParents is the last parents of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitParents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security.
-# CHAT_REPLY 	numCodeSecurityShards int
+# CHAT_REPLY 	// lastIndexedCommitURL is the last URL of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitURL string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance.
-# CHAT_REPLY 	numCodePerfShards int
+# CHAT_REPLY 	// lastIndexedCommitSize is the last size of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitSize int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability.
-# CHAT_REPLY 	numCodeReliabilityShards int
+# CHAT_REPLY 	// lastIndexedCommitDiff is the last diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiff string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability.
-# CHAT_REPLY 	numCodeMaintainabilityShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffSize is the last size of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffSize int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability.
-# CHAT_REPLY 	numCodeUsabilityShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffLines is the last number of lines in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffLines int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility.
-# CHAT_REPLY 	numCodeAccessibilityShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffHunks is the last number of hunks in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffHunks int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization.
-# CHAT_REPLY 	numCodeLocalizationShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFiles is the last number of files in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFiles int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization.
-# CHAT_REPLY 	numCodeInternationalizationShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileChanges is the last number of file changes in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileChanges int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation.
-# CHAT_REPLY 	numCodeDocumentationShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileAdditions is the last number of file additions in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileAdditions int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing.
-# CHAT_REPLY 	numCodeTestingShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileDeletions is the last number of file deletions in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileDeletions int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment.
-# CHAT_REPLY 	numCodeDeploymentShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileRenames is the last number of file renames in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileRenames int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring.
-# CHAT_REPLY 	numCodeMonitoringShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileCopies is the last number of file copies in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileCopies int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging.
-# CHAT_REPLY 	numCodeLoggingShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileMoves is the last number of file moves in the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileMoves int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging.
-# CHAT_REPLY 	numCodeDebuggingShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContents is the last contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContents string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling.
-# CHAT_REPLY 	numCodeProfilingShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsSize is the last size of the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsSize int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing.
-# CHAT_REPLY 	numCodeTracingShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsLines is the last number of lines in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsLines int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunks is the last number of hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunks int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsChanges is the last number of changes in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsChanges int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsAdditions is the last number of additions in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsAdditions int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsDeletions is the last number of deletions in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsDeletions int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsRenames is the last number of renames in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsRenames int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsCopies is the last number of copies in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsCopies int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsMoves is the last number of moves in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsMoves int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkHeaders is the last headers of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkHeaders []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLines is the last lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLines []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkChanges is the last changes of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkAdditions is the last additions of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkDeletions is the last deletions of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkContexts is the last contexts of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
+# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
 # CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code testing analysis.
-# CHAT_REPLY 	numCodeTestingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code deployment analysis.
-# CHAT_REPLY 	numCodeDeploymentAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code monitoring analysis.
-# CHAT_REPLY 	numCodeMonitoringAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code logging analysis.
-# CHAT_REPLY 	numCodeLoggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code debugging analysis.
-# CHAT_REPLY 	numCodeDebuggingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code profiling analysis.
-# CHAT_REPLY 	numCodeProfilingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code tracing analysis.
-# CHAT_REPLY 	numCodeTracingAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code security analysis.
-# CHAT_REPLY 	numCodeSecurityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code performance analysis.
-# CHAT_REPLY 	numCodePerformanceAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code reliability analysis.
-# CHAT_REPLY 	numCodeReliabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code maintainability analysis.
-# CHAT_REPLY 	numCodeMaintainabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code usability analysis.
-# CHAT_REPLY 	numCodeUsabilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code accessibility analysis.
-# CHAT_REPLY 	numCodeAccessibilityAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code localization analysis.
-# CHAT_REPLY 	numCodeLocalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code internationalization analysis.
-# CHAT_REPLY 	numCodeInternationalizationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code documentation analysis.
-# CHAT_REPLY 	numCodeDocumentationAnalysisShards int
-# CHAT_REPLY 
-# CHAT_REPLY 	// The number of shards to use for code
+# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is
 # CHAT_REPLY ```
 
 # CONTEXT_ITEMS [
