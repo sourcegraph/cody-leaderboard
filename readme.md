@@ -16,4 +16,4 @@ Setting up the virtual environment:
 
 To run the leaderboard:
 
-1. `streamlit run [leaderboard.py](http://leaderboard.py/)`
+1. `streamlit run leaderboard.py`
