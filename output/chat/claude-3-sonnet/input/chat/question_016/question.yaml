@@ -2,15 +2,14 @@
 # CHAT
 # CHAT_QUESTION Mind taking a second look at the file? @limit.go
 
-# CHAT_REPLY Sure, let's take a look at `mocked/codebase_context/limit.go`:
+# CHAT_REPLY Sure, let's take a look at mocked/codebase_context/limit.go:
 # CHAT_REPLY 
 # CHAT_REPLY ```go:mocked/codebase_context/limit.go
 # CHAT_REPLY package zoekt
 # CHAT_REPLY 
 # CHAT_REPLY import "log"
 # CHAT_REPLY 
-# CHAT_REPLY // SortAndTruncateFiles sorts the given FileMatches and then truncates them based
-# CHAT_REPLY // on the SearchOptions provided.
+# CHAT_REPLY // SortAndTruncateFiles sorts the given FileMatches and then truncates them based on the SearchOptions.
 # CHAT_REPLY func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {
 # CHAT_REPLY 	SortFiles(files)
 # CHAT_REPLY 	truncator, _ := NewDisplayTruncator(opts)
@@ -18,42 +17,35 @@
 # CHAT_REPLY 	return files
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // DisplayTruncator is a function that enforces limits on the number of
-# CHAT_REPLY // Documents and Matches displayed by truncating the given slice of FileMatches.
+# CHAT_REPLY // DisplayTruncator is a function that enforces limits on the number of files and matches returned.
+# CHAT_REPLY // It is stateful and will continue truncating results until the limits are exhausted.
 # CHAT_REPLY type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
 # CHAT_REPLY 
-# CHAT_REPLY // NewDisplayTruncator returns a DisplayTruncator that enforces the limits
-# CHAT_REPLY // specified in the given SearchOptions.
+# CHAT_REPLY // NewDisplayTruncator returns a DisplayTruncator based on the SearchOptions provided.
+# CHAT_REPLY // If no limits are set, it returns a no-op truncator and hasLimits=false.
 # CHAT_REPLY func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {
 # CHAT_REPLY 	// ... function body omitted for brevity ...
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // Helper functions
-# CHAT_REPLY 
-# CHAT_REPLY func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
-# CHAT_REPLY 	// ...
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int {
-# CHAT_REPLY 	// ...
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int {
-# CHAT_REPLY 	// ...
-# CHAT_REPLY }
+# CHAT_REPLY // Helper functions to limit ChunkMatches and LineMatches
+# CHAT_REPLY func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) { ... }
+# CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int { ... } 
+# CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int { ... }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY This file contains functions related to limiting the number of file matches, chunk matches, and line matches returned by a search query. The main functions are:
+# CHAT_REPLY This file contains functions to sort and truncate search results based on the specified limits in the SearchOptions. The key types and functions are:
 # CHAT_REPLY 
-# CHAT_REPLY 1. `SortAndTruncateFiles`: Sorts and truncates a slice of `FileMatch` structs based on the provided `SearchOptions`.
-# CHAT_REPLY 2. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on the number of documents and matches displayed.
-# CHAT_REPLY 3. `limitMatches`: Helper function that limits the number of chunk or line matches in a slice of `FileMatch` structs.
-# CHAT_REPLY 4. `limitChunkMatches`: Helper function that limits the number of chunk matches in a single `FileMatch` struct.
-# CHAT_REPLY 5. `limitLineMatches`: Helper function that limits the number of line matches in a single `FileMatch` struct.
+# CHAT_REPLY 1. `SortAndTruncateFiles` sorts the FileMatches and then truncates them using a DisplayTruncator.
 # CHAT_REPLY 
-# CHAT_REPLY The `DisplayTruncator` function returned by `NewDisplayTruncator` is a stateful function that enforces the specified limits by truncating the input slice of `FileMatch` structs. It returns a truncated slice and a boolean indicating whether there are more matches that were not included due to the limits.
+# CHAT_REPLY 2. `DisplayTruncator` is a function type that takes a slice of FileMatches and returns a truncated slice along with a boolean indicating if more results are available.
 # CHAT_REPLY 
-# CHAT_REPLY The helper functions `limitChunkMatches` and `limitLineMatches` handle the details of truncating the chunk and line matches within a single `FileMatch` struct, respectively.
+# CHAT_REPLY 3. `NewDisplayTruncator` returns a DisplayTruncator based on the MaxDocDisplayCount and MaxMatchDisplayCount limits in SearchOptions.
+# CHAT_REPLY 
+# CHAT_REPLY 4. `limitMatches` is a helper to truncate either ChunkMatches or LineMatches across all FileMatches.
+# CHAT_REPLY 
+# CHAT_REPLY 5. `limitChunkMatches` and `limitLineMatches` are helpers to truncate ChunkMatches and LineMatches respectively within a single FileMatch.
+# CHAT_REPLY 
+# CHAT_REPLY The core logic seems to be enforcing the display limits by truncating the results at the file level and then the match level (ChunkMatches or LineMatches) within each file.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

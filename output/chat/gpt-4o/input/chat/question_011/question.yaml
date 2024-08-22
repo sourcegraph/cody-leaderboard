@@ -2,30 +2,27 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is a component designed to monitor a specified directory for changes, specifically for files with the `.zoekt` extension. Here’s a detailed breakdown of its functionality:
+# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is a component designed to monitor a specific directory for changes, specifically for files with the `.zoekt` extension. Here's a summary of its functionality:
 # CHAT_REPLY 
 # CHAT_REPLY 1. **Initialization**:
-# CHAT_REPLY    - The `newDirectoryWatcher` function initializes a `DirectoryWatcher` instance with the specified directory and a `shardLoader` interface. It sets up channels for signaling readiness, quitting, and stopping.
+# CHAT_REPLY    - The `newDirectoryWatcher` function initializes a `DirectoryWatcher` instance, setting up the directory to watch, initializing timestamps for files, and starting the watcher in a separate goroutine.
 # CHAT_REPLY 
 # CHAT_REPLY 2. **Scanning**:
-# CHAT_REPLY    - The `scan` method scans the directory for `.zoekt` files and their corresponding `.meta` files. It keeps track of the latest versions of these files and their modification times.
-# CHAT_REPLY    - It determines which files need to be loaded or dropped based on changes in the directory and updates the `timestamps` map accordingly.
-# CHAT_REPLY    - It calls the `load` and `drop` methods of the `shardLoader` interface to handle the loading and unloading of files.
+# CHAT_REPLY    - The `scan` method scans the specified directory for `.zoekt` files, checks their versions, and updates the timestamps of the files. It determines which files need to be loaded or dropped based on changes in the directory.
 # CHAT_REPLY 
 # CHAT_REPLY 3. **Watching**:
-# CHAT_REPLY    - The `watch` method sets up a file system watcher using the `fsnotify` package to monitor the directory for changes.
-# CHAT_REPLY    - It listens for file system events and triggers a re-scan of the directory when changes are detected.
-# CHAT_REPLY    - It handles errors and ensures the watcher stops gracefully when the `quit` channel is closed.
+# CHAT_REPLY    - The `watch` method sets up a file system watcher using the `fsnotify` package to monitor the directory for changes. When changes are detected, it triggers a rescan of the directory.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Stopping**:
-# CHAT_REPLY    - The `Stop` method stops the directory watcher by closing the `quit` channel and waiting for the `stopped` channel to be closed, ensuring all operations have ceased.
+# CHAT_REPLY 4. **Loading and Dropping Files**:
+# CHAT_REPLY    - The `DirectoryWatcher` uses a `shardLoader` interface to load new files and drop old or deleted files. The `scan` method determines which files need to be loaded or dropped and calls the appropriate methods on the `shardLoader`.
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Utility Methods**:
-# CHAT_REPLY    - The `WaitUntilReady` method blocks until the initial scan and watch setup are complete.
-# CHAT_REPLY    - The `String` method provides a string representation of the `DirectoryWatcher` instance.
-# CHAT_REPLY    - The `versionFromPath` function extracts version information from file paths.
+# CHAT_REPLY 5. **Concurrency and Synchronization**:
+# CHAT_REPLY    - The `DirectoryWatcher` uses channels and synchronization primitives like `sync.Once` to manage the lifecycle of the watcher, ensuring it starts and stops correctly.
 # CHAT_REPLY 
-# CHAT_REPLY Overall, the `DirectoryWatcher` is responsible for continuously monitoring a directory for changes to `.zoekt` files, loading new or updated files, and unloading deleted files, ensuring that the system stays up-to-date with the latest file changes.
+# CHAT_REPLY 6. **Error Handling**:
+# CHAT_REPLY    - The watcher handles errors gracefully, logging them and setting an error state if initialization or watching fails.
+# CHAT_REPLY 
+# CHAT_REPLY In essence, the `DirectoryWatcher` is responsible for keeping track of the state of `.zoekt` files in a directory, loading new files, and unloading deleted or outdated files, all while monitoring the directory for changes in real-time.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

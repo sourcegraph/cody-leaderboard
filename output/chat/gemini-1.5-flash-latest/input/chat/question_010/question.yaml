@@ -2,48 +2,26 @@
 # CHAT
 # CHAT_QUESTION \@zoekt describe my code.
 
-# CHAT_REPLY The codebase you provided is a Go package called `actor` that implements rate limiting and concurrency control for a Cody agent. 
+# CHAT_REPLY The code you provided defines interfaces for a code intelligence API called "Squirrel" and a generic animal interface.
 # CHAT_REPLY 
-# CHAT_REPLY Here's a breakdown of the key components:
+# CHAT_REPLY **Squirrel:**
 # CHAT_REPLY 
-# CHAT_REPLY **RateLimit struct:**
+# CHAT_REPLY * `Squirrel` interface:
+# CHAT_REPLY     * `symbolInformation(file: string): CodeIntelligence`: This method takes a file path as input and returns a `CodeIntelligence` object.
+# CHAT_REPLY * `CodeIntelligence` interface:
+# CHAT_REPLY     * `symbols: string[]`: This property represents an array of symbols found in the given file.
 # CHAT_REPLY 
-# CHAT_REPLY * Defines a rate limit configuration with properties like:
-# CHAT_REPLY     * `AllowedModels`: A list of allowed models for the agent.
-# CHAT_REPLY     * `Limit`: The maximum number of requests allowed within the specified interval.
-# CHAT_REPLY     * `Interval`: The time interval for the rate limit.
-# CHAT_REPLY     * `ConcurrentRequests`: The maximum number of concurrent requests allowed.
-# CHAT_REPLY     * `ConcurrentRequestsInterval`: The time interval for the concurrency limit.
-# CHAT_REPLY * Provides methods for:
-# CHAT_REPLY     * `IsValid()`: Checks if the rate limit configuration is valid.
-# CHAT_REPLY     * `EvaluateAllowedModels()`: Determines the allowed models based on the agent's allowlist and a master allowlist.
+# CHAT_REPLY **Animal:**
 # CHAT_REPLY 
-# CHAT_REPLY **concurrencyLimiter struct:**
+# CHAT_REPLY * `Animal` interface:
+# CHAT_REPLY     * `name: string`: This property represents the name of the animal.
+# CHAT_REPLY     * `age: number`: This property represents the age of the animal.
 # CHAT_REPLY 
-# CHAT_REPLY * Implements a concurrency limiter that uses Redis to track concurrent requests.
-# CHAT_REPLY * Provides methods for:
-# CHAT_REPLY     * `TryAcquire()`: Attempts to acquire a concurrency permit.
-# CHAT_REPLY     * `Usage()`: Returns the current usage of the concurrency limit.
+# CHAT_REPLY The code does not provide any implementation for these interfaces. It only defines the structure and expected behavior of the objects that implement these interfaces.
 # CHAT_REPLY 
-# CHAT_REPLY **ErrConcurrencyLimitExceeded struct:**
+# CHAT_REPLY **Overall:**
 # CHAT_REPLY 
-# CHAT_REPLY * Represents an error indicating that the concurrency limit has been exceeded.
-# CHAT_REPLY * Provides methods for:
-# CHAT_REPLY     * `Error()`: Returns a simple string representation of the error.
-# CHAT_REPLY     * `Summary()`: Returns a more detailed summary of the error.
-# CHAT_REPLY     * `WriteResponse()`: Writes the error response to an HTTP response writer.
-# CHAT_REPLY 
-# CHAT_REPLY **updateOnErrorLimiter struct:**
-# CHAT_REPLY 
-# CHAT_REPLY * Wraps a limiter and updates the actor's access information if a NoAccessError or RateLimitExceededError occurs.
-# CHAT_REPLY 
-# CHAT_REPLY **Other notable features:**
-# CHAT_REPLY 
-# CHAT_REPLY * The code uses OpenTelemetry for tracing.
-# CHAT_REPLY * It includes error handling and logging.
-# CHAT_REPLY * It provides methods for writing HTTP responses.
-# CHAT_REPLY 
-# CHAT_REPLY **Overall, this codebase provides a robust mechanism for rate limiting and concurrency control, ensuring that Cody agents operate within defined limits and prevent resource exhaustion.**
+# CHAT_REPLY The code defines the structure for a code intelligence API and a generic animal interface. It is likely that these interfaces are used in a larger application or library to provide code intelligence functionality and represent animal data.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

@@ -157,40 +157,41 @@
 # CHAT_REPLY 
 # CHAT_REPLY - This function takes a slice of `FileMatch` (representing search results) and `SearchOptions` as input.
 # CHAT_REPLY - It first sorts the `FileMatch` slice using `SortFiles`.
-# CHAT_REPLY - Then, it creates a `DisplayTruncator` using `NewDisplayTruncator` based on the `SearchOptions`.
-# CHAT_REPLY - Finally, it applies the `DisplayTruncator` to the sorted `FileMatch` slice, truncating it based on the limits defined in the `SearchOptions`.
+# CHAT_REPLY - Then, it creates a `DisplayTruncator` using `NewDisplayTruncator` based on the provided `SearchOptions`.
+# CHAT_REPLY - Finally, it applies the `DisplayTruncator` to the sorted `FileMatch` slice, truncating it according to the limits defined in `SearchOptions`.
 # CHAT_REPLY 
 # CHAT_REPLY **2. `DisplayTruncator`:**
 # CHAT_REPLY 
-# CHAT_REPLY - This is a function type that takes a slice of `FileMatch` as input and returns a truncated slice of `FileMatch` and a boolean indicating whether there are more results to be displayed.
+# CHAT_REPLY - This is a function type that takes a slice of `FileMatch` as input and returns a truncated slice along with a boolean indicating whether there are more results to be displayed.
 # CHAT_REPLY - It's used to enforce limits on the number of documents and matches displayed.
 # CHAT_REPLY 
 # CHAT_REPLY **3. `NewDisplayTruncator`:**
 # CHAT_REPLY 
 # CHAT_REPLY - This function creates a `DisplayTruncator` based on the provided `SearchOptions`.
-# CHAT_REPLY - It checks if there are any limits defined in the `SearchOptions` (e.g., `MaxDocDisplayCount`, `MaxMatchDisplayCount`).
+# CHAT_REPLY - It checks if there are any limits defined in `SearchOptions` (document limit or match limit).
 # CHAT_REPLY - If there are no limits, it returns a `DisplayTruncator` that simply returns the input slice without any truncation.
 # CHAT_REPLY - If there are limits, it returns a `DisplayTruncator` that enforces those limits by truncating the input slice.
 # CHAT_REPLY 
 # CHAT_REPLY **4. `limitMatches`:**
 # CHAT_REPLY 
-# CHAT_REPLY - This function takes a slice of `FileMatch`, a limit, and a boolean indicating whether to limit chunk matches or line matches.
-# CHAT_REPLY - It iterates through the `FileMatch` slice and calls either `limitChunkMatches` or `limitLineMatches` to limit the number of matches in each `FileMatch`.
-# CHAT_REPLY - It returns the truncated slice of `FileMatch` and the remaining limit.
+# CHAT_REPLY - This function takes a slice of `FileMatch`, a limit value, and a boolean indicating whether to use chunk matches as input.
+# CHAT_REPLY - It iterates through the `FileMatch` slice and calls either `limitChunkMatches` or `limitLineMatches` depending on the `chunkMatches` flag.
+# CHAT_REPLY - It returns the truncated `FileMatch` slice and the remaining limit.
 # CHAT_REPLY 
 # CHAT_REPLY **5. `limitChunkMatches`:**
 # CHAT_REPLY 
-# CHAT_REPLY - This function limits the number of `ChunkMatches` in a given `FileMatch`.
-# CHAT_REPLY - It iterates through the `ChunkMatches` and truncates the `Ranges`, `SymbolInfo`, and `Content` fields if necessary.
+# CHAT_REPLY - This function takes a `FileMatch` and a limit value as input.
+# CHAT_REPLY - It iterates through the `ChunkMatches` in the `FileMatch` and truncates each `ChunkMatches` slice if it exceeds the limit.
+# CHAT_REPLY - It also truncates the corresponding `Content`, `SymbolInfo`, and `Ranges` fields in the `ChunkMatches` to maintain consistency.
 # CHAT_REPLY - It returns the remaining limit.
 # CHAT_REPLY 
 # CHAT_REPLY **6. `limitLineMatches`:**
 # CHAT_REPLY 
-# CHAT_REPLY - This function limits the number of `LineMatches` in a given `FileMatch`.
-# CHAT_REPLY - It iterates through the `LineMatches` and truncates the `LineFragments` field if necessary.
+# CHAT_REPLY - This function takes a `FileMatch` and a limit value as input.
+# CHAT_REPLY - It iterates through the `LineMatches` in the `FileMatch` and truncates each `LineFragments` slice if it exceeds the limit.
 # CHAT_REPLY - It returns the remaining limit.
 # CHAT_REPLY 
-# CHAT_REPLY **Overall, this file implements a mechanism to limit the number of search results displayed to the user, ensuring that the search results are manageable and don't overwhelm the user interface.**
+# CHAT_REPLY Overall, this file provides a mechanism for limiting the number of search results displayed to the user, ensuring that the UI remains responsive and avoids overwhelming the user with too much data.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

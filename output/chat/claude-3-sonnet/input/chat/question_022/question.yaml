@@ -2,21 +2,21 @@
 # CHAT
 # CHAT_QUESTION what does @limit.go do?
 
-# CHAT_REPLY The `limit.go` file in the provided codebase context contains functions related to limiting and truncating the search results based on certain options. Here's a summary of what the file does:
+# CHAT_REPLY The `limit.go` file in the provided codebase context contains functions related to limiting and truncating the search results based on the specified options. Here's a summary of what the file does:
 # CHAT_REPLY 
-# CHAT_REPLY 1. `SortAndTruncateFiles` is a convenience function that sorts the `FileMatch` slice and then truncates it based on the provided `SearchOptions`.
+# CHAT_REPLY 1. `SortAndTruncateFiles` is a convenience function that sorts the `FileMatch` slice and then truncates it based on the `SearchOptions` using the `DisplayTruncator`.
 # CHAT_REPLY 
-# CHAT_REPLY 2. `DisplayTruncator` is a type that represents a stateful function used to enforce limits on the number of documents and matches displayed. It takes a slice of `FileMatch` and returns a truncated slice along with a boolean indicating if there are more results to be displayed.
+# CHAT_REPLY 2. `DisplayTruncator` is a type that represents a stateful function that enforces limits on the number of documents and matches displayed. It takes a slice of `FileMatch` and returns a truncated slice along with a boolean indicating if there are more results to be displayed.
 # CHAT_REPLY 
-# CHAT_REPLY 3. `NewDisplayTruncator` creates a new `DisplayTruncator` based on the provided `SearchOptions`. It checks if there are any limits set for the maximum number of documents (`MaxDocDisplayCount`) and matches (`MaxMatchDisplayCount`) to be displayed.
+# CHAT_REPLY 3. `NewDisplayTruncator` creates a new `DisplayTruncator` based on the `SearchOptions`. It checks if there are any limits specified for the maximum number of documents (`MaxDocDisplayCount`) and matches (`MaxMatchDisplayCount`) to be displayed. If no limits are set, it returns a no-op `DisplayTruncator`.
 # CHAT_REPLY 
-# CHAT_REPLY 4. `limitMatches` is a helper function that limits the number of matches in each `FileMatch` based on the provided limit and whether the matches should be chunked or not.
+# CHAT_REPLY 4. `limitMatches` is an internal function that limits the number of matches in each `FileMatch` based on the specified limit and whether to chunk matches or not. It calls either `limitChunkMatches` or `limitLineMatches` depending on the `chunkMatches` flag.
 # CHAT_REPLY 
-# CHAT_REPLY 5. `limitChunkMatches` limits the number of `ChunkMatches` in a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to fit within the specified limit.
+# CHAT_REPLY 5. `limitChunkMatches` limits the number of `ChunkMatches` in a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` based on the specified limit.
 # CHAT_REPLY 
-# CHAT_REPLY 6. `limitLineMatches` limits the number of `LineMatches` in a `FileMatch` by truncating the `LineFragments` field of each `LineMatch`.
+# CHAT_REPLY 6. `limitLineMatches` limits the number of `LineMatches` in a `FileMatch` by truncating the `LineFragments` slice of each `LineMatch`.
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `limit.go` file provides functionality to limit and truncate search results based on specified options, such as the maximum number of documents and matches to display. It handles both chunked matches (`ChunkMatches`) and line matches (`LineMatches`) separately.
+# CHAT_REPLY In summary, the `limit.go` file provides functionality to limit and truncate search results based on user-specified options, ensuring that the displayed results do not exceed the specified limits for documents and matches.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {
