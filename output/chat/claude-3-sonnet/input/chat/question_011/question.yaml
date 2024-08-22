@@ -2,35 +2,22 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in `mocked/codebase_context/shards/watcher.go` is responsible for watching a directory for changes to files with the `.zoekt` extension. It uses the `fsnotify` package to monitor the directory for file system events like file creation, modification, or deletion.
+# CHAT_REPLY Based on the code in `mocked/codebase_context/shards/watcher.go`, the `DirectoryWatcher` is responsible for watching a directory for changes to files with the `.zoekt` extension. It performs the following tasks:
 # CHAT_REPLY 
-# CHAT_REPLY When a change is detected, the `DirectoryWatcher` scans the directory to determine which files need to be loaded or dropped from the `shardLoader`. It compares the modification times of the files with the previously recorded timestamps to identify new, modified, or deleted files.
+# CHAT_REPLY 1. On initialization, it scans the directory and loads any existing `.zoekt` files into memory by calling the `load` method on the provided `shardLoader` interface.
 # CHAT_REPLY 
-# CHAT_REPLY Here's a summary of its responsibilities:
+# CHAT_REPLY 2. It then starts watching the directory using the `fsnotify` package for any file system events (create, modify, delete, etc.) related to `.zoekt` files.
 # CHAT_REPLY 
-# CHAT_REPLY 1. Scan the directory on startup to load the initial set of files.
-# CHAT_REPLY 2. Watch the directory for file system events using `fsnotify`.
-# CHAT_REPLY 3. When a change is detected, rescan the directory to identify new, modified, or deleted files.
-# CHAT_REPLY 4. Call the `load` method of the `shardLoader` to load new or modified files.
-# CHAT_REPLY 5. Call the `drop` method of the `shardLoader` to unload deleted files.
+# CHAT_REPLY 3. When a file system event is detected, it rescans the directory and updates the in-memory state accordingly:
+# CHAT_REPLY    - If a new `.zoekt` file is added, it calls `load` on the `shardLoader` to load it.
+# CHAT_REPLY    - If an existing `.zoekt` file is modified, it calls `load` again to reload it.
+# CHAT_REPLY    - If a `.zoekt` file is deleted, it calls `drop` on the `shardLoader` to unload it.
 # CHAT_REPLY 
-# CHAT_REPLY The `DirectoryWatcher` is designed to work with a `shardLoader` interface, which is responsible for actually loading and dropping the files. This separation of concerns allows the `DirectoryWatcher` to focus on monitoring the directory and delegating the file loading/dropping to the `shardLoader` implementation.
+# CHAT_REPLY 4. The `DirectoryWatcher` also handles situations where the index format version of a `.zoekt` file is newer than the current or next supported version, skipping those files.
 # CHAT_REPLY 
-# CHAT_REPLY ```go:mocked/codebase_context/shards/watcher.go
-# CHAT_REPLY type DirectoryWatcher struct {
-# CHAT_REPLY     dir        string
-# CHAT_REPLY     timestamps map[string]time.Time
-# CHAT_REPLY     loader     shardLoader
+# CHAT_REPLY 5. It provides a `WaitUntilReady` method that blocks until the initial scan is complete and the directory watcher is ready to handle file system events.
 # CHAT_REPLY 
-# CHAT_REPLY     // ... (omitted for brevity)
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY type shardLoader interface {
-# CHAT_REPLY     // Load a new file.
-# CHAT_REPLY     load(filenames ...string)
-# CHAT_REPLY     drop(filenames ...string)
-# CHAT_REPLY }
-# CHAT_REPLY ```
+# CHAT_REPLY In summary, the `DirectoryWatcher` is responsible for keeping an in-memory representation of `.zoekt` files in a directory up-to-date by watching for file system events and loading/unloading the files accordingly, using the provided `shardLoader` interface to manage the actual loading and unloading of the files.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

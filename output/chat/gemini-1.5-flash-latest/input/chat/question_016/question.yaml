@@ -148,6 +148,18 @@
 # CHAT_REPLY 	return limit
 # CHAT_REPLY }
 # CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY This file defines functions for limiting the number of search results displayed to the user.
+# CHAT_REPLY 
+# CHAT_REPLY **Key functions:**
+# CHAT_REPLY 
+# CHAT_REPLY * **`SortAndTruncateFiles`:** This function sorts the search results by score and then truncates them based on the limits specified in the `SearchOptions` struct.
+# CHAT_REPLY * **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` function, which is a stateful function that enforces the document and match display limits.
+# CHAT_REPLY * **`limitMatches`:** This function iterates over the search results and calls either `limitChunkMatches` or `limitLineMatches` to limit the number of matches in each result.
+# CHAT_REPLY * **`limitChunkMatches`:** This function limits the number of `ChunkMatches` in a `FileMatch`. It also truncates the `Content` field of the `ChunkMatch` to remove any lines that are no longer needed.
+# CHAT_REPLY * **`limitLineMatches`:** This function limits the number of `LineMatches` in a `FileMatch`.
+# CHAT_REPLY 
+# CHAT_REPLY **Overall, this file provides a mechanism for controlling the number of search results displayed to the user, ensuring that the user interface remains responsive and manageable even when dealing with large search result sets.**
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

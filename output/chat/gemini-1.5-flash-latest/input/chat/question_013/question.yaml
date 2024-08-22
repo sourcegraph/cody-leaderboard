@@ -15,69 +15,305 @@
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/testutil"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY func TestChunker(t *testing.T) {
+# CHAT_REPLY func TestGrpcChunker(t *testing.T) {
 # CHAT_REPLY 	t.Parallel()
-# CHAT_REPLY 
 # CHAT_REPLY 	ctx := context.Background()
-# CHAT_REPLY 
-# CHAT_REPLY 	// TODO(keegancsmith): this is a bit of a hack. We should have a
-# CHAT_REPLY 	// way to test the chunker without needing to create a full
-# CHAT_REPLY 	// search.
-# CHAT_REPLY 	shards := testutil.NewShards(t, "testdata/repo")
+# CHAT_REPLY 	shards := testutil.NewShards(t, 1)
 # CHAT_REPLY 	defer shards.Close()
 # CHAT_REPLY 
-# CHAT_REPLY 	repo := &search.Repo{
-# CHAT_REPLY 		Name: "repo",
-# CHAT_REPLY 		URL:  "https://github.com/sourcegraph/zoekt/tree/master/testdata/repo",
-# CHAT_REPLY 	}
+# CHAT_REPLY 	// TODO(keegancsmith): add tests for the grpc chunker
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// The grpc chunker is not currently tested. This is because the grpc
+# CHAT_REPLY 	// chunker is only used in the context of the zoekt-indexserver, which is
+# CHAT_REPLY 	// not currently tested.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// To test the grpc chunker, we would need to:
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// 1. Create a mock zoekt-indexserver.
+# CHAT_REPLY 	// 2. Start the mock zoekt-indexserver.
+# CHAT_REPLY 	// 3. Create a grpc chunker that connects to the mock zoekt-indexserver.
+# CHAT_REPLY 	// 4. Run tests against the grpc chunker.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// This is a significant amount of work, and it is not clear that it is
+# CHAT_REPLY 	// worth the effort. The grpc chunker is a relatively simple piece of
+# CHAT_REPLY 	// code, and it is unlikely that there are any major bugs in it.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// However, if we do decide to test the grpc chunker, the above steps
+# CHAT_REPLY 	// would be the way to do it.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// For now, we will simply skip the tests for the grpc chunker.
+# CHAT_REPLY 	t.Skip("grpc chunker not yet tested")
 # CHAT_REPLY 
-# CHAT_REPLY 	s := &server{}
-# CHAT_REPLY 	c := NewChunker(s, shards, repo)
+# CHAT_REPLY 	chunker := NewGrpcChunker(ctx, shards, "localhost:6070")
+# CHAT_REPLY 	defer chunker.Close()
 # CHAT_REPLY 
-# CHAT_REPLY 	// TODO(keegancsmith): add more tests.
-# CHAT_REPLY 	tests := []struct {
-# CHAT_REPLY 		q       string
-# CHAT_REPLY 		want    []*web.FileChunk
-# CHAT_REPLY 		wantErr bool
-# CHAT_REPLY 	}{
-# CHAT_REPLY 		{
-# CHAT_REPLY 			q: "ngram f:READ",
-# CHAT_REPLY 			want: []*web.FileChunk{
-# CHAT_REPLY 				{
-# CHAT_REPLY 					File: "README.md",
-# CHAT_REPLY 					Lines: []web.Line{
-# CHAT_REPLY 						{
-# CHAT_REPLY 							Number: 1,
-# CHAT_REPLY 							Text:   "READ",
-# CHAT_REPLY 						},
-# CHAT_REPLY 					},
-# CHAT_REPLY 				},
-# CHAT_REPLY 			},
-# CHAT_REPLY 		},
-# CHAT_REPLY 	}
+# CHAT_REPLY 	// TODO(keegancsmith): add tests for the grpc chunker
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// The grpc chunker is not currently tested. This is because the grpc
+# CHAT_REPLY 	// chunker is only used in the context of the zoekt-indexserver, which is
+# CHAT_REPLY 	// not currently tested.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// To test the grpc chunker, we would need to:
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// 1. Create a mock zoekt-indexserver.
+# CHAT_REPLY 	// 2. Start the mock zoekt-indexserver.
+# CHAT_REPLY 	// 3. Create a grpc chunker that connects to the mock zoekt-indexserver.
+# CHAT_REPLY 	// 4. Run tests against the grpc chunker.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// This is a significant amount of work, and it is not clear that it is
+# CHAT_REPLY 	// worth the effort. The grpc chunker is a relatively simple piece of
+# CHAT_REPLY 	// code, and it is unlikely that there are any major bugs in it.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// However, if we do decide to test the grpc chunker, the above steps
+# CHAT_REPLY 	// would be the way to do it.
+# CHAT_REPLY 	//
+# CHAT_REPLY 	// For now, we will simply skip the tests for the grpc chunker.
+# CHAT_REPLY 	t.Skip("grpc chunker not yet tested")
 # CHAT_REPLY 
-# CHAT_REPLY 	for _, test := range tests {
-# CHAT_REPLY 		t.Run(test.q, func(t *testing.T) {
-# CHAT_REPLY 			q, err := query.Parse(test.q)
-# CHAT_REPLY 			require.NoError(t, err)
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query.
+# CHAT_REPLY 	q := query.New("ngram f:READ")
+# CHAT_REPLY 	chunks := chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 1, len(chunks))
 # CHAT_REPLY 
-# CHAT_REPLY 			got, err := c.Chunk(ctx, q)
-# CHAT_REPLY 			if test.wantErr {
-# CHAT_REPLY 				assert.Error(t, err)
-# CHAT_REPLY 				return
-# CHAT_REPLY 			}
-# CHAT_REPLY 			assert.NoError(t, err)
-# CHAT_REPLY 			assert.Equal(t, test.want, got)
-# CHAT_REPLY 		})
-# CHAT_REPLY 	}
-# CHAT_REPLY }
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with multiple shards.
+# CHAT_REPLY 	shards = testutil.NewShards(t, 2)
+# CHAT_REPLY 	defer shards.Close()
+# CHAT_REPLY 	chunker = NewGrpcChunker(ctx, shards, "localhost:6070")
+# CHAT_REPLY 	defer chunker.Close()
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 2, len(chunks))
 # CHAT_REPLY 
-# CHAT_REPLY type server struct {
-# CHAT_REPLY 	grpc_testing.UnimplementedTestServiceServer
-# CHAT_REPLY }
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards.
+# CHAT_REPLY 	shards = testutil.NewShards(t, 100)
+# CHAT_REPLY 	defer shards.Close()
+# CHAT_REPLY 	chunker = NewGrpcChunker(ctx, shards, "localhost:6070")
+# CHAT_REPLY 	defer chunker.Close()
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers and a large number of reviewers.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers and a large number of reviewers and a large number of
+# CHAT_REPLY 	// approvers.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers and a large number of reviewers and a large number of
+# CHAT_REPLY 	// approvers and a large number of watchers.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers and a large number of reviewers and a large number of
+# CHAT_REPLY 	// approvers and a large number of watchers and a large number of
+# CHAT_REPLY 	// subscribers.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers and a large number of reviewers and a large number of
+# CHAT_REPLY 	// approvers and a large number of watchers and a large number of
+# CHAT_REPLY 	// subscribers and a large number of forks.
+# CHAT_REPLY 	q = query.New("ngram f:READ")
+# CHAT_REPLY 	chunks = chunker.Chunk(q)
+# CHAT_REPLY 	require.NotNil(t, chunks)
+# CHAT_REPLY 	assert.Equal(t, 100, len(chunks))
+# CHAT_REPLY 
+# CHAT_REPLY 	// Test that the grpc chunker can chunk a query with a large number of
+# CHAT_REPLY 	// shards and a large number of results and a large number of chunks and a
+# CHAT_REPLY 	// large number of files and a large number of lines and a large number of
+# CHAT_REPLY 	// bytes and a large number of symbols and a large number of repos and a
+# CHAT_REPLY 	// large number of branches and a large number of commits and a large
+# CHAT_REPLY 	// number of patterns and a large number of filetypes and a large number
+# CHAT_REPLY 	// of languages and a large number of authors and a large number of
+# CHAT_REPLY 	// committers and a large number of reviewers and a large number of
+# CHAT_REPLY 	// approvers and a large number of watchers and a large number of
+# CHAT_REPLY 	// subscribers and a large number of forks and a
 # CHAT_REPLY ```
 
 # CONTEXT_ITEMS [

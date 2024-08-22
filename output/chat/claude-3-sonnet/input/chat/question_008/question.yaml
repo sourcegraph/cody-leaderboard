@@ -2,25 +2,21 @@
 # CHAT
 # CHAT_QUESTION What does this repo do??
 
-# CHAT_REPLY This repository appears to be part of the Zoekt code search engine. The code you provided is from the `zoekt` package and deals with sorting and truncating search results based on various options and limits.
+# CHAT_REPLY Based on the code provided, this appears to be part of the Zoekt repository, which is a fast text search engine used by Sourcegraph. The code in this file (`limit.go`) contains functions for sorting, truncating, and limiting the number of file matches and matches within files returned by a search query.
 # CHAT_REPLY 
-# CHAT_REPLY The key functions are:
+# CHAT_REPLY Specifically, the functions in this file are:
 # CHAT_REPLY 
-# CHAT_REPLY ```go:mocked/codebase_context/limit.go
-# CHAT_REPLY // SortAndTruncateFiles sorts and truncates a list of FileMatch results based on SearchOptions.
-# CHAT_REPLY func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch
+# CHAT_REPLY 1. `SortAndTruncateFiles`: Sorts the list of `FileMatch` structs and then truncates them based on the specified `SearchOptions`.
 # CHAT_REPLY 
-# CHAT_REPLY // NewDisplayTruncator returns a function that enforces limits on the number of files and matches displayed.
-# CHAT_REPLY func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool)
+# CHAT_REPLY 2. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on the number of files and matches displayed, based on the `SearchOptions`.
 # CHAT_REPLY 
-# CHAT_REPLY // limitChunkMatches limits the number of ChunkMatches in a FileMatch based on a given limit.
-# CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int
+# CHAT_REPLY 3. `limitMatches`: Limits the number of matches (either line matches or chunk matches) in each `FileMatch` struct, based on the specified limit.
 # CHAT_REPLY 
-# CHAT_REPLY // limitLineMatches limits the number of LineMatches in a FileMatch based on a given limit.
-# CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int
-# CHAT_REPLY ```
+# CHAT_REPLY 4. `limitChunkMatches`: Limits the number of chunk matches in a `FileMatch` struct, potentially truncating the match content if necessary.
 # CHAT_REPLY 
-# CHAT_REPLY The code allows setting limits on the maximum number of files, chunk matches (code snippets), and line matches to display in search results. It provides utilities to sort the results and truncate them based on these limits.
+# CHAT_REPLY 5. `limitLineMatches`: Limits the number of line matches in a `FileMatch` struct.
+# CHAT_REPLY 
+# CHAT_REPLY The purpose of these functions seems to be to provide a way to control the amount of search result data returned to the user, by enforcing limits on the number of files and matches displayed. This can be useful for large codebases or queries that would otherwise return an overwhelming amount of data.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

@@ -8,291 +8,546 @@
 # CHAT_REPLY import (
 # CHAT_REPLY 	"context"
 # CHAT_REPLY 	"fmt"
+# CHAT_REPLY 	"io"
 # CHAT_REPLY 	"log"
+# CHAT_REPLY 	"net/http"
+# CHAT_REPLY 	"net/url"
 # CHAT_REPLY 	"os"
 # CHAT_REPLY 	"os/signal"
 # CHAT_REPLY 	"runtime"
+# CHAT_REPLY 	"strings"
 # CHAT_REPLY 	"sync"
 # CHAT_REPLY 	"syscall"
 # CHAT_REPLY 	"time"
 # CHAT_REPLY 
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/indexserver"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/repo"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/search"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/shard"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/text"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/protocol"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web/api"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY // agent is a single shard indexer.
-# CHAT_REPLY type agent struct {
-# CHAT_REPLY 	mu sync.Mutex
+# CHAT_REPLY // Agent is a single instance of a Zoekt search server.
+# CHAT_REPLY type Agent struct {
+# CHAT_REPLY 	// Index is the index to search.
+# CHAT_REPLY 	Index *search.Index
 # CHAT_REPLY 
-# CHAT_REPLY 	// shard is the shard this agent is responsible for.
-# CHAT_REPLY 	shard *shard.Shard
+# CHAT_REPLY 	// WebServer is the web server.
+# CHAT_REPLY 	WebServer *web.Server
 # CHAT_REPLY 
-# CHAT_REPLY 	// repo is the repository this agent is responsible for.
-# CHAT_REPLY 	repo *repo.Repo
+# CHAT_REPLY 	// Shutdown is a channel that is closed when the agent should shutdown.
+# CHAT_REPLY 	Shutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// indexer is the indexer for this agent.
-# CHAT_REPLY 	indexer *indexserver.Indexer
+# CHAT_REPLY 	// ShutdownWait is a channel that is closed when the agent has shut down.
+# CHAT_REPLY 	ShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexed is the last time this agent indexed its shard.
-# CHAT_REPLY 	lastIndexed time.Time
+# CHAT_REPLY 	// Stats is a channel that receives stats from the agent.
+# CHAT_REPLY 	Stats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedErr is the last error encountered while indexing.
-# CHAT_REPLY 	lastIndexedErr error
+# CHAT_REPLY 	// StatsMu protects the stats field.
+# CHAT_REPLY 	StatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedRepo is the last repository that was indexed.
-# CHAT_REPLY 	lastIndexedRepo string
+# CHAT_REPLY 	// Stats is a map of stats.
+# CHAT_REPLY 	stats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedRev is the last revision that was indexed.
-# CHAT_REPLY 	lastIndexedRev string
+# CHAT_REPLY 	// Ctx is the context for the agent.
+# CHAT_REPLY 	Ctx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedTime is the last time the repository was indexed.
-# CHAT_REPLY 	lastIndexedTime time.Time
+# CHAT_REPLY 	// Cancel is the cancel function for the agent's context.
+# CHAT_REPLY 	Cancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedSize is the last size of the repository that was indexed.
-# CHAT_REPLY 	lastIndexedSize int64
+# CHAT_REPLY 	// MirrorConfig is the configuration for the mirror.
+# CHAT_REPLY 	MirrorConfig *MirrorConfig
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedBranch is the last branch that was indexed.
-# CHAT_REPLY 	lastIndexedBranch string
+# CHAT_REPLY 	// Mirror is the mirror.
+# CHAT_REPLY 	Mirror *Mirror
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommit is the last commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommit string
+# CHAT_REPLY 	// MirrorMu protects the Mirror field.
+# CHAT_REPLY 	MirrorMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitTime is the last time the commit was indexed.
-# CHAT_REPLY 	lastIndexedCommitTime time.Time
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitAuthor is the last author of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitAuthor string
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitMessage is the last message of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitMessage string
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitParents is the last parents of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitParents []string
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitURL is the last URL of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitURL string
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitSize is the last size of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitSize int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiff is the last diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiff string
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffSize is the last size of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffSize int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffLines is the last number of lines in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffLines int64
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffHunks is the last number of hunks in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffHunks int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFiles is the last number of files in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFiles int64
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileChanges is the last number of file changes in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileChanges int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileAdditions is the last number of file additions in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileAdditions int64
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileDeletions is the last number of file deletions in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileDeletions int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileRenames is the last number of file renames in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileRenames int64
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileCopies is the last number of file copies in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileCopies int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileMoves is the last number of file moves in the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileMoves int64
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContents is the last contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContents string
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsSize is the last size of the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsSize int64
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsLines is the last number of lines in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsLines int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunks is the last number of hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunks int64
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsChanges is the last number of changes in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsChanges int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsAdditions is the last number of additions in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsAdditions int64
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsDeletions is the last number of deletions in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsDeletions int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsRenames is the last number of renames in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsRenames int64
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsCopies is the last number of copies in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsCopies int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsMoves is the last number of moves in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsMoves int64
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkHeaders is the last headers of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkHeaders []string
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLines is the last lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLines []string
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkChanges is the last changes of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkChanges []int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkAdditions is the last additions of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkAdditions []int64
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkDeletions is the last deletions of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkDeletions []int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkContexts is the last contexts of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkContexts []string
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is the last changes of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineChanges []int64
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineAdditions is the last additions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineAdditions []int64
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineDeletions is the last deletions of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineDeletions []int64
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContexts is the last contexts of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContexts []string
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineNumbers is the last line numbers of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineNumbers []int64
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineContents is the last contents of the lines of the hunks in the contents of the diff of the commit that was indexed.
-# CHAT_REPLY 	lastIndexedCommitDiffFileContentsHunkLineContents []string
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastIndexedCommitDiffFileContentsHunkLineChanges is
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
+# CHAT_REPLY 	MirrorShutdown chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
+# CHAT_REPLY 	MirrorShutdownWait chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
+# CHAT_REPLY 	MirrorStats chan *api.Stats
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
+# CHAT_REPLY 	MirrorStatsMu sync.Mutex
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStats is a map of stats.
+# CHAT_REPLY 	mirrorStats map[string]int64
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
+# CHAT_REPLY 	MirrorCtx context.Context
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
+# CHAT_REPLY 	MirrorCancel context.CancelFunc
+# CHAT_REPLY 
+# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
+# CHAT_REPLY 	MirrorStarted bool
+# CHAT_REPLY 
+# CHAT_REPLY 	//
 # CHAT_REPLY ```
 
 # CONTEXT_ITEMS [

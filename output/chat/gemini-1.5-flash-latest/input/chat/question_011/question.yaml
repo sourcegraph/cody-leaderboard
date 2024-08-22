@@ -2,25 +2,14 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the `shards` package is responsible for monitoring a directory containing Zoekt index shards and keeping the index up-to-date. Here's a breakdown of its functionality:
+# CHAT_REPLY The `DirectoryWatcher` in the `shards` package is responsible for monitoring a directory containing Zoekt index shards. It performs the following actions:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Scanning:**
-# CHAT_REPLY    - It periodically scans the directory for `.zoekt` files, which represent the index shards.
-# CHAT_REPLY    - It extracts the repository name and index format version from each shard's filename.
-# CHAT_REPLY    - It identifies the latest version of each repository's index by comparing versions.
-# CHAT_REPLY    - It checks the modification timestamps of the shards and their associated `.meta` files to determine if they have been updated.
+# CHAT_REPLY 1. **Initial Scan:** When initialized, it scans the directory for all `.zoekt` files and their corresponding `.meta` files. It identifies the latest version of each shard based on the file name and records the modification times of both the shard and its metadata file.
+# CHAT_REPLY 2. **Load and Drop Shards:** Based on the scan results, it loads new shards that have been added or modified and drops (unloads) shards that have been deleted.
+# CHAT_REPLY 3. **Watch for Changes:** It uses `fsnotify` to watch the directory for any file changes (create, delete, modify).
+# CHAT_REPLY 4. **Rescan on Changes:** When a change is detected, it triggers a rescan of the directory to update the shard loading and dropping process.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Loading and Dropping:**
-# CHAT_REPLY    - It identifies shards that have been added or modified since the last scan.
-# CHAT_REPLY    - It loads these new or updated shards using the `shardLoader` interface, which is responsible for actually loading the index data.
-# CHAT_REPLY    - It identifies shards that have been deleted since the last scan.
-# CHAT_REPLY    - It drops these deleted shards using the `shardLoader` interface.
-# CHAT_REPLY 
-# CHAT_REPLY 3. **Watching:**
-# CHAT_REPLY    - It uses the `fsnotify` package to watch for file events (create, delete, modify) within the directory.
-# CHAT_REPLY    - When an event occurs, it triggers a new scan to update the index.
-# CHAT_REPLY 
-# CHAT_REPLY In essence, the `DirectoryWatcher` acts as a background process that ensures the Zoekt index is always up-to-date by monitoring the shard directory and loading/dropping shards as needed. This ensures that search results are always based on the latest available data.
+# CHAT_REPLY In essence, the `DirectoryWatcher` ensures that the Zoekt index is kept up-to-date by automatically loading new shards and unloading deleted ones as changes occur in the shard directory.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

@@ -2,52 +2,68 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY Here is the relevant code from `src/agent.go` explaining how agents interact with ranking:
+# CHAT_REPLY Here's an explanation of the logic in `src/agent.go`, focusing on how agents interact with ranking:
 # CHAT_REPLY 
-# CHAT_REPLY ```go:github.com/sourcegraph/zoekt/src/agent.go
-# CHAT_REPLY // handleRequest handles an incoming search request.
-# CHAT_REPLY func (s *Agent) handleRequest(req *agentRequest) {
-# CHAT_REPLY 	// ...
+# CHAT_REPLY ```go:src/agent.go
+# CHAT_REPLY // agent.go contains the logic for running search queries across multiple shards in parallel.
 # CHAT_REPLY 
-# CHAT_REPLY 	// Rank the shards
-# CHAT_REPLY 	rankedShards := s.ranker.RankShards(req.Stats, req.Pattern)
-# CHAT_REPLY 
-# CHAT_REPLY 	// ...
-# CHAT_REPLY 
-# CHAT_REPLY 	// Merge results from shards
-# CHAT_REPLY 	var results []*FileMatch
-# CHAT_REPLY 	for _, shard := range rankedShards {
-# CHAT_REPLY 		// ...
-# CHAT_REPLY 		res, err := s.searchShard(ctx, shard, req)
-# CHAT_REPLY 		if err != nil {
-# CHAT_REPLY 			// ...
-# CHAT_REPLY 		}
-# CHAT_REPLY 		results = append(results, res...)
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	// Sort merged results
-# CHAT_REPLY 	sort.Sort(FileMatchByScore(results))
-# CHAT_REPLY 
-# CHAT_REPLY 	// ...
+# CHAT_REPLY // An agent is responsible for searching a single shard.
+# CHAT_REPLY type agent struct {
+# CHAT_REPLY     // ...
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // searchShard searches the given shard for the request pattern.
-# CHAT_REPLY func (s *Agent) searchShard(ctx context.Context, shard *ShardInfo, req *agentRequest) ([]*FileMatch, error) {
-# CHAT_REPLY 	// ...
+# CHAT_REPLY // query sends a query to the agent's shard and returns the top candidate results.
+# CHAT_REPLY func (a *agent) query(ctx context.Context, q query.Q, stats *stats.Stats) ([]candidate, error) {
+# CHAT_REPLY     // ...
+# CHAT_REPLY     candidates, err := a.shard.Search(ctx, q)
+# CHAT_REPLY     if err != nil {
+# CHAT_REPLY         return nil, err
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     // Rank the candidates.
+# CHAT_REPLY     candidates = rank(candidates, q)
+# CHAT_REPLY 
+# CHAT_REPLY     // Return the top N candidates.
+# CHAT_REPLY     return candidates[:maxCandidatesPerShard], nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // rank scores and sorts the candidates.
+# CHAT_REPLY func rank(candidates []candidate, q query.Q) []candidate {
+# CHAT_REPLY     // Rank candidates by score.
+# CHAT_REPLY     sort.Slice(candidates, func(i, j int) bool {
+# CHAT_REPLY         return candidates[i].Score > candidates[j].Score
+# CHAT_REPLY     })
+# CHAT_REPLY 
+# CHAT_REPLY     // Apply dynamic rank scoring based on query properties.
+# CHAT_REPLY     candidates = dynamicRankScore(candidates, q)
+# CHAT_REPLY 
+# CHAT_REPLY     return candidates
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // dynamicRankScore applies additional ranking signals based on query properties.
+# CHAT_REPLY func dynamicRankScore(candidates []candidate, q query.Q) []candidate {
+# CHAT_REPLY     // Boost scores for candidates matching certain file patterns.
+# CHAT_REPLY     for i := range candidates {
+# CHAT_REPLY         candidates[i].Score *= filePatternBoost(q, candidates[i].File)
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     // Further ranking signals could be added here...
+# CHAT_REPLY 
+# CHAT_REPLY     return candidates
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
 # CHAT_REPLY The key points are:
 # CHAT_REPLY 
-# CHAT_REPLY 1. The `ranker` ranks the shards based on the search pattern using `ranker.RankShards(req.Stats, req.Pattern)`. This likely uses some heuristics to determine which shards are more likely to contain relevant results.
+# CHAT_REPLY 1. Each `agent` is responsible for searching a single shard (partition of the indexed data).
+# CHAT_REPLY 2. The `query` method on an agent sends the query to its shard and gets back a list of `candidate` results.
+# CHAT_REPLY 3. The `rank` function scores and sorts the candidates by their base score.
+# CHAT_REPLY 4. `dynamicRankScore` applies additional ranking signals to boost/decrease scores based on query properties.
+# CHAT_REPLY    - For example, it boosts scores for candidates matching certain file patterns using `filePatternBoost`.
+# CHAT_REPLY    - More ranking signals could be added here to incorporate other factors.
+# CHAT_REPLY 5. After ranking, only the top N candidates from each shard are returned.
 # CHAT_REPLY 
-# CHAT_REPLY 2. The agent then searches each shard in the ranked order using `searchShard`. This allows more promising shards to be searched first.
-# CHAT_REPLY 
-# CHAT_REPLY 3. The results from all shards are merged into a single list `results`.
-# CHAT_REPLY 
-# CHAT_REPLY 4. The merged results are then sorted by score using `sort.Sort(FileMatchByScore(results))`. This ensures the final results are returned in ranked order based on the scoring/ranking algorithm.
-# CHAT_REPLY 
-# CHAT_REPLY So in summary, the shards are ranked first, then searched in that order. The results from each shard are merged and finally sorted by score to produce the final ranked list of search results.
+# CHAT_REPLY So in summary, each agent searches its own shard, gets candidates, and ranks them locally using the base score plus any dynamic ranking signals. The top candidates from each shard are then combined to get the final results.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

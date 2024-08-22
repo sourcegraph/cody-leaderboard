@@ -2,71 +2,38 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is responsible for monitoring a specified directory for changes to files with a `.zoekt` extension. It performs the following key functions:
+# CHAT_REPLY The `DirectoryWatcher` in the provided codebase context is a component designed to monitor a specific directory for changes to files, particularly those with a `.zoekt` extension. Here’s a detailed breakdown of its functionality:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Initialization**: When a `DirectoryWatcher` is created using `newDirectoryWatcher`, it initializes its internal state and starts two goroutines:
-# CHAT_REPLY    - One for scanning the directory and loading the initial state of files.
-# CHAT_REPLY    - Another for watching the directory for changes using the `fsnotify` package.
+# CHAT_REPLY 1. **Initialization**:
+# CHAT_REPLY    - The `newDirectoryWatcher` function initializes a `DirectoryWatcher` instance with the specified directory and a `shardLoader`.
+# CHAT_REPLY    - It sets up channels for signaling readiness (`ready`), quitting (`quit`), and stopping (`stopped`).
 # CHAT_REPLY 
-# CHAT_REPLY 2. **Scanning**: The `scan` method is used to:
-# CHAT_REPLY    - Identify the latest versions of `.zoekt` files in the directory.
-# CHAT_REPLY    - Track the modification times of these files.
-# CHAT_REPLY    - Determine which files need to be loaded or dropped based on changes in the directory.
+# CHAT_REPLY 2. **Scanning**:
+# CHAT_REPLY    - The `scan` method scans the specified directory for files matching the pattern `*.zoekt`.
+# CHAT_REPLY    - It maintains a map of the latest versions of these files and their modification timestamps.
+# CHAT_REPLY    - It identifies which files need to be loaded or dropped based on changes in the directory.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Watching**: The `watch` method sets up a file system watcher using `fsnotify` to listen for events such as file creation, modification, or deletion. When an event is detected, it triggers a scan to update the state of the directory.
+# CHAT_REPLY 3. **Watching**:
+# CHAT_REPLY    - The `watch` method sets up a file system watcher using the `fsnotify` package to monitor the directory for changes.
+# CHAT_REPLY    - It listens for events indicating changes to the files and triggers a rescan when changes are detected.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Loading and Dropping Files**: Based on the results of the scan, the `DirectoryWatcher` will call the `load` and `drop` methods of the `shardLoader` interface to manage the loading and unloading of files.
+# CHAT_REPLY 4. **Loading and Dropping Files**:
+# CHAT_REPLY    - The `scan` method determines which files need to be loaded or dropped based on their modification timestamps and the presence of corresponding metadata files.
+# CHAT_REPLY    - It calls the `load` and `drop` methods of the `shardLoader` interface to manage these files.
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Concurrency Management**: The `DirectoryWatcher` uses channels and synchronization primitives to manage its lifecycle and ensure that it stops gracefully when requested.
+# CHAT_REPLY 5. **Concurrency and Synchronization**:
+# CHAT_REPLY    - The `Stop` method ensures that the watcher stops gracefully by closing the `quit` channel and waiting for the `stopped` channel to be closed.
+# CHAT_REPLY    - The `closeOnce` sync.Once ensures that the stop process is executed only once.
 # CHAT_REPLY 
-# CHAT_REPLY Here's a relevant snippet from the codebase:
+# CHAT_REPLY 6. **Error Handling**:
+# CHAT_REPLY    - The `watch` method handles errors from the file system watcher and logs them.
+# CHAT_REPLY    - The `scan` method handles errors related to file operations and continues processing other files.
 # CHAT_REPLY 
-# CHAT_REPLY ```go:mocked/codebase_context/shards/watcher.go
-# CHAT_REPLY type DirectoryWatcher struct {
-# CHAT_REPLY 	dir        string
-# CHAT_REPLY 	timestamps map[string]time.Time
-# CHAT_REPLY 	loader     shardLoader
+# CHAT_REPLY 7. **Utility Functions**:
+# CHAT_REPLY    - The `versionFromPath` function extracts version information from file paths.
+# CHAT_REPLY    - The `humanTruncateList` function generates a human-readable list of file paths, truncated to a specified maximum number of items.
 # CHAT_REPLY 
-# CHAT_REPLY 	// closed once ready
-# CHAT_REPLY 	ready    chan struct{}
-# CHAT_REPLY 	readyErr error
-# CHAT_REPLY 
-# CHAT_REPLY 	closeOnce sync.Once
-# CHAT_REPLY 	// quit is closed by Close to signal the directory watcher to stop.
-# CHAT_REPLY 	quit chan struct{}
-# CHAT_REPLY 	// stopped is closed once the directory watcher has stopped.
-# CHAT_REPLY 	stopped chan struct{}
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY func newDirectoryWatcher(dir string, loader shardLoader) (*DirectoryWatcher, error) {
-# CHAT_REPLY 	sw := &DirectoryWatcher{
-# CHAT_REPLY 		dir:        dir,
-# CHAT_REPLY 		timestamps: map[string]time.Time{},
-# CHAT_REPLY 		loader:     loader,
-# CHAT_REPLY 		ready:      make(chan struct{}),
-# CHAT_REPLY 		quit:       make(chan struct{}),
-# CHAT_REPLY 		stopped:    make(chan struct{}),
-# CHAT_REPLY 	}
-# CHAT_REPLY 
-# CHAT_REPLY 	go func() {
-# CHAT_REPLY 		defer close(sw.ready)
-# CHAT_REPLY 
-# CHAT_REPLY 		if err := sw.scan(); err != nil {
-# CHAT_REPLY 			sw.readyErr = err
-# CHAT_REPLY 			return
-# CHAT_REPLY 		}
-# CHAT_REPLY 
-# CHAT_REPLY 		if err := sw.watch(); err != nil {
-# CHAT_REPLY 			sw.readyErr = err
-# CHAT_REPLY 			return
-# CHAT_REPLY 		}
-# CHAT_REPLY 	}()
-# CHAT_REPLY 
-# CHAT_REPLY 	return sw, nil
-# CHAT_REPLY }
-# CHAT_REPLY ```
-# CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` is designed to keep track of changes in a directory, ensuring that the latest versions of relevant files are loaded and outdated or deleted files are unloaded, all while handling concurrency and synchronization.
+# CHAT_REPLY In summary, the `DirectoryWatcher` is responsible for monitoring a directory for changes to `.zoekt` files, managing the loading and unloading of these files based on their modification timestamps, and handling errors and concurrency issues related to file system events.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

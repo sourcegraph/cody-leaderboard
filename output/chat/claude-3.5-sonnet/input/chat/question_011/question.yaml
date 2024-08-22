@@ -2,38 +2,17 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The DirectoryWatcher, defined in the `shards` package, is responsible for monitoring a specified directory for changes in shard files. Here's what it does:
+# CHAT_REPLY The DirectoryWatcher in the provided codebase context is responsible for monitoring a specified directory for changes in shard files. Here's what it does:
 # CHAT_REPLY 
-# CHAT_REPLY 1. It watches a directory for changes to `.zoekt` files, which are shard files used by the Zoekt search engine.
+# CHAT_REPLY 1. It scans the directory for .zoekt files, which are likely index shards.
+# CHAT_REPLY 2. It keeps track of the timestamps of these files.
+# CHAT_REPLY 3. It loads new or modified shards and unloads deleted shards.
+# CHAT_REPLY 4. It uses fsnotify to watch for file system events in the directory.
+# CHAT_REPLY 5. When changes are detected, it rescans the directory and updates the loaded shards accordingly.
+# CHAT_REPLY 6. It handles different versions of index formats, ensuring compatibility.
+# CHAT_REPLY 7. It provides methods to start and stop the watching process.
 # CHAT_REPLY 
-# CHAT_REPLY 2. It keeps track of the timestamps of these shard files and detects when they are added, modified, or removed.
-# CHAT_REPLY 
-# CHAT_REPLY 3. When changes are detected, it loads new or modified shards and unloads deleted shards using a `shardLoader` interface.
-# CHAT_REPLY 
-# CHAT_REPLY 4. It uses the `fsnotify` package to efficiently watch for file system events in the specified directory.
-# CHAT_REPLY 
-# CHAT_REPLY 5. It handles different versions of shard files, ensuring that only the latest version of each shard is loaded.
-# CHAT_REPLY 
-# CHAT_REPLY 6. It provides methods to start and stop the watching process, as well as a way to wait until the initial scan is complete.
-# CHAT_REPLY 
-# CHAT_REPLY Here's a snippet showing the core structure of the DirectoryWatcher:
-# CHAT_REPLY 
-# CHAT_REPLY ```go:mocked/codebase_context/shards/watcher.go
-# CHAT_REPLY type DirectoryWatcher struct {
-# CHAT_REPLY 	dir        string
-# CHAT_REPLY 	timestamps map[string]time.Time
-# CHAT_REPLY 	loader     shardLoader
-# CHAT_REPLY 
-# CHAT_REPLY 	ready    chan struct{}
-# CHAT_REPLY 	readyErr error
-# CHAT_REPLY 
-# CHAT_REPLY 	closeOnce sync.Once
-# CHAT_REPLY 	quit      chan struct{}
-# CHAT_REPLY 	stopped   chan struct{}
-# CHAT_REPLY }
-# CHAT_REPLY ```
-# CHAT_REPLY 
-# CHAT_REPLY This DirectoryWatcher is an important component in keeping the Zoekt search index up-to-date by dynamically managing shard files as they change on disk.
+# CHAT_REPLY The DirectoryWatcher is an important component for keeping the search index up-to-date with the latest changes in the monitored directory, ensuring that the search results reflect the most recent state of the indexed data.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {
