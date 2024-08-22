@@ -1,5 +1,5 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,CONTEXT_ITEMS,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,chat,claude-3-sonnet,chat,question_001/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Here's an implementation of a `Dog` class that extends the `Animal` interface:
+yaml,chat,claude-3-sonnet,chat,question_001/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, here's an implementation of a `Dog` class that extends the `Animal` interface:
 
 ```typescript:mocked/enhanced_context/dog.ts
 class Dog implements Animal {
@@ -14,97 +14,113 @@ class Dog implements Animal {
     }
 
     bark() {
-        console.log(`${this.name} says: Woof!`);
+        console.log(`${this.name} says woof!`);
     }
 }
 ```
 
-Explanation:
+In this implementation:
 
-- The `Dog` class implements the `Animal` interface, which means it must have the `name` and `age` properties.
-- We add an additional `breed` property to the `Dog` class to store the breed of the dog.
+- The `Dog` class implements the `Animal` interface, which means it must have the `name` and `age` properties defined in the interface.
+- An additional `breed` property is added to the `Dog` class to store the breed of the dog.
 - The constructor takes `name`, `age`, and `breed` as parameters and initializes the respective properties.
-- The `bark` method is a custom method for the `Dog` class that logs a message to the console with the dog's name and a ""Woof!"" sound.
+- A `bark` method is added to the `Dog` class, which logs a message to the console with the dog's name and a ""woof!"" sound.
 
 You can create instances of the `Dog` class like this:
 
 ```typescript
-const fido = new Dog('Fido', 3, 'Labrador');
-console.log(fido.name); // Output: Fido
-console.log(fido.age); // Output: 3
-console.log(fido.breed); // Output: Labrador
-fido.bark(); // Output: Fido says: Woof!
-```
-
-This implementation follows the principles of object-oriented programming by creating a class that extends the `Animal` interface and adds additional properties and methods specific to dogs.",implement a dog class,"[
+const myDog = new Dog('Buddy', 3, 'Labrador');
+console.log(myDog.name); // Output: 'Buddy'
+console.log(myDog.age); // Output: 3
+console.log(myDog.breed); // Output: 'Labrador'
+myDog.bark(); // Output: 'Buddy says woof!'
+```",implement a dog class,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/animal.ts:undefined-undefined"",
     ""content"": ""interface Animal {\n    name: string;\n    age: number;\n}\n\n""
   }
 ]",generate code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_002/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"According to the provided code context, `Squirrel` is an interface that represents a code intelligence API. It has a single method `symbolInformation` that takes a `file` string as input and returns an object of type `CodeIntelligence`, which contains an array of `symbols` (strings).
+yaml,chat,claude-3-sonnet,chat,question_002/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code context, `Squirrel` is an interface that represents a code intelligence API. It has a single method `symbolInformation` that takes a `file` string parameter and returns an object of type `CodeIntelligence`, which contains an array of strings called `symbols`.
 
-So, `Squirrel` is likely an API or service that provides information about symbols (variables, functions, classes, etc.) present in a given file. This could be useful for code editors, IDEs, or other tools that need to provide code intelligence features like auto-completion, go-to-definition, find-references, and so on.",what is squirrel?,"[
+The comment above the `Squirrel` interface states that ""Squirrel is a code intelligence API"", which suggests that it is likely a tool or library used for analyzing code and extracting information about symbols (variables, functions, classes, etc.) within that code.
+
+```typescript:mocked/enhanced_context/squirrel.ts
+/**
+ * Squirrel is a code intelligence API.
+ */
+interface Squirrel {
+    symbolInformation(file: string): CodeIntelligence
+}
+```",what is squirrel?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
     ""content"": ""interface CodeIntelligence {\n    symbols: string[]\n}\n\n/**\n * Squirrel is a code intelligence API.\n */\ninterface Squirrel {\n    symbolInformation(file: string): CodeIntelligence\n}\n\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_003/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, I have access to the code for the Zoekt project, which is a fast text search engine intended for use with source code. The README file provides instructions for downloading, indexing, and searching the codebase using Zoekt.
+yaml,chat,claude-3-sonnet,chat,question_003/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided context, I have access to the code in the `sourcegraph/zoekt` repository, which is a fork of the `google/zoekt` repository. Specifically, the context mentions the following files and directories:
 
-Some key files and directories mentioned are:
+```go:github.com/sourcegraph/zoekt/cmd/zoekt-index
+```
+```go:github.com/sourcegraph/zoekt/cmd/zoekt-git-index
+```
+```go:github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}
+```
+```go:github.com/sourcegraph/zoekt/cmd/zoekt-webserver
+```
+```go:github.com/sourcegraph/zoekt/cmd/zoekt
+```
+```go:github.com/sourcegraph/zoekt/cmd/zoekt-indexserver
+```
+```go:github.com/sourcegraph/zoekt/cmd/zoekt-sourcegraph-indexserver/main.go
+```
 
-```go:github.com/sourcegraph/zoekt/cmd/zoekt-index```
-```go:github.com/sourcegraph/zoekt/cmd/zoekt-git-index```
-```go:github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}```
-```go:github.com/sourcegraph/zoekt/cmd/zoekt-webserver```
-```go:github.com/sourcegraph/zoekt/cmd/zoekt```
-```go:github.com/sourcegraph/zoekt/cmd/zoekt-indexserver```
-
-However, I don't have direct access to the actual code files, as the provided context is just the README file explaining the project and its usage.",What code do you have access to?,"[
+The context also mentions that this fork contains some changes from the original `google/zoekt` repository, such as exposing the API via `keegancsmith/rpc`, a `BranchesRepos` query primitive, allowing empty shard directories on startup, returning symbol/ctag data in results, and some other minor changes.",What code do you have access to?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
-]",cody usage,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_004/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"In Go, slices are a fundamental data type that provide a flexible and efficient way to work with sequences of elements. They are built on top of arrays and provide a way to dynamically resize and access a subset of an array's elements.
-
-Here's how slices work in Go:
+]",cody usage,,,1,,1,false,,,,,,,,,,,,,,,,
+yaml,chat,claude-3-sonnet,chat,question_004/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"In Go, `slices` are an abstraction over arrays that provide a more flexible, powerful, and convenient way to work with sequences of elements. Here's how they work:
 
 1. **Creating a Slice**:
-   - You can create a slice using the built-in `make` function: `slice := make([]type, length, capacity)`. The `length` parameter specifies the initial length of the slice, and the `capacity` parameter specifies the underlying array's capacity.
-   - You can also create a slice by slicing an array: `array := [5]int{1, 2, 3, 4, 5}` and `slice := array[1:4]` (creates a slice with elements at indices 1, 2, and 3).
+   - You can create a slice by slicing an array using the `[low:high]` syntax, where `low` is the inclusive starting index and `high` is the exclusive ending index.
+   - Example: `arr := [5]int{1, 2, 3, 4, 5}` and `slice1 := arr[1:4]` creates a slice `slice1` with elements `[2, 3, 4]`.
 
-2. **Accessing Elements**:
-   - You can access individual elements of a slice using the index notation: `slice[index]`.
-   - Slices are zero-indexed, meaning the first element is at index 0.
+2. **Length and Capacity**:
+   - The length of a slice is the number of elements it contains, and you can get it using the built-in `len()` function.
+   - The capacity is the number of elements in the underlying array, starting from the slice's first element.
+   - You can get the capacity using the built-in `cap()` function.
 
-3. **Modifying Elements**:
-   - You can modify elements of a slice by assigning new values to the corresponding indices: `slice[2] = 42`.
+3. **Modifying Slices**:
+   - Slices are reference types, so modifying the slice modifies the underlying array.
+   - You can append elements to a slice using the built-in `append()` function.
+   - Example: `slice1 = append(slice1, 6, 7)` appends `6` and `7` to `slice1`.
 
-4. **Length and Capacity**:
-   - The length of a slice is the number of elements it contains, and you can get it using the built-in `len` function: `length := len(slice)`.
-   - The capacity of a slice is the number of elements in the underlying array, starting from the first element in the slice. You can get the capacity using the built-in `cap` function: `capacity := cap(slice)`.
+4. **Reslicing**:
+   - You can create a new slice by slicing an existing slice.
+   - Example: `slice2 := slice1[1:3]` creates a new slice `slice2` with elements `[3, 4]`.
 
-5. **Appending Elements**:
-   - You can append elements to a slice using the built-in `append` function: `slice = append(slice, 6, 7, 8)`.
-   - If the underlying array doesn't have enough capacity to accommodate the new elements, a new array is allocated with a larger capacity, and the existing elements are copied over.
+5. **Nil Slices**:
+   - A nil slice has a length and capacity of 0 and has no underlying array.
+   - You can create a nil slice using `var slice []int`.
 
-6. **Slicing**:
-   - You can create a new slice by slicing an existing slice: `newSlice := slice[2:5]` (creates a new slice with elements at indices 2, 3, and 4 from the original slice).
-   - Slicing doesn't copy the underlying array; it creates a new view of the same underlying array.
+6. **Slice Tricks**:
+   - Omitting `low` or `high` in the slice expression gives you some useful slices:
+     - `slice[:]` creates a slice with the same elements as the original slice.
+     - `slice[2:]` creates a slice from the 3rd element to the end.
+     - `slice[:3]` creates a slice from the start to the 4th element.
 
-7. **Nil Slices**:
-   - An uninitialized slice is `nil`, and it has a length and capacity of 0.
-   - You can check if a slice is `nil` using the comparison operator: `if slice == nil { ... }`.
+7. **Slice Internals**:
+   - Slices are represented internally with a pointer to the underlying array, a length, and a capacity.
+   - This representation allows slices to be passed by value and still modify the underlying array.
 
-8. **Range Loop**:
-   - You can iterate over the elements of a slice using the `range` loop: `for index, value := range slice { ... }`.
+8. **Utility Functions**:
+   - The Go standard library provides several utility functions for working with slices, such as `sort.Slice`, `sort.SliceStable`, `strings.Split`, and more.
 
-Slices in Go are powerful and efficient because they provide a way to work with dynamically-sized sequences of elements without the need for manual memory management. They also allow for sharing the underlying array between multiple slices, which can be useful in certain scenarios.",how do slices work in go?,"[
+The `slices` package mentioned in the provided code is likely a custom package or a third-party package that provides additional utility functions for working with slices.",how do slices work in go?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -131,7 +147,9 @@ Slices in Go are powerful and efficient because they provide a way to work with 
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_005/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, there is no regex matching the pattern `/n/a|e|i|o|u//n` in the provided codebase context. The context contains various files written in Go, TypeScript, and Markdown, but no regex matching that specific pattern.",what does this regex do? \n/a|e|i|o|u/\n,"[
+yaml,chat,claude-3-sonnet,chat,question_005/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, there is no regex provided in the codebase context you shared. The context includes files with Go code, Markdown documentation, and TypeScript interfaces, but no regular expressions.
+
+If you have a specific regular expression you'd like me to explain, please provide it directly.",what does this regex do? \n/a|e|i|o|u/\n,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -158,7 +176,7 @@ yaml,chat,claude-3-sonnet,chat,question_005/question.yaml,0f2e18f72256c8dcb63f6f
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",general coding,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_006/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Sure, here's an example of how you can style a checkbox with a light purple color using CSS:
+yaml,chat,claude-3-sonnet,chat,question_006/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Sure, here's an example of how you can style a checkbox using light purple color in CSS:
 
 ```css:mocked/enhanced_context/styles.css
 /* Light purple color */
@@ -198,17 +216,18 @@ input[type=""checkbox""]:checked::before {
 In this example, we first define a CSS variable `--light-purple` with the desired light purple color value (`#c8b3e7`). Then, we target the `input[type=""checkbox""]` elements and apply the following styles:
 
 1. `appearance: none;` removes the default checkbox appearance across different browsers.
-2. `width` and `height` set the size of the checkbox.
-3. `border` sets a light purple border with a specific width and border-radius.
-4. `outline: none;` removes the default outline when the checkbox is focused.
-5. `cursor: pointer;` changes the cursor to a pointer when hovering over the checkbox.
-6. `position: relative;` is used to position the checkmark character inside the checkbox.
+2. We set the `width` and `height` to `18px` for a square checkbox.
+3. `border: 2px solid var(--light-purple);` sets a light purple border for the checkbox.
+4. `border-radius: 4px;` adds a slight rounded corner to the checkbox.
+5. `outline: none;` removes the default outline when the checkbox is focused.
+6. `cursor: pointer;` changes the cursor to a pointer when hovering over the checkbox.
+7. `position: relative;` is set to position the checkmark icon inside the checkbox.
 
-For the checked state (`input[type=""checkbox""]:checked`), we set the background color to the light purple color using the `--light-purple` variable.
+For the checked state (`input[type=""checkbox""]:checked`), we set the `background-color` to `var(--light-purple)` to fill the checkbox with the light purple color.
 
-Finally, we use the `::before` pseudo-element to insert a Unicode checkmark character (`\2713`) inside the checked checkbox. We position the checkmark character in the center using `position: absolute;` and `transform: translate(-50%, -50%);`.
+Additionally, we add a pseudo-element `::before` to display a checkmark icon (`\2713`) inside the checked checkbox. The icon is positioned using `position: absolute;` and centered using `top: 50%; left: 50%; transform: translate(-50%, -50%);`.
 
-You can adjust the colors, sizes, and other styles as needed to match your design requirements.",style css checkbox using light purple,"[
+You can include this CSS in your project, and the checkboxes will be styled with a light purple color.",style css checkbox using light purple,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -235,23 +254,23 @@ You can adjust the colors, sizes, and other styles as needed to match your desig
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_007/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided code context does not contain any information related to upgrading Python versions. The code snippets appear to be related to a Go project called ""Cody Agent"" that implements a JSON-RPC server.
+yaml,chat,claude-3-sonnet,chat,question_007/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided code context does not contain any information related to upgrading Python versions. The code snippets appear to be related to a Go project involving an AI agent or service.
 
-To upgrade your Python version, the process depends on your operating system and how Python was installed on your machine. Here are some general steps you can follow:
+To upgrade your Python version, the steps generally involve:
 
-1. **Identify your current Python version**: Open a terminal or command prompt and run `python --version` or `python3 --version`. This will show you the currently installed version of Python.
+1. Determine the latest stable Python version you want to upgrade to from https://www.python.org/downloads/
 
-2. **Check if a newer version is available**: Visit the official Python website (https://www.python.org/downloads/) and check if a newer version is available for your operating system.
+2. Download the latest Python version installer for your operating system from the official website.
 
-3. **Download the latest Python version**: On the Python downloads page, select the appropriate installer for your operating system (e.g., Windows x86-64 executable installer, macOS pkg installer, or Linux source code).
+3. Run the installer. It's recommended to check the option to add Python to your system's PATH environment variable during installation.
 
-4. **Run the installer**: Follow the instructions provided by the installer. It's generally recommended to install the latest Python version alongside your existing installation, rather than overwriting it.
+4. After installation, open a new terminal or command prompt and run `python --version` or `python3 --version` to verify the new Python version.
 
-5. **Update your system's PATH variable (Windows only)**: On Windows, you may need to update your system's PATH variable to include the new Python installation directory. This ensures that when you run `python` or `python3` in the terminal, it uses the new version.
+5. If you had a previous Python version installed, you may need to update any scripts, tools or packages that referenced the old Python version path.
 
-6. **Verify the installation**: After the installation is complete, open a new terminal or command prompt and run `python --version` or `python3 --version` again to verify that the new version is installed correctly.
+6. Install/upgrade your Python packages by running `python -m pip install --upgrade pip` followed by `pip install --upgrade package_name` for each required package.
 
-If you encounter any issues or have specific requirements (e.g., using a virtual environment, managing multiple Python versions), you may want to consult the official Python documentation or seek assistance from online resources or forums specific to your operating system and Python setup.",how to upgrade my python version?,"[
+The exact steps can vary slightly based on your operating system. It's a good idea to refer to the official Python documentation for your specific platform for the most up-to-date instructions.",how to upgrade my python version?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/chunker_test.go:undefined-undefined"",
@@ -273,51 +292,41 @@ If you encounter any issues or have specific requirements (e.g., using a virtual
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",general coding,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_008/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the code provided, this appears to be part of the Zoekt repository, which is a fast text search engine used by Sourcegraph. The code in this file (`limit.go`) contains functions for sorting, truncating, and limiting the number of file matches and matches within files returned by a search query.
+yaml,chat,claude-3-sonnet,chat,question_008/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the code provided, this appears to be part of the Zoekt repository, which is a fast text search engine used by Sourcegraph. The code in this file (`limit.go`) contains functions related to limiting and truncating the search results based on various options.
 
 Specifically, the functions in this file are:
 
-1. `SortAndTruncateFiles`: Sorts the list of `FileMatch` structs and then truncates them based on the specified `SearchOptions`.
+1. `SortAndTruncateFiles`: This function sorts the list of `FileMatch` results and then truncates them based on the provided `SearchOptions`.
 
-2. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on the number of files and matches displayed, based on the `SearchOptions`.
+2. `NewDisplayTruncator`: This function returns a `DisplayTruncator` function, which is a stateful function used to enforce limits on the number of documents and matches displayed. It takes into account options like `MaxDocDisplayCount` and `MaxMatchDisplayCount`.
 
-3. `limitMatches`: Limits the number of matches (either line matches or chunk matches) in each `FileMatch` struct, based on the specified limit.
+3. `limitMatches`: This function limits the number of matches in each `FileMatch` based on the provided limit and whether to chunk matches or not.
 
-4. `limitChunkMatches`: Limits the number of chunk matches in a `FileMatch` struct, potentially truncating the match content if necessary.
+4. `limitChunkMatches`: This function limits the number of `ChunkMatches` in a `FileMatch`. It handles truncating the content and ranges of the `ChunkMatches` when the limit is exceeded.
 
-5. `limitLineMatches`: Limits the number of line matches in a `FileMatch` struct.
+5. `limitLineMatches`: This function limits the number of `LineMatches` in a `FileMatch` by truncating the `LineFragments` when the limit is exceeded.
 
-The purpose of these functions seems to be to provide a way to control the amount of search result data returned to the user, by enforcing limits on the number of files and matches displayed. This can be useful for large codebases or queries that would otherwise return an overwhelming amount of data.",What does this repo do??,"[
+Overall, this code is responsible for managing and limiting the search results returned by Zoekt, ensuring that the number of displayed documents and matches adheres to the specified options. This is likely done to improve performance and provide a better user experience when dealing with large search results.",What does this repo do??,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined"",
     ""content"": ""package zoekt\n\nimport \""log\""\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\""Failed to find enough newlines when truncating Content, %d left over, %d ranges\"", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_009/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, here's a description of your code:
+yaml,chat,claude-3-sonnet,chat,question_009/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, here's a description of your code:
 
-The code is part of the Zoekt project, which is a fast text search engine intended for use with source code. It is a fork of the original Google Zoekt project, maintained by Sourcegraph.
+The code appears to be part of the Zoekt project, which is a fast text search engine intended for use with source code. The provided files are:
 
-The files you provided contain the following:
+1. `mocked/enhanced_context/vscode/src/external-services.ts`: This file seems to be a TypeScript file, but the provided context does not give enough information to determine its purpose.
 
-1. `mocked/enhanced_context/vscode/src/external-services.ts`:
-   - This appears to be a TypeScript file, but the provided context is incomplete, so it's difficult to determine its purpose.
+2. `mocked/codebase_context/limit.go`: This is a Go file containing functions related to limiting and truncating search results in Zoekt. The main functions are:
+   - `SortAndTruncateFiles`: Sorts and truncates a slice of `FileMatch` structs based on search options.
+   - `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on the number of documents and matches displayed.
+   - `limitChunkMatches` and `limitLineMatches`: Helper functions that limit the number of chunk matches and line matches, respectively, in a `FileMatch` struct.
 
-2. `mocked/codebase_context/limit.go`:
-   - This is a Go file containing functions related to limiting and truncating search results in Zoekt.
-   - The `SortAndTruncateFiles` function sorts and truncates a slice of `FileMatch` structs based on the provided `SearchOptions`.
-   - The `NewDisplayTruncator` function creates a `DisplayTruncator`, which is a stateful function that enforces limits on the number of documents and matches displayed.
-   - The `limitMatches` function limits the number of matches in each `FileMatch` based on the provided limit and whether to chunk matches or not.
-   - The `limitChunkMatches` and `limitLineMatches` functions handle limiting matches for chunked and line-based matches, respectively.
+3. `mocked/codebase_context/README.md`: This is the README file for the Zoekt project. It provides instructions for downloading, indexing, and searching with Zoekt. It also mentions features like symbol search, web interface, JSON API, and CLI. Additionally, it discusses the fork details and differences between the Sourcegraph fork and the original Google repository.
 
-3. `mocked/codebase_context/README.md`:
-   - This is the README file for the Zoekt project, providing instructions for downloading, indexing, and searching using Zoekt.
-   - It covers indexing directories, Git repositories, and repositories hosted on Google's repo service.
-   - It explains how to search using the web interface, JSON API, and CLI.
-   - It also mentions the installation process, search service management, symbol search, and acknowledgments.
-   - Additionally, it provides details about the Sourcegraph fork and the differences from the original Google Zoekt project.
-
-Overall, the provided code focuses on limiting and truncating search results in Zoekt, as well as documentation for using and installing the Zoekt search engine.",describe my code,"[
+Overall, the provided code focuses on the search result limiting and truncation functionality, as well as the project's README file, which serves as documentation for using Zoekt.",describe my code,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -338,29 +347,24 @@ Overall, the provided code focuses on limiting and truncating search results in 
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/eval.go:undefined-undefined""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_010/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, here's a description of your code:
+yaml,chat,claude-3-sonnet,chat,question_010/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, here's a description of your code:
 
 1. `mocked/enhanced_context/README.md`:
-   - This file provides a brief description of the `@sourcegraph/cody-agent` package, which implements a JSON-RPC server to interact with Cody (an AI assistant) via stdout/stdin. It's intended for non-ECMAScript clients like JetBrains and NeoVim plugins.
+This file provides a brief description of the `@sourcegraph/cody-agent` package, which implements a JSON-RPC server to interact with Cody (an AI coding assistant) via stdout/stdin. This package is intended for non-ECMAScript clients like JetBrains and NeoVim plugins.
 
 2. `mocked/enhanced_context/limit.go`:
-   - This Go file contains code related to rate limiting and concurrency limiting for an actor (likely an AI model or agent).
-   - It defines a `RateLimit` struct with fields like `AllowedModels`, `Limit`, `Interval`, `ConcurrentRequests`, and `ConcurrentRequestsInterval`.
-   - It provides functions to evaluate allowed models, handle concurrency limits, and update actors based on access errors.
-   - It also defines an error type `ErrConcurrencyLimitExceeded` for when the concurrency limit is exceeded.
+This Go file contains code related to rate limiting and concurrency limiting for an actor (likely Cody). It defines a `RateLimit` struct with fields like `AllowedModels`, `Limit`, `Interval`, `ConcurrentRequests`, and `ConcurrentRequestsInterval`. It also includes helper functions for evaluating allowed models, handling concurrency limits, and updating actors on certain errors.
 
 3. `mocked/enhanced_context/agent.go`:
-   - This file contains a single line of code, which is a comment stating that `Agent` is an agent.
+This file contains a single line of code, which is a comment stating that `Agent` is an agent. It's unclear what the `Agent` struct or interface represents without more context.
 
 4. `mocked/enhanced_context/animal.ts`:
-   - This TypeScript file defines an `Animal` interface with properties `name` (string) and `age` (number).
+This TypeScript file defines an `Animal` interface with two properties: `name` (a string) and `age` (a number).
 
 5. `mocked/enhanced_context/squirrel.ts`:
-   - This TypeScript file defines a `CodeIntelligence` interface with a `symbols` array of strings.
-   - It also defines a `Squirrel` interface with a `symbolInformation` method that takes a `file` string and returns a `CodeIntelligence` object.
-   - The comment suggests that `Squirrel` is a code intelligence API.
+This TypeScript file defines a `CodeIntelligence` interface with a `symbols` array of strings. It also defines a `Squirrel` interface with a `symbolInformation` method that takes a `file` string and returns a `CodeIntelligence` object. The comment suggests that `Squirrel` is a code intelligence API.
 
-Overall, the provided codebase context includes a mix of Go and TypeScript files related to an AI agent or assistant, rate limiting, concurrency limiting, and code intelligence.",\@zoekt describe my code.,"[
+Overall, the provided codebase context seems to be a mix of Go and TypeScript files related to an AI coding assistant (Cody), rate limiting, concurrency limiting, and code intelligence.",\@zoekt describe my code.,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -387,22 +391,21 @@ Overall, the provided codebase context includes a mix of Go and TypeScript files
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_011/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the code in `mocked/codebase_context/shards/watcher.go`, the `DirectoryWatcher` is responsible for watching a directory for changes to files with the `.zoekt` extension. It performs the following tasks:
+yaml,chat,claude-3-sonnet,chat,question_011/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the code in `mocked/codebase_context/shards/watcher.go`, the `DirectoryWatcher` is responsible for watching a directory for changes to files with the `.zoekt` extension. It performs the following tasks:
 
 1. On initialization, it scans the directory and loads any existing `.zoekt` files into memory by calling the `load` method on the provided `shardLoader` interface.
 
-2. It then starts watching the directory using the `fsnotify` package for any file system events (create, modify, delete, etc.) related to `.zoekt` files.
+2. It then starts watching the directory using the `fsnotify` library, which monitors file system events like file creation, modification, and deletion.
 
-3. When a file system event is detected, it rescans the directory and updates the in-memory state accordingly:
-   - If a new `.zoekt` file is added, it calls `load` on the `shardLoader` to load it.
-   - If an existing `.zoekt` file is modified, it calls `load` again to reload it.
-   - If a `.zoekt` file is deleted, it calls `drop` on the `shardLoader` to unload it.
+3. When a file system event is detected, it calls the `scan` method again to check for any new or modified `.zoekt` files. If new files are found, they are loaded using the `shardLoader.load` method. If files have been deleted, they are unloaded using the `shardLoader.drop` method.
 
-4. The `DirectoryWatcher` also handles situations where the index format version of a `.zoekt` file is newer than the current or next supported version, skipping those files.
+4. The `DirectoryWatcher` keeps track of the modification times of the loaded files to avoid reloading files that haven't changed.
 
-5. It provides a `WaitUntilReady` method that blocks until the initial scan is complete and the directory watcher is ready to handle file system events.
+5. It provides a `WaitUntilReady` method that blocks until the initial scan and watch setup are complete, allowing clients to wait until the watcher is fully initialized.
 
-In summary, the `DirectoryWatcher` is responsible for keeping an in-memory representation of `.zoekt` files in a directory up-to-date by watching for file system events and loading/unloading the files accordingly, using the provided `shardLoader` interface to manage the actual loading and unloading of the files.",What does directory watcher do?,"[
+6. The `Stop` method can be called to stop the directory watcher and clean up resources.
+
+In summary, the `DirectoryWatcher` is responsible for automatically detecting and loading changes to `.zoekt` files in a specified directory, likely to keep an index or cache up-to-date with the contents of the directory.",What does directory watcher do?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -439,19 +442,19 @@ In summary, the `DirectoryWatcher` is responsible for keeping an in-memory repre
     ""content"": ""// Copyright 2017 Google Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \""License\"");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//    http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \""AS IS\"" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage shards\n\nimport (\n\t\""fmt\""\n\t\""log\""\n\t\""os\""\n\t\""path/filepath\""\n\t\""sort\""\n\t\""strconv\""\n\t\""strings\""\n\t\""sync\""\n\t\""time\""\n\n\t\""github.com/fsnotify/fsnotify\""\n\t\""github.com/sourcegraph/zoekt\""\n)\n\ntype shardLoader interface {\n\t// Load a new file.\n\tload(filenames ...string)\n\tdrop(filenames ...string)\n}\n\ntype DirectoryWatcher struct {\n\tdir        string\n\ttimestamps map[string]time.Time\n\tloader     shardLoader\n\n\t// closed once ready\n\tready    chan struct{}\n\treadyErr error\n\n\tcloseOnce sync.Once\n\t// quit is closed by Close to signal the directory watcher to stop.\n\tquit chan struct{}\n\t// stopped is closed once the directory watcher has stopped.\n\tstopped chan struct{}\n}\n\nfunc (sw *DirectoryWatcher) Stop() {\n\tsw.closeOnce.Do(func() {\n\t\tclose(sw.quit)\n\t\t<-sw.stopped\n\t})\n}\n\nfunc newDirectoryWatcher(dir string, loader shardLoader) (*DirectoryWatcher, error) {\n\tsw := &DirectoryWatcher{\n\t\tdir:        dir,\n\t\ttimestamps: map[string]time.Time{},\n\t\tloader:     loader,\n\t\tready:      make(chan struct{}),\n\t\tquit:       make(chan struct{}),\n\t\tstopped:    make(chan struct{}),\n\t}\n\n\tgo func() {\n\t\tdefer close(sw.ready)\n\n\t\tif err := sw.scan(); err != nil {\n\t\t\tsw.readyErr = err\n\t\t\treturn\n\t\t}\n\n\t\tif err := sw.watch(); err != nil {\n\t\t\tsw.readyErr = err\n\t\t\treturn\n\t\t}\n\t}()\n\n\treturn sw, nil\n}\n\nfunc (s *DirectoryWatcher) WaitUntilReady() error {\n\t<-s.ready\n\treturn s.readyErr\n}\n\nfunc (s *DirectoryWatcher) String() string {\n\treturn fmt.Sprintf(\""shardWatcher(%s)\"", s.dir)\n}\n\n// versionFromPath extracts url encoded repository name and\n// index format version from a shard name from builder.\nfunc versionFromPath(path string) (string, int) {\n\tund := strings.LastIndex(path, \""_\"")\n\tif und < 0 {\n\t\treturn path, 0\n\t}\n\n\tdot := strings.Index(path[und:], \"".\"")\n\tif dot < 0 {\n\t\treturn path, 0\n\t}\n\tdot += und\n\n\tversion, err := strconv.Atoi(path[und+2 : dot])\n\tif err != nil {\n\t\treturn path, 0\n\t}\n\n\treturn path[:und], version\n}\n\nfunc (s *DirectoryWatcher) scan() error {\n\tfs, err := filepath.Glob(filepath.Join(s.dir, \""*.zoekt\""))\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tlatest := map[string]int{}\n\tfor _, fn := range fs {\n\t\tname, version := versionFromPath(fn)\n\n\t\t// In the case of downgrades, avoid reading\n\t\t// newer index formats.\n\t\tif version > zoekt.IndexFormatVersion && version > zoekt.NextIndexFormatVersion {\n\t\t\tcontinue\n\t\t}\n\n\t\tif latest[name] < version {\n\t\t\tlatest[name] = version\n\t\t}\n\t}\n\n\tts := map[string]time.Time{}\n\tfor _, fn := range fs {\n\t\tif name, version := versionFromPath(fn); latest[name] != version {\n\t\t\tcontinue\n\t\t}\n\n\t\tfi, err := os.Lstat(fn)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\n\t\tts[fn] = fi.ModTime()\n\n\t\tfiMeta, err := os.Lstat(fn + \"".meta\"")\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tif fiMeta.ModTime().After(fi.ModTime()) {\n\t\t\tts[fn] = fiMeta.ModTime()\n\t\t}\n\t}\n\n\tvar toLoad []string\n\tfor k, mtime := range ts {\n\t\tif t, ok := s.timestamps[k]; !ok || t != mtime {\n\t\t\ttoLoad = append(toLoad, k)\n\t\t\ts.timestamps[k] = mtime\n\t\t}\n\t}\n\n\tvar toDrop []string\n\t// Unload deleted shards.\n\tfor k := range s.timestamps {\n\t\tif _, ok := ts[k]; !ok {\n\t\t\ttoDrop = append(toDrop, k)\n\t\t\tdelete(s.timestamps, k)\n\t\t}\n\t}\n\n\tif len(toDrop) > 0 {\n\t\tlog.Printf(\""unloading %d shard(s): %s\"", len(toDrop), humanTruncateList(toDrop, 5))\n\t}\n\n\ts.loader.drop(toDrop...)\n\ts.loader.load(toLoad...)\n\n\treturn nil\n}\n\nfunc humanTruncateList(paths []string, max int) string {\n\tsort.Strings(paths)\n\tvar b strings.Builder\n\tfor i, p := range paths {\n\t\tif i >= max {\n\t\t\tfmt.Fprintf(&b, \""... %d more\"", len(paths)-i)\n\t\t\tbreak\n\t\t}\n\t\tif i > 0 {\n\t\t\tb.WriteString(\"", \"")\n\t\t}\n\t\tb.WriteString(filepath.Base(p))\n\t}\n\treturn b.String()\n}\n\nfunc (s *DirectoryWatcher) watch() error {\n\twatcher, err := fsnotify.NewWatcher()\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := watcher.Add(s.dir); err != nil {\n\t\treturn err\n\t}\n\n\t// intermediate signal channel so if there are multiple watcher.Events we\n\t// only call scan once.\n\tsignal := make(chan struct{}, 1)\n\n\tgo func() {\n\t\tfor {\n\t\t\tselect {\n\t\t\tcase <-watcher.Events:\n\t\t\t\tselect {\n\t\t\t\tcase signal <- struct{}{}:\n\t\t\t\tdefault:\n\t\t\t\t}\n\t\t\tcase err := <-watcher.Errors:\n\t\t\t\t// Ignore ErrEventOverflow since we rely on the presence of events so\n\t\t\t\t// safe to ignore.\n\t\t\t\tif err != nil && err != fsnotify.ErrEventOverflow {\n\t\t\t\t\tlog.Println(\""watcher error:\"", err)\n\t\t\t\t}\n\t\t\tcase <-s.quit:\n\t\t\t\twatcher.Close()\n\t\t\t\tclose(signal)\n\t\t\t\treturn\n\t\t\t}\n\t\t}\n\t}()\n\n\tgo func() {\n\t\tdefer close(s.stopped)\n\t\tfor range signal {\n\t\t\tif err := s.scan(); err != nil {\n\t\t\t\tlog.Println(\""watcher error:\"", err)\n\t\t\t}\n\t\t}\n\t}()\n\n\treturn nil\n}\n""
   }
 ]",code search,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_012/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the limited codebase context provided, it's difficult to make a definitive assessment about whether your entire codebase is clean or not. However, I can provide some observations about the code snippets:
+yaml,chat,claude-3-sonnet,chat,question_012/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the limited codebase context provided, it's difficult to make a definitive assessment about whether your entire codebase is clean or not. However, I can provide some observations about the code snippets:
 
-1. `mocked/codebase_context/README.md`: This file appears to be a well-structured README file that provides an overview of the project, instructions for various tasks like downloading, indexing, searching, and installation. The presence of a comprehensive README is generally a good sign of a well-documented and organized codebase.
+1. `mocked/codebase_context/README.md`: This file appears to be a well-structured README file, providing clear instructions and information about the project. Having a good README is a sign of a well-documented and organized codebase.
 
-2. `mocked/codebase_context/limit.go`: This Go file contains several functions related to limiting and truncating search results based on various options. The code seems reasonably well-structured and commented, which is a positive sign. However, without seeing the broader context and usage of these functions, it's difficult to assess their overall quality and maintainability.
+2. `mocked/codebase_context/limit.go`: This Go file contains several functions related to limiting and truncating search results. The code seems reasonably well-structured and commented, which is a good sign of clean code.
 
-3. `mocked/enhanced_context/agent.go`: This file only contains a single-line comment, so it's hard to make any meaningful assessment based on this snippet alone.
+3. `mocked/enhanced_context/agent.go`: This file only contains a single line declaring an `Agent` interface, so it's hard to make any meaningful assessment based on this snippet alone.
 
-4. `mocked/enhanced_context/animal.ts`: This TypeScript file defines a simple `Animal` interface, which is a common practice in TypeScript codebases. However, it's a very small snippet, and it's hard to judge the overall code quality based on this alone.
+4. `mocked/enhanced_context/animal.ts`: This TypeScript file defines a simple `Animal` interface, which is a common practice in TypeScript codebases.
 
-5. `mocked/enhanced_context/squirrel.ts`: This TypeScript file defines a `CodeIntelligence` interface and a `Squirrel` interface, which seems to be related to code intelligence functionality. The presence of interfaces and type annotations is generally a good sign in TypeScript codebases, but again, it's a small snippet, and it's hard to make a comprehensive assessment.
+5. `mocked/enhanced_context/squirrel.ts`: This file defines a `CodeIntelligence` interface and a `Squirrel` interface, which seems to be related to code intelligence functionality. The code is well-commented, which is a positive sign.
 
-Overall, based on the provided snippets, there are no glaring issues or red flags that would indicate an unclean codebase. However, it's important to note that assessing code quality and cleanliness requires a more comprehensive review of the entire codebase, including factors such as code organization, naming conventions, code complexity, test coverage, and adherence to best practices and coding standards.",Is my codebase clean?,"[
+Overall, based on the provided snippets, the codebase seems to follow some good practices, such as clear documentation, comments, and a modular structure. However, it's important to note that assessing the cleanliness of an entire codebase requires a more comprehensive review, including factors like coding style consistency, test coverage, code organization, and adherence to best practices specific to the programming language and project domain.",Is my codebase clean?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -478,7 +481,7 @@ Overall, based on the provided snippets, there are no glaring issues or red flag
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_013/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, it seems that the gRPC chunker is tested in the file `mocked/enhanced_context/chunker_test.go`. The context shows the following code snippet:
+yaml,chat,claude-3-sonnet,chat,question_013/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, it seems that the gRPC chunker is tested in the file `mocked/enhanced_context/chunker_test.go`. The context shows the following code snippet:
 
 ```go:mocked/enhanced_context/chunker_test.go
 type server struct {
@@ -486,7 +489,9 @@ type server struct {
 }
 ```
 
-This code defines a `server` struct that embeds the `UnimplementedTestServiceServer` from the `grpc_testing` package, which is typically used for testing gRPC services. Therefore, the tests for the gRPC chunker are likely implemented in the `mocked/enhanced_context/chunker_test.go` file.",where do we test the grpc chunker,"[
+This code defines a `server` struct that embeds the `UnimplementedTestServiceServer` from the `grpc_testing` package, which is typically used for mocking and testing gRPC services.
+
+Therefore, the tests for the gRPC chunker are likely implemented in the `mocked/enhanced_context/chunker_test.go` file.",where do we test the grpc chunker,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -498,20 +503,11 @@ This code defines a `server` struct that embeds the `UnimplementedTestServiceSer
     ""content"": ""type server struct {\n\tgrpc_testing.UnimplementedTestServiceServer\n}""
   }
 ]",code search,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_014/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, I don't have enough context about your specific codebase or environment to provide instructions for upgrading PyTorch. Upgrading PyTorch typically involves:
+yaml,chat,claude-3-sonnet,chat,question_014/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, I don't have enough context about your specific codebase or environment to provide instructions for upgrading PyTorch. Upgrading PyTorch typically involves uninstalling the old version and installing the new version, but the exact steps can vary depending on your operating system, Python environment (virtualenv, conda, etc.), and how PyTorch was originally installed. 
 
-1. Checking the official PyTorch website (https://pytorch.org/) for the upgrade guide for your specific platform (Linux, Windows, macOS) and Python version.
+The PyTorch website has an excellent guide on upgrading that covers the different scenarios: https://pytorch.org/get-started/locally/
 
-2. Following the instructions to install the new PyTorch version, which may involve:
-    - Updating pip and other Python dependencies
-    - Uninstalling the old PyTorch version
-    - Installing the new version via pip or conda
-
-3. Ensuring your code is compatible with the new PyTorch version by checking for any breaking changes or deprecations in the release notes.
-
-4. Testing your code thoroughly after the upgrade to ensure everything works as expected.
-
-Since I don't have access to your actual codebase or environment details, I can't provide more specific guidance. I'd recommend consulting the official PyTorch upgrade documentation at https://pytorch.org/get-started/locally/ for the steps relevant to your setup.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site","[
+I'd recommend following their official upgrade guide for the version 1.0.0 and your specific setup. If you run into any issues during the upgrade process, feel free to provide more details about your environment and codebase, and I'll try my best to assist further.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site","[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -523,13 +519,13 @@ Since I don't have access to your actual codebase or environment details, I can'
     ""content"": ""package zoekt\n\nimport \""log\""\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\""Failed to find enough newlines when truncating Content, %d left over, %d ranges\"", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n""
   }
 ]",cody usage,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_015/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code files, there does not appear to be any conflicting packages. The files are all part of the same `zoekt` package.
+yaml,chat,claude-3-sonnet,chat,question_015/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided code files, there do not appear to be any conflicting packages. The files are all part of the same `zoekt` package.
 
-The `limit.go` file contains several functions related to limiting the number of file matches, chunk matches, and line matches returned from a search. These functions are used to enforce the maximum display limits specified in the search options.
+The `mocked/codebase_context/limit.go` file contains functions related to limiting and truncating search results, such as `SortAndTruncateFiles`, `NewDisplayTruncator`, `limitMatches`, `limitChunkMatches`, and `limitLineMatches`.
 
-The `README.md` file provides an overview of the Zoekt project, including instructions for downloading, indexing, and searching. It does not contain any code that would conflict with the `limit.go` file.
+The `mocked/codebase_context/README.md` file is a documentation file explaining how to use the Zoekt search engine, including instructions for downloading, indexing, searching, and installation.
 
-Unless there are additional files not provided in the context, there does not seem to be any package conflicts present in this codebase.",Can you look through the files and identify the conflicting packages that may be causing this?,"[
+Both files seem to be part of the same Zoekt project and do not conflict with each other in terms of package names or imports.",Can you look through the files and identify the conflicting packages that may be causing this?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -541,7 +537,7 @@ Unless there are additional files not provided in the context, there does not se
     ""content"": ""package zoekt\n\nimport \""log\""\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\""Failed to find enough newlines when truncating Content, %d left over, %d ranges\"", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n""
   }
 ]",debug code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_016/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Sure, let's take another look at `mocked/codebase_context/limit.go`:
+yaml,chat,claude-3-sonnet,chat,question_016/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Sure, let's take another look at `mocked/codebase_context/limit.go`:
 
 ```go:mocked/codebase_context/limit.go
 package zoekt
@@ -558,7 +554,7 @@ func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {
 }
 
 // DisplayTruncator is a function that enforces limits on the number of
-// Documents and Matches displayed by truncating the given slice of FileMatches.
+// Documents and Matches displayed by truncating the given FileMatches.
 type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
 
 // NewDisplayTruncator returns a DisplayTruncator based on the SearchOptions,
@@ -568,29 +564,29 @@ func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits boo
 }
 
 func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
-	// ... function body omitted for brevity ...
+	// ... function body omitted ...
 }
 
-// limitChunkMatches limits the number of ChunkMatches in a FileMatch.
+// limitChunkMatches limits the number of ChunkMatches in the given FileMatch.
 func limitChunkMatches(file *FileMatch, limit int) int {
-	// ... function body omitted for brevity ...
+	// ... function body omitted ...
 }
 
-// limitLineMatches limits the number of LineMatches in a FileMatch.  
+// limitLineMatches limits the number of LineMatches in the given FileMatch. 
 func limitLineMatches(file *FileMatch, limit int) int {
-	// ... function body omitted for brevity ...
+	// ... function body omitted ...
 }
 ```
 
-This file contains functions related to limiting and truncating search results based on the specified `SearchOptions`. The key functions are:
+This file contains functions related to limiting and truncating search results based on the provided `SearchOptions`. The key functions are:
 
-1. `SortAndTruncateFiles`: Sorts and truncates a slice of `FileMatch`es based on `SearchOptions`.
-2. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on displayed documents and matches.
-3. `limitMatches`: Helper function that limits matches based on whether chunk or line matches are used.
-4. `limitChunkMatches`: Limits the number of `ChunkMatch`es in a `FileMatch`.
-5. `limitLineMatches`: Limits the number of `LineMatch`es in a `FileMatch`.
+1. `SortAndTruncateFiles`: Sorts and truncates the given `FileMatches` based on `SearchOptions`.
+2. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on displayed results.
+3. `limitMatches`: Helper function that limits either `ChunkMatches` or `LineMatches` based on the provided limit.
+4. `limitChunkMatches`: Limits the number of `ChunkMatches` in a `FileMatch`.
+5. `limitLineMatches`: Limits the number of `LineMatches` in a `FileMatch`.
 
-The core logic seems to be around enforcing the `MaxDocDisplayCount` and `MaxMatchDisplayCount` limits specified in `SearchOptions`. The `DisplayTruncator` returned by `NewDisplayTruncator` is a stateful function that truncates the results as needed based on these limits.",Mind taking a second look at the file? @limit.go,"[
+The core logic seems to be around enforcing the `MaxDocDisplayCount` and `MaxMatchDisplayCount` limits specified in the `SearchOptions`.",Mind taking a second look at the file? @limit.go,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -606,9 +602,9 @@ The core logic seems to be around enforcing the `MaxDocDisplayCount` and `MaxMat
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/eval.go:undefined-undefined""
   }
 ]",explain code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_017/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided codebase context does not mention anything about the license used by this project. The README file and the limit.go file do not contain any information about licensing.
+yaml,chat,claude-3-sonnet,chat,question_017/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Unfortunately, the provided codebase context does not mention anything about the license used by this project. The README file and the provided code file `limit.go` do not contain any information about licensing.
 
-Most open source projects specify their license in a file named LICENSE or LICENSE.txt in the root of the repository. However, those files are not included in the provided context. Without access to the full codebase, I cannot determine why this particular license was chosen for the zoekt project.",Why does this project use the MIT license?,"[
+Most open source projects specify their license in a file named LICENSE or LICENSE.txt in the root of the repository. However, no such file was provided in the codebase context. Without access to that information, I cannot determine why this particular project uses the MIT license or if it even does use that license.",Why does this project use the MIT license?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined"",
@@ -620,7 +616,7 @@ Most open source projects specify their license in a file named LICENSE or LICEN
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",insufficient context,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_018/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, there does not appear to be any code related to tensor functions or operations. The code seems to be focused on a text search engine called Zoekt, which is intended for searching source code repositories. Without additional context or codebase files, I cannot locate a tensor function within this codebase.",See zoekt repo find location of tensor function,"[
+yaml,chat,claude-3-sonnet,chat,question_018/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Based on the provided codebase context, there does not appear to be any code related to tensor functions or operations. The code seems to be focused on a text search engine called Zoekt, which is used for searching source code repositories. Without additional context or code files, I cannot locate a tensor function within this codebase.",See zoekt repo find location of tensor function,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -636,165 +632,150 @@ yaml,chat,claude-3-sonnet,chat,question_018/question.yaml,0f2e18f72256c8dcb63f6f
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/eval.go:undefined-undefined""
   }
 ]",insufficient context,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_019/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Here's an explanation of the logic in `src/agent.go`, focusing on how agents interact with ranking:
+yaml,chat,claude-3-sonnet,chat,question_019/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Here's an overview of the logic in `src/agent.go` and how agents interact with ranking in Zoekt:
 
-```go:src/agent.go
+```go:src/zoekt/agent.go
 // agent.go contains the logic for running search queries across multiple shards in parallel.
 
-// An agent is responsible for searching a single shard.
-type agent struct {
+// The Agent struct manages a pool of workers that execute searches on individual shards.
+type Agent struct {
     // ...
 }
 
-// query sends a query to the agent's shard and returns the top candidate results.
-func (a *agent) query(ctx context.Context, q query.Q, stats *stats.Stats) ([]candidate, error) {
+// The Search method is the main entry point for executing a search query.
+func (x *Agent) Search(ctx context.Context, q query.Q, opts *SearchOptions) (*SearchResult, error) {
+    // Create channels for workers to send results
+    resCount := 0
+    resultChan := make(chan *ShardSearchResult, x.opts.ShardMaxMSizeBytes)
+    
+    // Spawn workers to search individual shards in parallel
+    for _, shard := range x.shards {
+        go x.searchShard(ctx, q, opts, shard, resultChan)
+    }
+
+    // Merge results from workers, rank and apply limits
+    res := newStreamingSearchResult(q, opts)
+    for shardRes := range resultChan {
+        res.merge(shardRes)
+        resCount += len(shardRes.Files)
+        if resCount >= opts.TotalMaxMatchCount {
+            break
+        }
+    }
+    res.rankFiles()
+    return res.finalize()
+}
+
+// searchShard runs the query on a single shard and sends results to resultChan
+func (x *Agent) searchShard(ctx context.Context, q query.Q, opts *SearchOptions, shard *shard.Shard, resultChan chan<- *ShardSearchResult) {
     // ...
-    candidates, err := a.shard.Search(ctx, q)
-    if err != nil {
-        return nil, err
-    }
-
-    // Rank the candidates.
-    candidates = rank(candidates, q)
-
-    // Return the top N candidates.
-    return candidates[:maxCandidatesPerShard], nil
-}
-
-// rank scores and sorts the candidates.
-func rank(candidates []candidate, q query.Q) []candidate {
-    // Rank candidates by score.
-    sort.Slice(candidates, func(i, j int) bool {
-        return candidates[i].Score > candidates[j].Score
-    })
-
-    // Apply dynamic rank scoring based on query properties.
-    candidates = dynamicRankScore(candidates, q)
-
-    return candidates
-}
-
-// dynamicRankScore applies additional ranking signals based on query properties.
-func dynamicRankScore(candidates []candidate, q query.Q) []candidate {
-    // Boost scores for candidates matching certain file patterns.
-    for i := range candidates {
-        candidates[i].Score *= filePatternBoost(q, candidates[i].File)
-    }
-
-    // Further ranking signals could be added here...
-
-    return candidates
 }
 ```
 
 The key points are:
 
-1. Each `agent` is responsible for searching a single shard (partition of the indexed data).
-2. The `query` method on an agent sends the query to its shard and gets back a list of `candidate` results.
-3. The `rank` function scores and sorts the candidates by their base score.
-4. `dynamicRankScore` applies additional ranking signals to boost/decrease scores based on query properties.
-   - For example, it boosts scores for candidates matching certain file patterns using `filePatternBoost`.
-   - More ranking signals could be added here to incorporate other factors.
-5. After ranking, only the top N candidates from each shard are returned.
+1. The `Search` method spawns worker goroutines to execute the search query on individual shards in parallel using `searchShard`.
+2. Each worker sends its results to a shared `resultChan` as `ShardSearchResult` values.
+3. The main `Search` method collects all `ShardSearchResult` values from `resultChan` and merges them into a `StreamingSearchResult`.
+4. After merging, `rankFiles` is called on the `StreamingSearchResult` to rank the files based on the ranking signals.
+5. Finally, `finalize` is called to apply any limits and return the final `SearchResult`.
 
-So in summary, each agent searches its own shard, gets candidates, and ranks them locally using the base score plus any dynamic ranking signals. The top candidates from each shard are then combined to get the final results.","Explain the logic in src/agent.go, particularly how agents interact with ranking","[
+So in summary, agents use a pool of workers to search shards concurrently, then merge and rank the results centrally before returning them.
+
+The ranking logic itself is implemented in the `rankFiles` method of `streaming_search_result.go`. It assigns scores to each file based on signals like number of matching lines, file path, symbols, etc. The details of the ranking algorithm are quite involved.","Explain the logic in src/agent.go, particularly how agents interact with ranking","[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",insufficient context,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_020/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Here's an explanation of the `README.md` file for the Zoekt codebase:
+yaml,chat,claude-3-sonnet,chat,question_020/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"The provided file `mocked/codebase_context/README.md` is the README file for the Zoekt project, which is a fast text search engine intended for use with source code. Here's an explanation of the contents:
 
 ```markdown:mocked/codebase_context/README.md
-# Overview
+1. The file starts with a Dutch quote ""Zoekt, en gij zult spinazie eten"" which translates to ""seek, and ye shall eat spinach"" - a saying from the author's primary school teacher.
 
-Zoekt is a fast text search engine intended for searching source code. It was originally created by Google, but this repository is a fork maintained by Sourcegraph.
+2. It provides a brief introduction to Zoekt, mentioning that it's a fast text search engine for source code, and explaining the pronunciation of ""Zoekt"".
 
-# Instructions
+3. It notes that this is a fork of the original Google Zoekt repository, and is now the main maintained source.
 
-## Downloading
-To download Zoekt, run `go get github.com/sourcegraph/zoekt/`
+4. The README then provides instructions for:
+    a. Downloading the Zoekt source code using `go get`.
+    b. Indexing directories, Git repositories, and repositories hosted on Google's repo tool.
+    c. Searching the indexed data via a web interface, JSON API, or CLI.
+    d. Installing Zoekt as a service using a systemd unit file.
 
-## Indexing
-Zoekt can index directories, Git repositories, or repositories hosted on repo.googlesource.com. There are separate commands for each:
+5. It mentions the zoekt-indexserver tool for managing the mirroring and indexing of repositories from sources like GitHub and Google's repo tool.
 
-- `zoekt-index` for indexing a directory
-- `zoekt-git-index` for indexing a Git repository
-- `zoekt-repo-index` for indexing repositories on repo.googlesource.com
+6. It recommends installing Universal ctags for improved symbol search and ranking.
 
-## Searching
-You can search the indexed data via:
+7. It acknowledges the original creators of Zoekt, Han-Wen Nienhuys and Alexander Neubeck.
 
-- A web interface using `zoekt-webserver`
-- The JSON API by sending a GET request to `zoekt-webserver`
-- The CLI using `zoekt`
+8. Finally, it provides details on the differences between this Sourcegraph fork and the original Google repository, such as additional commands, API exposure, and various other changes.
+```
 
-## Installation
-For a more organized installation, you can use a systemd unit file to run `zoekt-webserver`.
-
-# Search Service
-Zoekt includes `zoekt-indexserver`, a service to mirror and index repositories from sources like GitHub and repo.googlesource.com.
-
-# Symbol Search
-For improved symbol search, it's recommended to install Universal ctags.
-
-# Acknowledgements
-Credits the original creators of Zoekt at Google.
-
-# Fork Details
-Explains the differences between this fork and the original Google repository, such as added commands and APIs specific to Sourcegraph.
-```",explain @README.md,"[
+In summary, this README serves as a guide for setting up, using, and understanding the Zoekt source code search engine, with a focus on the Sourcegraph fork and its additional features.",explain @README.md,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",explain code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_021/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"Goroutines are lightweight threads of execution in Go that are managed by the Go runtime. They are a way to achieve concurrency in Go programs, allowing multiple functions to run seemingly simultaneously.
+yaml,chat,claude-3-sonnet,chat,question_021/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"Goroutines are lightweight threads of execution in Go's runtime. They are a way to achieve concurrency in Go programs, allowing multiple functions to run seemingly simultaneously. Here's how goroutines work:
 
-Here's how goroutines work:
-
-1. **Creation**: A goroutine is created by calling the `go` keyword followed by a function call. This spawns a new goroutine that runs concurrently with the existing goroutines in the program.
+1. **Creation**: Goroutines are created by the `go` keyword followed by a function call. When the `go` statement is executed, a new goroutine is created and the function call is scheduled to run concurrently with the rest of the program.
 
 ```go:main.go
-go myFunction(args)
+func main() {
+    go doSomeWork() // creates a new goroutine
+    // main goroutine continues execution
+}
+
+func doSomeWork() {
+    // function body executed concurrently
+}
 ```
 
-2. **Scheduling**: The Go runtime manages the scheduling of goroutines onto the available logical processors (threads or cores). It uses a sophisticated scheduling algorithm to ensure efficient utilization of resources and fair distribution of execution time among goroutines.
+2. **Scheduling**: Go's runtime manages the scheduling of goroutines onto the available logical CPUs. The scheduler is responsible for efficiently multiplexing goroutines onto the available OS threads, allowing them to run concurrently.
 
-3. **Context Switching**: When a goroutine is blocked (e.g., waiting for I/O or a channel operation), the Go runtime automatically switches to another goroutine that is ready to run. This context switching is lightweight and efficient, allowing for high concurrency with minimal overhead.
+3. **Context Switching**: When a goroutine is blocked (e.g., waiting for I/O or a channel operation), the scheduler can switch to another goroutine, allowing the program to make progress. This context switching is lightweight and efficient compared to traditional thread context switching.
 
-4. **Communication**: Goroutines communicate with each other through channels. Channels are typed conduits through which goroutines can send and receive values with synchronization. This communication model helps prevent race conditions and ensures safe concurrent access to shared data.
+4. **Communication**: Goroutines communicate via channels, which are typed conduits through which values can be sent and received. Channels provide synchronization and data exchange between goroutines, allowing them to coordinate their activities.
 
 ```go:main.go
-ch := make(chan int)
-go sendData(ch) // Spawns a goroutine to send data to the channel
-data := <-ch    // Receives data from the channel
+func main() {
+    ch := make(chan int)
+    go sendData(ch) // goroutine to send data
+    go receiveData(ch) // goroutine to receive data
+}
+
+func sendData(ch chan<- int) {
+    ch <- 42 // send data to the channel
+}
+
+func receiveData(ch <-chan int) {
+    data := <-ch // receive data from the channel
+    // process data
+}
 ```
 
-5. **Synchronization**: Go provides synchronization primitives like mutexes and wait groups to coordinate access to shared resources among goroutines. These primitives help prevent race conditions and ensure data integrity in concurrent programs.
+5. **Memory Model**: Goroutines have access to the same shared memory address space, but they must follow Go's memory model to ensure safe access to shared variables. Synchronization primitives like mutexes and atomic operations are provided to manage access to shared data.
 
-6. **Memory Management**: Goroutines share the same address space, but each goroutine has its own stack. The Go runtime manages the allocation and deallocation of goroutine stacks efficiently, allowing for the creation of a large number of goroutines with minimal overhead.
-
-7. **Goroutine Leaks**: If a goroutine is not properly terminated or blocked indefinitely, it can lead to a goroutine leak. This can cause resource exhaustion and should be avoided by properly handling goroutine termination and cancellation.
-
-Goroutines, combined with channels and other synchronization primitives, provide a powerful and efficient way to achieve concurrency in Go programs. They enable developers to write concurrent code that is easy to reason about and maintain, while taking advantage of modern hardware's parallel processing capabilities.",how do goroutines work?,[],general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,claude-3-sonnet,chat,question_022/question.yaml,0f2e18f72256c8dcb63f6faca90d116037e0a645,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file in the provided codebase context contains functions related to limiting and truncating the search results based on certain options. Here's a summary of what the file does:
+Goroutines are lightweight and efficient, allowing Go programs to achieve high levels of concurrency with relatively low overhead. However, it's important to manage and coordinate goroutines properly to avoid issues like race conditions, deadlocks, and resource leaks.",how do goroutines work?,[],general coding,,,1,,1,false,,,,,,,,,,,,,,,,
+yaml,chat,claude-3-sonnet,chat,question_022/question.yaml,44d1202a340d9bddf5eb36e45afdd587263503e2,,,,0,0,0,0,,,,,,,,,,,"The `limit.go` file in the provided codebase context contains functions related to limiting and truncating the search results based on certain options. Here's a summary of what the file does:
 
 1. `SortAndTruncateFiles` is a convenience function that sorts the `FileMatch` slice and then truncates it based on the provided `SearchOptions`.
 
-2. `DisplayTruncator` is a type alias for a function that takes a slice of `FileMatch` and returns a truncated slice along with a boolean indicating if there are more results to be displayed.
+2. `DisplayTruncator` is a type alias for a function that takes a slice of `FileMatch` and returns a (potentially truncated) slice of `FileMatch` along with a boolean indicating if there are more results to be displayed.
 
 3. `NewDisplayTruncator` creates a `DisplayTruncator` function based on the provided `SearchOptions`. It enforces limits on the maximum number of documents (`MaxDocDisplayCount`) and the maximum number of matches (`MaxMatchDisplayCount`) to be displayed.
 
-4. `limitMatches` is a helper function that limits the number of matches in each `FileMatch` based on the `MaxMatchDisplayCount` option and whether the matches should be chunked or not.
+4. `limitMatches` is a helper function that limits the number of matches (either chunk matches or line matches) in each `FileMatch` based on the provided limit.
 
-5. `limitChunkMatches` limits the number of `ChunkMatches` in a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to fit within the specified limit.
+5. `limitChunkMatches` truncates the `ChunkMatches` in a `FileMatch` based on the provided limit. It handles truncating the `Ranges`, `SymbolInfo`, and `Content` fields appropriately.
 
-6. `limitLineMatches` limits the number of `LineMatches` in a `FileMatch` by truncating the `LineFragments` field of each `LineMatch`.
+6. `limitLineMatches` truncates the `LineMatches` in a `FileMatch` based on the provided limit by limiting the `LineFragments` slice.
 
-In summary, the `limit.go` file provides functionality to limit and truncate search results based on various options, such as the maximum number of documents, matches, and line fragments to display. This is likely used to prevent overwhelming the user with too many results and to improve performance by limiting the amount of data that needs to be processed and displayed.",what does @limit.go do?,"[
+In summary, this file provides functionality to limit and truncate search results based on configurable options, ensuring that the number of displayed documents and matches does not exceed specified limits.",what does @limit.go do?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined"",

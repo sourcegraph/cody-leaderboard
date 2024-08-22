@@ -2,68 +2,57 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY Here's an explanation of the logic in `src/agent.go`, focusing on how agents interact with ranking:
+# CHAT_REPLY Here's an overview of the logic in `src/agent.go` and how agents interact with ranking in Zoekt:
 # CHAT_REPLY 
-# CHAT_REPLY ```go:src/agent.go
+# CHAT_REPLY ```go:src/zoekt/agent.go
 # CHAT_REPLY // agent.go contains the logic for running search queries across multiple shards in parallel.
 # CHAT_REPLY 
-# CHAT_REPLY // An agent is responsible for searching a single shard.
-# CHAT_REPLY type agent struct {
+# CHAT_REPLY // The Agent struct manages a pool of workers that execute searches on individual shards.
+# CHAT_REPLY type Agent struct {
 # CHAT_REPLY     // ...
 # CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY // query sends a query to the agent's shard and returns the top candidate results.
-# CHAT_REPLY func (a *agent) query(ctx context.Context, q query.Q, stats *stats.Stats) ([]candidate, error) {
+# CHAT_REPLY // The Search method is the main entry point for executing a search query.
+# CHAT_REPLY func (x *Agent) Search(ctx context.Context, q query.Q, opts *SearchOptions) (*SearchResult, error) {
+# CHAT_REPLY     // Create channels for workers to send results
+# CHAT_REPLY     resCount := 0
+# CHAT_REPLY     resultChan := make(chan *ShardSearchResult, x.opts.ShardMaxMSizeBytes)
+# CHAT_REPLY     
+# CHAT_REPLY     // Spawn workers to search individual shards in parallel
+# CHAT_REPLY     for _, shard := range x.shards {
+# CHAT_REPLY         go x.searchShard(ctx, q, opts, shard, resultChan)
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     // Merge results from workers, rank and apply limits
+# CHAT_REPLY     res := newStreamingSearchResult(q, opts)
+# CHAT_REPLY     for shardRes := range resultChan {
+# CHAT_REPLY         res.merge(shardRes)
+# CHAT_REPLY         resCount += len(shardRes.Files)
+# CHAT_REPLY         if resCount >= opts.TotalMaxMatchCount {
+# CHAT_REPLY             break
+# CHAT_REPLY         }
+# CHAT_REPLY     }
+# CHAT_REPLY     res.rankFiles()
+# CHAT_REPLY     return res.finalize()
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // searchShard runs the query on a single shard and sends results to resultChan
+# CHAT_REPLY func (x *Agent) searchShard(ctx context.Context, q query.Q, opts *SearchOptions, shard *shard.Shard, resultChan chan<- *ShardSearchResult) {
 # CHAT_REPLY     // ...
-# CHAT_REPLY     candidates, err := a.shard.Search(ctx, q)
-# CHAT_REPLY     if err != nil {
-# CHAT_REPLY         return nil, err
-# CHAT_REPLY     }
-# CHAT_REPLY 
-# CHAT_REPLY     // Rank the candidates.
-# CHAT_REPLY     candidates = rank(candidates, q)
-# CHAT_REPLY 
-# CHAT_REPLY     // Return the top N candidates.
-# CHAT_REPLY     return candidates[:maxCandidatesPerShard], nil
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // rank scores and sorts the candidates.
-# CHAT_REPLY func rank(candidates []candidate, q query.Q) []candidate {
-# CHAT_REPLY     // Rank candidates by score.
-# CHAT_REPLY     sort.Slice(candidates, func(i, j int) bool {
-# CHAT_REPLY         return candidates[i].Score > candidates[j].Score
-# CHAT_REPLY     })
-# CHAT_REPLY 
-# CHAT_REPLY     // Apply dynamic rank scoring based on query properties.
-# CHAT_REPLY     candidates = dynamicRankScore(candidates, q)
-# CHAT_REPLY 
-# CHAT_REPLY     return candidates
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // dynamicRankScore applies additional ranking signals based on query properties.
-# CHAT_REPLY func dynamicRankScore(candidates []candidate, q query.Q) []candidate {
-# CHAT_REPLY     // Boost scores for candidates matching certain file patterns.
-# CHAT_REPLY     for i := range candidates {
-# CHAT_REPLY         candidates[i].Score *= filePatternBoost(q, candidates[i].File)
-# CHAT_REPLY     }
-# CHAT_REPLY 
-# CHAT_REPLY     // Further ranking signals could be added here...
-# CHAT_REPLY 
-# CHAT_REPLY     return candidates
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
 # CHAT_REPLY The key points are:
 # CHAT_REPLY 
-# CHAT_REPLY 1. Each `agent` is responsible for searching a single shard (partition of the indexed data).
-# CHAT_REPLY 2. The `query` method on an agent sends the query to its shard and gets back a list of `candidate` results.
-# CHAT_REPLY 3. The `rank` function scores and sorts the candidates by their base score.
-# CHAT_REPLY 4. `dynamicRankScore` applies additional ranking signals to boost/decrease scores based on query properties.
-# CHAT_REPLY    - For example, it boosts scores for candidates matching certain file patterns using `filePatternBoost`.
-# CHAT_REPLY    - More ranking signals could be added here to incorporate other factors.
-# CHAT_REPLY 5. After ranking, only the top N candidates from each shard are returned.
+# CHAT_REPLY 1. The `Search` method spawns worker goroutines to execute the search query on individual shards in parallel using `searchShard`.
+# CHAT_REPLY 2. Each worker sends its results to a shared `resultChan` as `ShardSearchResult` values.
+# CHAT_REPLY 3. The main `Search` method collects all `ShardSearchResult` values from `resultChan` and merges them into a `StreamingSearchResult`.
+# CHAT_REPLY 4. After merging, `rankFiles` is called on the `StreamingSearchResult` to rank the files based on the ranking signals.
+# CHAT_REPLY 5. Finally, `finalize` is called to apply any limits and return the final `SearchResult`.
 # CHAT_REPLY 
-# CHAT_REPLY So in summary, each agent searches its own shard, gets candidates, and ranks them locally using the base score plus any dynamic ranking signals. The top candidates from each shard are then combined to get the final results.
+# CHAT_REPLY So in summary, agents use a pool of workers to search shards concurrently, then merge and rank the results centrally before returning them.
+# CHAT_REPLY 
+# CHAT_REPLY The ranking logic itself is implemented in the `rankFiles` method of `streaming_search_result.go`. It assigns scores to each file based on signals like number of matching lines, file path, symbols, etc. The details of the ranking algorithm are quite involved.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

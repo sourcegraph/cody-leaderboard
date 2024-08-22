@@ -6,18 +6,17 @@
 # CHAT_REPLY 
 # CHAT_REPLY 1. On initialization, it scans the directory and loads any existing `.zoekt` files into memory by calling the `load` method on the provided `shardLoader` interface.
 # CHAT_REPLY 
-# CHAT_REPLY 2. It then starts watching the directory using the `fsnotify` package for any file system events (create, modify, delete, etc.) related to `.zoekt` files.
+# CHAT_REPLY 2. It then starts watching the directory using the `fsnotify` library, which monitors file system events like file creation, modification, and deletion.
 # CHAT_REPLY 
-# CHAT_REPLY 3. When a file system event is detected, it rescans the directory and updates the in-memory state accordingly:
-# CHAT_REPLY    - If a new `.zoekt` file is added, it calls `load` on the `shardLoader` to load it.
-# CHAT_REPLY    - If an existing `.zoekt` file is modified, it calls `load` again to reload it.
-# CHAT_REPLY    - If a `.zoekt` file is deleted, it calls `drop` on the `shardLoader` to unload it.
+# CHAT_REPLY 3. When a file system event is detected, it calls the `scan` method again to check for any new or modified `.zoekt` files. If new files are found, they are loaded using the `shardLoader.load` method. If files have been deleted, they are unloaded using the `shardLoader.drop` method.
 # CHAT_REPLY 
-# CHAT_REPLY 4. The `DirectoryWatcher` also handles situations where the index format version of a `.zoekt` file is newer than the current or next supported version, skipping those files.
+# CHAT_REPLY 4. The `DirectoryWatcher` keeps track of the modification times of the loaded files to avoid reloading files that haven't changed.
 # CHAT_REPLY 
-# CHAT_REPLY 5. It provides a `WaitUntilReady` method that blocks until the initial scan is complete and the directory watcher is ready to handle file system events.
+# CHAT_REPLY 5. It provides a `WaitUntilReady` method that blocks until the initial scan and watch setup are complete, allowing clients to wait until the watcher is fully initialized.
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` is responsible for keeping an in-memory representation of `.zoekt` files in a directory up-to-date by watching for file system events and loading/unloading the files accordingly, using the provided `shardLoader` interface to manage the actual loading and unloading of the files.
+# CHAT_REPLY 6. The `Stop` method can be called to stop the directory watcher and clean up resources.
+# CHAT_REPLY 
+# CHAT_REPLY In summary, the `DirectoryWatcher` is responsible for automatically detecting and loading changes to `.zoekt` files in a specified directory, likely to keep an index or cache up-to-date with the contents of the directory.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

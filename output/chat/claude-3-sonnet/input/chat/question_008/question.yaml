@@ -2,21 +2,21 @@
 # CHAT
 # CHAT_QUESTION What does this repo do??
 
-# CHAT_REPLY Based on the code provided, this appears to be part of the Zoekt repository, which is a fast text search engine used by Sourcegraph. The code in this file (`limit.go`) contains functions for sorting, truncating, and limiting the number of file matches and matches within files returned by a search query.
+# CHAT_REPLY Based on the code provided, this appears to be part of the Zoekt repository, which is a fast text search engine used by Sourcegraph. The code in this file (`limit.go`) contains functions related to limiting and truncating the search results based on various options.
 # CHAT_REPLY 
 # CHAT_REPLY Specifically, the functions in this file are:
 # CHAT_REPLY 
-# CHAT_REPLY 1. `SortAndTruncateFiles`: Sorts the list of `FileMatch` structs and then truncates them based on the specified `SearchOptions`.
+# CHAT_REPLY 1. `SortAndTruncateFiles`: This function sorts the list of `FileMatch` results and then truncates them based on the provided `SearchOptions`.
 # CHAT_REPLY 
-# CHAT_REPLY 2. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces limits on the number of files and matches displayed, based on the `SearchOptions`.
+# CHAT_REPLY 2. `NewDisplayTruncator`: This function returns a `DisplayTruncator` function, which is a stateful function used to enforce limits on the number of documents and matches displayed. It takes into account options like `MaxDocDisplayCount` and `MaxMatchDisplayCount`.
 # CHAT_REPLY 
-# CHAT_REPLY 3. `limitMatches`: Limits the number of matches (either line matches or chunk matches) in each `FileMatch` struct, based on the specified limit.
+# CHAT_REPLY 3. `limitMatches`: This function limits the number of matches in each `FileMatch` based on the provided limit and whether to chunk matches or not.
 # CHAT_REPLY 
-# CHAT_REPLY 4. `limitChunkMatches`: Limits the number of chunk matches in a `FileMatch` struct, potentially truncating the match content if necessary.
+# CHAT_REPLY 4. `limitChunkMatches`: This function limits the number of `ChunkMatches` in a `FileMatch`. It handles truncating the content and ranges of the `ChunkMatches` when the limit is exceeded.
 # CHAT_REPLY 
-# CHAT_REPLY 5. `limitLineMatches`: Limits the number of line matches in a `FileMatch` struct.
+# CHAT_REPLY 5. `limitLineMatches`: This function limits the number of `LineMatches` in a `FileMatch` by truncating the `LineFragments` when the limit is exceeded.
 # CHAT_REPLY 
-# CHAT_REPLY The purpose of these functions seems to be to provide a way to control the amount of search result data returned to the user, by enforcing limits on the number of files and matches displayed. This can be useful for large codebases or queries that would otherwise return an overwhelming amount of data.
+# CHAT_REPLY Overall, this code is responsible for managing and limiting the search results returned by Zoekt, ensuring that the number of displayed documents and matches adheres to the specified options. This is likely done to improve performance and provide a better user experience when dealing with large search results.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {
