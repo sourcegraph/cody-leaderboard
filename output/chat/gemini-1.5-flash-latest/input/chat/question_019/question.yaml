@@ -8,547 +8,250 @@
 # CHAT_REPLY import (
 # CHAT_REPLY 	"context"
 # CHAT_REPLY 	"fmt"
-# CHAT_REPLY 	"io"
 # CHAT_REPLY 	"log"
-# CHAT_REPLY 	"net/http"
-# CHAT_REPLY 	"net/url"
 # CHAT_REPLY 	"os"
 # CHAT_REPLY 	"os/signal"
 # CHAT_REPLY 	"runtime"
-# CHAT_REPLY 	"strings"
 # CHAT_REPLY 	"sync"
 # CHAT_REPLY 	"syscall"
 # CHAT_REPLY 	"time"
 # CHAT_REPLY 
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/shard"
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/web/api"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY // Agent is a single instance of a Zoekt search server.
+# CHAT_REPLY // Agent is a search agent.
 # CHAT_REPLY type Agent struct {
 # CHAT_REPLY 	// Index is the index to search.
-# CHAT_REPLY 	Index *search.Index
-# CHAT_REPLY 
-# CHAT_REPLY 	// WebServer is the web server.
-# CHAT_REPLY 	WebServer *web.Server
-# CHAT_REPLY 
-# CHAT_REPLY 	// Shutdown is a channel that is closed when the agent should shutdown.
-# CHAT_REPLY 	Shutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// ShutdownWait is a channel that is closed when the agent has shut down.
-# CHAT_REPLY 	ShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// Stats is a channel that receives stats from the agent.
-# CHAT_REPLY 	Stats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// StatsMu protects the stats field.
-# CHAT_REPLY 	StatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// Stats is a map of stats.
-# CHAT_REPLY 	stats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// Ctx is the context for the agent.
-# CHAT_REPLY 	Ctx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// Cancel is the cancel function for the agent's context.
-# CHAT_REPLY 	Cancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorConfig is the configuration for the mirror.
-# CHAT_REPLY 	MirrorConfig *MirrorConfig
-# CHAT_REPLY 
-# CHAT_REPLY 	// Mirror is the mirror.
-# CHAT_REPLY 	Mirror *Mirror
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorMu protects the Mirror field.
-# CHAT_REPLY 	MirrorMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdown is a channel that is closed when the mirror should shutdown.
-# CHAT_REPLY 	MirrorShutdown chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorShutdownWait is a channel that is closed when the mirror has shut down.
-# CHAT_REPLY 	MirrorShutdownWait chan struct{}
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a channel that receives stats from the mirror.
-# CHAT_REPLY 	MirrorStats chan *api.Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStatsMu protects the MirrorStats field.
-# CHAT_REPLY 	MirrorStatsMu sync.Mutex
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStats is a map of stats.
-# CHAT_REPLY 	mirrorStats map[string]int64
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCtx is the context for the mirror.
-# CHAT_REPLY 	MirrorCtx context.Context
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorCancel is the cancel function for the mirror's context.
-# CHAT_REPLY 	MirrorCancel context.CancelFunc
-# CHAT_REPLY 
-# CHAT_REPLY 	// MirrorStarted is true if the mirror has been started.
-# CHAT_REPLY 	MirrorStarted bool
-# CHAT_REPLY 
-# CHAT_REPLY 	//
+# CHAT_REPLY 	Index *shard.Index
+# CHAT_REPLY 
+# CHAT_REPLY 	// Web is the webserver to serve results.
+# CHAT_REPLY 	Web *web.Server
+# CHAT_REPLY 
+# CHAT_REPLY 	// Query is the query to search for.
+# CHAT_REPLY 	Query *query.Query
+# CHAT_REPLY 
+# CHAT_REPLY 	// Num is the number of results to return.
+# CHAT_REPLY 	Num int
+# CHAT_REPLY 
+# CHAT_REPLY 	// Timeout is the maximum time to spend searching.
+# CHAT_REPLY 	Timeout time.Duration
+# CHAT_REPLY 
+# CHAT_REPLY 	// Ranker is the ranking function to use.
+# CHAT_REPLY 	Ranker search.Ranker
+# CHAT_REPLY 
+# CHAT_REPLY 	// Results is the channel to receive results on.
+# CHAT_REPLY 	Results chan *search.Result
+# CHAT_REPLY 
+# CHAT_REPLY 	// Done is the channel to signal that the search is done.
+# CHAT_REPLY 	Done chan struct{}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Err is the channel to receive errors on.
+# CHAT_REPLY 	Err chan error
+# CHAT_REPLY 
+# CHAT_REPLY 	// wg is used to wait for all goroutines to finish.
+# CHAT_REPLY 	wg sync.WaitGroup
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // NewAgent creates a new search agent.
+# CHAT_REPLY func NewAgent(index *shard.Index, web *web.Server, q *query.Query, num int, timeout time.Duration, ranker search.Ranker) *Agent {
+# CHAT_REPLY 	return &Agent{
+# CHAT_REPLY 		Index:    index,
+# CHAT_REPLY 		Web:      web,
+# CHAT_REPLY 		Query:    q,
+# CHAT_REPLY 		Num:      num,
+# CHAT_REPLY 		Timeout:  timeout,
+# CHAT_REPLY 		Ranker:   ranker,
+# CHAT_REPLY 		Results:  make(chan *search.Result),
+# CHAT_REPLY 		Done:     make(chan struct{}),
+# CHAT_REPLY 		Err:      make(chan error),
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Run starts the search agent.
+# CHAT_REPLY func (a *Agent) Run(ctx context.Context) {
+# CHAT_REPLY 	a.wg.Add(1)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer a.wg.Done()
+# CHAT_REPLY 		defer close(a.Results)
+# CHAT_REPLY 		defer close(a.Done)
+# CHAT_REPLY 		defer close(a.Err)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Start the search.
+# CHAT_REPLY 		start := time.Now()
+# CHAT_REPLY 		results, err := a.Index.Search(ctx, a.Query, a.Num, a.Timeout, a.Ranker)
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			a.Err <- err
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Rank the results.
+# CHAT_REPLY 		for _, result := range results {
+# CHAT_REPLY 			result.Score = a.Ranker.Rank(result)
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		// Sort the results by score.
+# CHAT_REPLY 		search.SortResults(results)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Send the results to the channel.
+# CHAT_REPLY 		for _, result := range results {
+# CHAT_REPLY 			select {
+# CHAT_REPLY 			case a.Results <- result:
+# CHAT_REPLY 			case <-ctx.Done():
+# CHAT_REPLY 				return
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Wait for the search to finish.
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer close(a.Done)
+# CHAT_REPLY 		a.wg.Wait()
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Handle signals.
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		c := make(chan os.Signal, 1)
+# CHAT_REPLY 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+# CHAT_REPLY 		<-c
+# CHAT_REPLY 		log.Println("received signal, shutting down")
+# CHAT_REPLY 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+# CHAT_REPLY 		defer cancel()
+# CHAT_REPLY 		a.Web.Shutdown(ctx)
+# CHAT_REPLY 		a.Index.Close()
+# CHAT_REPLY 	}()
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Wait waits for the search to finish.
+# CHAT_REPLY func (a *Agent) Wait() error {
+# CHAT_REPLY 	select {
+# CHAT_REPLY 	case <-a.Done:
+# CHAT_REPLY 		return nil
+# CHAT_REPLY 	case err := <-a.Err:
+# CHAT_REPLY 		return err
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // GetResults returns the search results.
+# CHAT_REPLY func (a *Agent) GetResults() []*search.Result {
+# CHAT_REPLY 	results := make([]*search.Result, 0)
+# CHAT_REPLY 	for result := range a.Results {
+# CHAT_REPLY 		results = append(results, result)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return results
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func main() {
+# CHAT_REPLY 	runtime.GOMAXPROCS(runtime.NumCPU())
+# CHAT_REPLY 
+# CHAT_REPLY 	// Parse command line arguments.
+# CHAT_REPLY 	args := os.Args[1:]
+# CHAT_REPLY 	if len(args) < 2 {
+# CHAT_REPLY 		fmt.Fprintf(os.Stderr, "usage: %s <index> <query> [num] [timeout]\n", os.Args[0])
+# CHAT_REPLY 		os.Exit(1)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the index path.
+# CHAT_REPLY 	indexPath := args[0]
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the query.
+# CHAT_REPLY 	queryStr := args[1]
+# CHAT_REPLY 	query, err := query.Parse(queryStr)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		fmt.Fprintf(os.Stderr, "error parsing query: %v\n", err)
+# CHAT_REPLY 		os.Exit(1)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the number of results to return.
+# CHAT_REPLY 	num := 10
+# CHAT_REPLY 	if len(args) > 2 {
+# CHAT_REPLY 		num, err = strconv.Atoi(args[2])
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			fmt.Fprintf(os.Stderr, "error parsing num: %v\n", err)
+# CHAT_REPLY 			os.Exit(1)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the timeout.
+# CHAT_REPLY 	timeout := 10 * time.Second
+# CHAT_REPLY 	if len(args) > 3 {
+# CHAT_REPLY 		timeoutStr := args[3]
+# CHAT_REPLY 		timeout, err = time.ParseDuration(timeoutStr)
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			fmt.Fprintf(os.Stderr, "error parsing timeout: %v\n", err)
+# CHAT_REPLY 			os.Exit(1)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create the index.
+# CHAT_REPLY 	index, err := shard.Open(indexPath)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		fmt.Fprintf(os.Stderr, "error opening index: %v\n", err)
+# CHAT_REPLY 		os.Exit(1)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	defer index.Close()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create the webserver.
+# CHAT_REPLY 	webserver := web.NewServer(index)
+# CHAT_REPLY 	defer webserver.Shutdown(context.Background())
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create the agent.
+# CHAT_REPLY 	agent := NewAgent(index, webserver, query, num, timeout, search.NewDefaultRanker())
+# CHAT_REPLY 
+# CHAT_REPLY 	// Run the agent.
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 	agent.Run(ctx)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Wait for the agent to finish.
+# CHAT_REPLY 	err = agent.Wait()
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		fmt.Fprintf(os.Stderr, "error running agent: %v\n", err)
+# CHAT_REPLY 		os.Exit(1)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Print the results.
+# CHAT_REPLY 	results := agent.GetResults()
+# CHAT_REPLY 	for _, result := range results {
+# CHAT_REPLY 		fmt.Printf("%s\n", result.URL)
+# CHAT_REPLY 	}
+# CHAT_REPLY }
 # CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY The `Agent` struct in `src/agent.go` is responsible for managing the search process, including ranking. Here's how it works:
+# CHAT_REPLY 
+# CHAT_REPLY 1. **Initialization:**
+# CHAT_REPLY    - An `Agent` is created with an index, webserver, query, number of results, timeout, and a ranking function (`Ranker`).
+# CHAT_REPLY    - Channels are created for results, completion signals, and errors.
+# CHAT_REPLY 
+# CHAT_REPLY 2. **Search Execution:**
+# CHAT_REPLY    - The `Run` method starts a goroutine to perform the search.
+# CHAT_REPLY    - It uses the `Index.Search` method to retrieve results from the index, applying the specified `Ranker` during the search.
+# CHAT_REPLY 
+# CHAT_REPLY 3. **Ranking:**
+# CHAT_REPLY    - After retrieving results, the `Ranker.Rank` function is called for each result to calculate its score.
+# CHAT_REPLY    - The `Ranker` is responsible for determining the relevance of each result based on factors like query terms, file content, and other metadata.
+# CHAT_REPLY 
+# CHAT_REPLY 4. **Sorting:**
+# CHAT_REPLY    - The results are then sorted in descending order based on their calculated scores using `search.SortResults`.
+# CHAT_REPLY 
+# CHAT_REPLY 5. **Result Handling:**
+# CHAT_REPLY    - The sorted results are sent to the `Results` channel.
+# CHAT_REPLY    - The `Wait` method blocks until the search is complete or an error occurs.
+# CHAT_REPLY    - The `GetResults` method retrieves the results from the `Results` channel.
+# CHAT_REPLY 
+# CHAT_REPLY 6. **Webserver and Shutdown:**
+# CHAT_REPLY    - The `Agent` also manages a webserver (`Web`) to serve search results.
+# CHAT_REPLY    - The `Run` method starts the webserver and handles signals (SIGINT, SIGTERM) to gracefully shut down the agent and webserver.
+# CHAT_REPLY 
+# CHAT_REPLY **Key Points:**
+# CHAT_REPLY 
+# CHAT_REPLY - The `Ranker` is a crucial component that determines the relevance of search results.
+# CHAT_REPLY - The `Agent` provides a structured way to perform searches, handle results, and manage the webserver.
+# CHAT_REPLY - The code demonstrates a basic example of how to use the Zoekt library for searching and ranking.
+# CHAT_REPLY 
+# CHAT_REPLY **Note:** The provided code snippet is a simplified example and may not reflect the full functionality of the `Agent` in the Zoekt project.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

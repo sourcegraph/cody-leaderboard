@@ -241,17 +241,241 @@
 # CHAT_REPLY 
 # CHAT_REPLY 	return &res, nil
 # CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func addRepo(res *SearchResult, repo *Repository) {
+# CHAT_REPLY 	if res.RepoURLs == nil {
+# CHAT_REPLY 		res.RepoURLs = map[string]string{}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	res.RepoURLs[repo.Name] = repo.FileURLTemplate
+# CHAT_REPLY 
+# CHAT_REPLY 	if res.LineFragments == nil {
+# CHAT_REPLY 		res.LineFragments = map[string]string{}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	res.LineFragments[repo.Name] = repo.LineFragmentTemplate
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // Gather matches from this document. The matches are returned in document
+# CHAT_REPLY // order and are non-overlapping. All filename and content matches are
+# CHAT_REPLY // returned, with filename matches first.
+# CHAT_REPLY //
+# CHAT_REPLY // If `merge` is set, overlapping and adjacent matches will be merged
+# CHAT_REPLY // into a single match. Otherwise, overlapping matches will be removed,
+# CHAT_REPLY // but adjacent matches will remain.
+# CHAT_REPLY func (d *indexData) gatherMatches(nextDoc uint32, mt matchTree, known map[matchTree]bool, merge bool) []*candidateMatch {
+# CHAT_REPLY 	var cands []*candidateMatch
+# CHAT_REPLY 	visitMatches(mt, known, 1, func(mt matchTree, scoreWeight float64) {
+# CHAT_REPLY 		if smt, ok := mt.(*substrMatchTree); ok {
+# CHAT_REPLY 			cands = append(cands, setScoreWeight(scoreWeight, smt.current)...)
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if rmt, ok := mt.(*regexpMatchTree); ok {
+# CHAT_REPLY 			cands = append(cands, setScoreWeight(scoreWeight, rmt.found)...)
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if rmt, ok := mt.(*wordMatchTree); ok {
+# CHAT_REPLY 			cands = append(cands, setScoreWeight(scoreWeight, rmt.found)...)
+# CHAT_REPLY 		}
+# CHAT_REPLY 		if smt, ok := mt.(*symbolRegexpMatchTree); ok {
+# CHAT_REPLY 			cands = append(cands, setScoreWeight(scoreWeight, smt.found)...)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	})
+# CHAT_REPLY 
+# CHAT_REPLY 	// If we found no candidate matches at all, assume there must have been a match on filename.
+# CHAT_REPLY 	if len(cands) == 0 {
+# CHAT_REPLY 		nm := d.fileName(nextDoc)
+# CHAT_REPLY 		return []*candidateMatch{{
+# CHAT_REPLY 			caseSensitive: false,
+# CHAT_REPLY 			fileName:      true,
+# CHAT_REPLY 			substrBytes:   nm,
+# CHAT_REPLY 			substrLowered: nm,
+# CHAT_REPLY 			file:          nextDoc,
+# CHAT_REPLY 			runeOffset:    0,
+# CHAT_REPLY 			byteOffset:    0,
+# CHAT_REPLY 			byteMatchSz:   uint32(len(nm)),
+# CHAT_REPLY 		}}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	sort.Sort((sortByOffsetSlice)(cands))
+# CHAT_REPLY 	res := cands[:0]
+# CHAT_REPLY 	mergeRun := 1
+# CHAT_REPLY 	for i, c := range cands {
+# CHAT_REPLY 		if i == 0 {
+# CHAT_REPLY 			res = append(res, c)
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		last := res[len(res)-1]
+# CHAT_REPLY 
+# CHAT_REPLY 		// Never compare filename and content matches
+# CHAT_REPLY 		if last.fileName != c.fileName {
+# CHAT_REPLY 			res = append(res, c)
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		if merge {
+# CHAT_REPLY 			// Merge adjacent candidates. This guarantees that the matches
+# CHAT_REPLY 			// are non-overlapping.
+# CHAT_REPLY 			lastEnd := last.byteOffset + last.byteMatchSz
+# CHAT_REPLY 			end := c.byteOffset + c.byteMatchSz
+# CHAT_REPLY 			if lastEnd >= c.byteOffset {
+# CHAT_REPLY 				mergeRun++
+# CHAT_REPLY 				// Average out the score across the merged candidates. Only do it if
+# CHAT_REPLY 				// we are boosting to avoid floating point funkiness in the normal
+# CHAT_REPLY 				// case.
+# CHAT_REPLY 				if !(epsilonEqualsOne(last.scoreWeight) && epsilonEqualsOne(c.scoreWeight)) {
+# CHAT_REPLY 					last.scoreWeight = ((last.scoreWeight * float64(mergeRun-1)) + c.scoreWeight) / float64(mergeRun)
+# CHAT_REPLY 				}
+# CHAT_REPLY 
+# CHAT_REPLY 				// latest candidate goes further, update our end
+# CHAT_REPLY 				if end > lastEnd {
+# CHAT_REPLY 					last.byteMatchSz = end - last.byteOffset
+# CHAT_REPLY 				}
+# CHAT_REPLY 
+# CHAT_REPLY 				continue
+# CHAT_REPLY 			} else {
+# CHAT_REPLY 				mergeRun = 1
+# CHAT_REPLY 			}
+# CHAT_REPLY 		} else {
+# CHAT_REPLY 			// Remove overlapping candidates. This guarantees that the matches
+# CHAT_REPLY 			// are non-overlapping, but also preserves expected match counts.
+# CHAT_REPLY 			lastEnd := last.byteOffset + last.byteMatchSz
+# CHAT_REPLY 			if lastEnd > c.byteOffset {
+# CHAT_REPLY 				continue
+# CHAT_REPLY 			}
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		res = append(res, c)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return res
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY type sortByOffsetSlice []*candidateMatch
+# CHAT_REPLY 
+# CHAT_REPLY func (m sortByOffsetSlice) Len() int      { return len(m) }
+# CHAT_REPLY func (m sortByOffsetSlice) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
+# CHAT_REPLY func (m sortByOffsetSlice) Less(i, j int) bool {
+# CHAT_REPLY 	// Sort all filename matches to the start
+# CHAT_REPLY 	if m[i].fileName != m[j].fileName {
+# CHAT_REPLY 		return m[i].fileName
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	if m[i].byteOffset == m[j].byteOffset { // tie break if same offset
+# CHAT_REPLY 		// Prefer longer candidates if starting at same position
+# CHAT_REPLY 		return m[i].byteMatchSz > m[j].byteMatchSz
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return m[i].byteOffset < m[j].byteOffset
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // setScoreWeight is a helper used by gatherMatches to set the weight based on
+# CHAT_REPLY // the score weight of the matchTree.
+# CHAT_REPLY func setScoreWeight(scoreWeight float64, cm []*candidateMatch) []*candidateMatch {
+# CHAT_REPLY 	for _, m := range cm {
+# CHAT_REPLY 		m.scoreWeight = scoreWeight
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return cm
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (d *indexData) branchIndex(docID uint32) int {
+# CHAT_REPLY 	mask := d.fileBranchMasks[docID]
+# CHAT_REPLY 	idx := 0
+# CHAT_REPLY 	for mask != 0 {
+# CHAT_REPLY 		if mask&0x1 != 0 {
+# CHAT_REPLY 			return idx
+# CHAT_REPLY 		}
+# CHAT_REPLY 		idx++
+# CHAT_REPLY 		mask >>= 1
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return -1
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // gatherBranches returns a list of branch names taking into account any branch
+# CHAT_REPLY // filters in the query. If the query contains a branch filter, it returns all
+# CHAT_REPLY // branches containing the docID and matching the branch filter. Otherwise, it
+# CHAT_REPLY // returns all branches containing docID.
+# CHAT_REPLY func (d *indexData) gatherBranches(docID uint32, mt matchTree, known map[matchTree]bool) []string {
+# CHAT_REPLY 	var mask uint64
+# CHAT_REPLY 	visitMatchAtoms(mt, known, func(mt matchTree) {
+# CHAT_REPLY 		bq, ok := mt.(*branchQueryMatchTree)
+# CHAT_REPLY 		if !ok {
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		mask = mask | bq.branchMask()
+# CHAT_REPLY 	})
+# CHAT_REPLY 
+# CHAT_REPLY 	if mask == 0 {
+# CHAT_REPLY 		mask = d.fileBranchMasks[docID]
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	var branches []string
+# CHAT_REPLY 	id := uint32(1)
+# CHAT_REPLY 	branchNames := d.branchNames[d.repos[docID]]
+# CHAT_REPLY 	for mask != 0 {
+# CHAT_REPLY 		if mask&0x1 != 0 {
+# CHAT_REPLY 			branches = append(branches, branchNames[uint(id)])
+# CHAT_REPLY 		}
+# CHAT_REPLY 		id <<= 1
+# CHAT_REPLY 		mask >>= 1
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return branches
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY func (d *indexData) List(ctx context.Context, q query.Q, opts *ListOptions) (rl *RepoList, err error) {
+# CHAT_REPLY 	var include func(rle *RepoListEntry) bool
+# CHAT_REPLY 
+# CHAT_REPLY 	q = d.simplify(q)
+# CHAT_REPLY 	if c, ok := q.(*query.Const); ok {
+# CHAT_REPLY 		if !c.Value {
+# CHAT_REPLY 			return &RepoList{}, nil
+# CHAT_REPLY 		}
+# CHAT_REPLY 		include = func(rle *RepoListEntry) bool {
+# CHAT_REPLY 			return true
+# CHAT_REPLY 		}
+# CHAT_REPLY 	} else {
+# CHAT_REPLY 		sr, err := d.Search(ctx, q, &SearchOptions{
+# CHAT_REPLY 			ShardRepoMaxMatchCount: 1,
+# CHAT_REPLY 		})
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			return nil, err
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		foundRepos := make(map[string]struct{}, len(sr.Files))
+# CHAT_REPLY 		for _, file := range sr.Files {
+# CHAT_REPLY 			foundRepos[file.Repository] = struct{}{}
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		include = func(rle *RepoListEntry) bool {
+# CHAT_REPLY 			_, ok := foundRepos[rle.Repository.Name]
+# CHAT_REPLY 			return ok
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	var l RepoList
+# CHAT_REPLY 
+# CHAT_REPLY 	field, err := opts.GetField()
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, err
+# CHAT_REPLY 	}
+# CHAT_REPLY 	switch field {
+# CHAT_REPLY 	case RepoListFieldRepos:
+# CHAT_REPLY 		l.Repos = make([]*RepoListEntry, 0, len(d.repoListEntry))
+# CHAT_REPLY 	case RepoListFieldReposMap:
+# CHAT_REPLY 		l.ReposMap = make(ReposMap, len(d.repoListEntry))
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	for i := range d.repoListEntry {
+# CHAT_REPLY 		if d.repoMetaData[i].Tombstone {
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 		rle := &d.repoListEntry[i]
+# CHAT_REPLY 		if !include(rle) {
+# CHAT_REPLY 			continue
+# CHAT_REPLY 		}
+# CHAT_REPLY 
+# CHAT_REPLY 		l.Stats.Add(&rle.Stats)
+# CHAT_REPLY 
+# CHAT_REPLY 		// Backwards compat for when ID is missing
+# CHAT_REPLY 		if rle.Repository
 # CHAT_REPLY ```
-# CHAT_REPLY 
-# CHAT_REPLY The `tensor` function is not present in the provided codebase context. It's possible that the function is located in a different file or that it's not part of the codebase at all. 
-# CHAT_REPLY 
-# CHAT_REPLY To find the location of the `tensor` function, you can try the following:
-# CHAT_REPLY 
-# CHAT_REPLY 1. **Search the entire codebase:** Use a code search tool like `grep` or a code editor's search functionality to search for the function name.
-# CHAT_REPLY 2. **Check related files:** If you know the purpose of the `tensor` function, you can check files that are likely to contain it, such as files related to machine learning, data analysis, or numerical computation.
-# CHAT_REPLY 3. **Consult the documentation:** If the codebase has documentation, check if it mentions the `tensor` function and its location.
-# CHAT_REPLY 
-# CHAT_REPLY If you can provide more context about the `tensor` function, such as its purpose or the file it's likely to be in, I might be able to help you find it more effectively.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

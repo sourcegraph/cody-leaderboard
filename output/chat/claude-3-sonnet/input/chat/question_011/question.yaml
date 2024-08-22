@@ -6,17 +6,17 @@
 # CHAT_REPLY 
 # CHAT_REPLY 1. On initialization, it scans the directory and loads any existing `.zoekt` files into memory by calling the `load` method on the provided `shardLoader` interface.
 # CHAT_REPLY 
-# CHAT_REPLY 2. It then starts watching the directory using the `fsnotify` library, which monitors file system events like file creation, modification, and deletion.
+# CHAT_REPLY 2. It sets up a filesystem watcher using the `fsnotify` package to monitor the directory for any file changes (creation, modification, deletion).
 # CHAT_REPLY 
-# CHAT_REPLY 3. When a file system event is detected, it calls the `scan` method again to check for any new or modified `.zoekt` files. If new files are found, they are loaded using the `shardLoader.load` method. If files have been deleted, they are unloaded using the `shardLoader.drop` method.
+# CHAT_REPLY 3. When a file change is detected, it scans the directory again to determine which files need to be loaded or unloaded from memory.
 # CHAT_REPLY 
-# CHAT_REPLY 4. The `DirectoryWatcher` keeps track of the modification times of the loaded files to avoid reloading files that haven't changed.
+# CHAT_REPLY 4. For new or modified files, it calls the `load` method on the `shardLoader` to load them into memory.
 # CHAT_REPLY 
-# CHAT_REPLY 5. It provides a `WaitUntilReady` method that blocks until the initial scan and watch setup are complete, allowing clients to wait until the watcher is fully initialized.
+# CHAT_REPLY 5. For deleted files, it calls the `drop` method on the `shardLoader` to unload them from memory.
 # CHAT_REPLY 
-# CHAT_REPLY 6. The `Stop` method can be called to stop the directory watcher and clean up resources.
+# CHAT_REPLY 6. The `DirectoryWatcher` keeps track of the modification times of the loaded files to efficiently determine which files need to be reloaded on subsequent scans.
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` is responsible for automatically detecting and loading changes to `.zoekt` files in a specified directory, likely to keep an index or cache up-to-date with the contents of the directory.
+# CHAT_REPLY The `DirectoryWatcher` is designed to keep the in-memory representation of the `.zoekt` files up-to-date with the files on disk, automatically loading and unloading them as needed. This is likely used in the context of indexing and searching code repositories, where the `.zoekt` files contain the indexed data for efficient searching.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

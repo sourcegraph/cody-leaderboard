@@ -2,32 +2,30 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The `DirectoryWatcher` in `mocked/codebase_context/shards/watcher.go` monitors a directory for changes to Zoekt shard files and updates the search index accordingly. Here's a breakdown:
+# CHAT_REPLY The `DirectoryWatcher` in `mocked/codebase_context/shards/watcher.go` monitors a directory for changes to Zoekt index shard files and updates the search index accordingly. 
+# CHAT_REPLY 
+# CHAT_REPLY Here's a breakdown:
 # CHAT_REPLY 
 # CHAT_REPLY 1. **Initialization:**
-# CHAT_REPLY    - Takes a directory path and a `shardLoader` as input.
-# CHAT_REPLY    - Starts a goroutine that scans the directory for existing shards and loads them using the `shardLoader`.
-# CHAT_REPLY    - Sets up a file system watcher to track changes in the directory.
+# CHAT_REPLY    - It takes a directory path and a `shardLoader` as input.
+# CHAT_REPLY    - It starts a goroutine that scans the directory for existing shards and loads them using the `shardLoader`.
+# CHAT_REPLY    - It sets up a file system watcher to listen for changes in the directory.
 # CHAT_REPLY 
 # CHAT_REPLY 2. **Scanning:**
-# CHAT_REPLY    - Uses `filepath.Glob` to find all `.zoekt` files (Zoekt shard files) in the directory.
-# CHAT_REPLY    - Determines the latest version of each shard based on filename (handles potential downgrades).
-# CHAT_REPLY    - Retrieves modification times for shard files and their corresponding `.meta` files.
-# CHAT_REPLY    - Compares timestamps with a cached record to identify new, modified, and deleted shards.
+# CHAT_REPLY    - It scans the directory for files with the ".zoekt" extension.
+# CHAT_REPLY    - It identifies the latest version of each shard based on a version number embedded in the filename.
+# CHAT_REPLY    - It compares the timestamps of the shards with its internal record.
+# CHAT_REPLY    - It determines which shards need to be loaded (new or modified) and which need to be unloaded (deleted).
+# CHAT_REPLY    - It instructs the `shardLoader` to load and unload shards accordingly.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **Loading and Unloading Shards:**
-# CHAT_REPLY    - Calls `shardLoader.load()` to load new and modified shards into the index.
-# CHAT_REPLY    - Calls `shardLoader.drop()` to unload deleted shards from the index.
+# CHAT_REPLY 3. **Watching:**
+# CHAT_REPLY    - It uses `fsnotify` to receive events about file changes in the directory.
+# CHAT_REPLY    - Upon receiving an event, it triggers a scan to update the index.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **Watching for Changes:**
-# CHAT_REPLY    - Employs `fsnotify.NewWatcher` to receive events for file creations, modifications, and deletions within the directory.
-# CHAT_REPLY    - Uses a buffered channel (`signal`) to coalesce multiple events and avoid redundant scans.
-# CHAT_REPLY    - Triggers a directory scan whenever a file system event is received.
+# CHAT_REPLY 4. **Stopping:**
+# CHAT_REPLY    - The `Stop` method gracefully shuts down the watcher and waits for it to stop.
 # CHAT_REPLY 
-# CHAT_REPLY 5. **Stopping:**
-# CHAT_REPLY    - Provides a `Stop()` method to gracefully terminate the watcher and its goroutines.
-# CHAT_REPLY 
-# CHAT_REPLY **In essence, `DirectoryWatcher` acts as a bridge between the file system and the search index, ensuring that the index remains consistent with the latest shard data.**
+# CHAT_REPLY **In essence, the `DirectoryWatcher` ensures that the search index stays up-to-date with the contents of the shard directory.** Any changes to the shards (addition, modification, or deletion) are reflected in the index, allowing for accurate search results.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

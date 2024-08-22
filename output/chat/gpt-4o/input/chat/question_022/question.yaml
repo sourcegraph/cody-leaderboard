@@ -2,33 +2,35 @@
 # CHAT
 # CHAT_QUESTION what does @limit.go do?
 
-# CHAT_REPLY The `limit.go` file in the provided codebase context is responsible for sorting and truncating search results based on specified display limits. Here's a breakdown of its functionality:
+# CHAT_REPLY The `limit.go` file in the provided codebase context is part of the `zoekt` package and is responsible for managing the sorting and truncation of search results based on specified search options. Here's a breakdown of its functionality:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **SortAndTruncateFiles**:
+# CHAT_REPLY 1. **SortAndTruncateFiles Function**:
 # CHAT_REPLY    - This function takes a list of `FileMatch` objects and search options (`SearchOptions`).
-# CHAT_REPLY    - It sorts the files using `SortFiles` and then truncates the results based on the display limits specified in the search options using a `DisplayTruncator`.
+# CHAT_REPLY    - It first sorts the files using the `SortFiles` function.
+# CHAT_REPLY    - Then, it truncates the files based on the display limits specified in the search options using a `DisplayTruncator`.
 # CHAT_REPLY 
-# CHAT_REPLY 2. **DisplayTruncator**:
-# CHAT_REPLY    - This is a stateful function type that enforces document and match display limits by truncating and mutating the list of `FileMatch` objects.
-# CHAT_REPLY    - It returns a truncated list of `FileMatch` objects and a boolean indicating whether there are more results to process.
+# CHAT_REPLY 2. **DisplayTruncator Type**:
+# CHAT_REPLY    - `DisplayTruncator` is a function type that takes a list of `FileMatch` objects and returns a truncated list along with a boolean indicating if there are more files to process.
+# CHAT_REPLY    - It enforces document and match display limits by truncating the list of files and their matches.
 # CHAT_REPLY 
-# CHAT_REPLY 3. **NewDisplayTruncator**:
-# CHAT_REPLY    - This function creates a `DisplayTruncator` based on the provided search options.
-# CHAT_REPLY    - It checks if there are document or match limits to enforce and returns a `DisplayTruncator` function that applies these limits.
+# CHAT_REPLY 3. **NewDisplayTruncator Function**:
+# CHAT_REPLY    - This function creates and returns a `DisplayTruncator` based on the provided search options.
+# CHAT_REPLY    - It checks for document and match limits and creates a truncator function that enforces these limits.
+# CHAT_REPLY    - If no limits are specified, it returns a no-op truncator.
 # CHAT_REPLY 
-# CHAT_REPLY 4. **limitMatches**:
-# CHAT_REPLY    - This function limits the number of matches in each `FileMatch` object based on the provided limit and whether chunk matches are enabled.
-# CHAT_REPLY    - It uses either `limitChunkMatches` or `limitLineMatches` to apply the limits.
+# CHAT_REPLY 4. **limitMatches Function**:
+# CHAT_REPLY    - This function limits the number of matches in the provided list of `FileMatch` objects based on the specified limit.
+# CHAT_REPLY    - It uses either `limitChunkMatches` or `limitLineMatches` depending on whether chunk matches are enabled.
 # CHAT_REPLY 
-# CHAT_REPLY 5. **limitChunkMatches**:
+# CHAT_REPLY 5. **limitChunkMatches Function**:
 # CHAT_REPLY    - This function limits the number of chunk matches in a `FileMatch` object.
 # CHAT_REPLY    - It truncates the `ChunkMatches`, `Ranges`, `SymbolInfo`, and `Content` fields to enforce the limit.
 # CHAT_REPLY 
-# CHAT_REPLY 6. **limitLineMatches**:
+# CHAT_REPLY 6. **limitLineMatches Function**:
 # CHAT_REPLY    - This function limits the number of line matches in a `FileMatch` object.
 # CHAT_REPLY    - It truncates the `LineFragments` field to enforce the limit.
 # CHAT_REPLY 
-# CHAT_REPLY Overall, the file provides mechanisms to sort and truncate search results based on specified limits, ensuring that the number of displayed documents and matches does not exceed the configured thresholds.
+# CHAT_REPLY Overall, the `limit.go` file provides mechanisms to sort and truncate search results based on specified limits, ensuring that the number of displayed documents and matches does not exceed the configured thresholds.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

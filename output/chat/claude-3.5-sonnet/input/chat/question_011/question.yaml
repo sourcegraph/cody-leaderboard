@@ -2,17 +2,16 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY The DirectoryWatcher in the provided codebase context is responsible for monitoring a specified directory for changes in shard files. Here's what it does:
+# CHAT_REPLY The DirectoryWatcher, defined in the `shards` package, is responsible for monitoring a specified directory for changes in shard files. Here's what it does:
 # CHAT_REPLY 
-# CHAT_REPLY 1. It scans the directory for .zoekt files, which are likely index shards.
-# CHAT_REPLY 2. It keeps track of the timestamps of these files.
-# CHAT_REPLY 3. It loads new or modified shards and unloads deleted shards.
-# CHAT_REPLY 4. It uses fsnotify to watch for file system events in the directory.
+# CHAT_REPLY 1. It scans the directory for `.zoekt` files, which are likely index shards.
+# CHAT_REPLY 2. It keeps track of the timestamps of these files and their corresponding `.meta` files.
+# CHAT_REPLY 3. It loads new or updated shards and unloads deleted shards using the provided `shardLoader` interface.
+# CHAT_REPLY 4. It sets up a file system watcher to detect changes in the directory in real-time.
 # CHAT_REPLY 5. When changes are detected, it rescans the directory and updates the loaded shards accordingly.
-# CHAT_REPLY 6. It handles different versions of index formats, ensuring compatibility.
-# CHAT_REPLY 7. It provides methods to start and stop the watching process.
+# CHAT_REPLY 6. It provides methods to start and stop the watching process.
 # CHAT_REPLY 
-# CHAT_REPLY The DirectoryWatcher is an essential component for maintaining an up-to-date index for the Zoekt search engine, allowing it to dynamically adapt to changes in the indexed content without requiring a restart of the search service.
+# CHAT_REPLY The DirectoryWatcher is particularly useful for maintaining an up-to-date set of index shards for the Zoekt search engine, ensuring that the search results reflect the latest state of the indexed data.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

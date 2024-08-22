@@ -2,23 +2,23 @@
 # CHAT
 # CHAT_QUESTION what does @limit.go do?
 
-# CHAT_REPLY The `limit.go` file in the `zoekt` package implements functionality for limiting the number of search results displayed to the user. It defines functions that enforce limits on both the number of files and the number of matches displayed.
+# CHAT_REPLY The `limit.go` file in the `zoekt` package implements functionality to limit the number of displayed documents and matches in search results. 
 # CHAT_REPLY 
-# CHAT_REPLY Here's a breakdown of the key functions and their roles:
+# CHAT_REPLY Here's a breakdown of its key functions:
 # CHAT_REPLY 
-# CHAT_REPLY - **`SortAndTruncateFiles`:** This function takes a list of `FileMatch` objects (representing search results) and sorts them before applying truncation based on the search options. It uses the `DisplayTruncator` function to enforce the limits.
+# CHAT_REPLY * **`SortAndTruncateFiles`:** This function sorts the search results (`FileMatch` objects) and then applies truncation based on the search options. It uses the `DisplayTruncator` function to enforce the limits.
 # CHAT_REPLY 
-# CHAT_REPLY - **`DisplayTruncator`:** This function is a stateful closure that enforces the document and match display limits. It takes a list of `FileMatch` objects and returns a truncated list along with a boolean indicating whether there are more results to be displayed.
+# CHAT_REPLY * **`DisplayTruncator`:** This is a function type that takes a slice of `FileMatch` objects and returns a truncated slice along with a boolean indicating whether there are more results to be displayed. It enforces the limits specified in the `SearchOptions` struct.
 # CHAT_REPLY 
-# CHAT_REPLY - **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` based on the search options provided. It checks for document and match limits and returns a function that enforces those limits.
+# CHAT_REPLY * **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` function based on the search options. It checks for limits on the number of documents and matches to be displayed. If there are no limits, it returns a function that simply returns the input slice without any truncation.
 # CHAT_REPLY 
-# CHAT_REPLY - **`limitMatches`:** This function limits the number of matches within each `FileMatch` object. It uses either `limitChunkMatches` or `limitLineMatches` depending on whether the search options specify chunk matches or line matches.
+# CHAT_REPLY * **`limitMatches`:** This function limits the number of matches within each `FileMatch` object. It calls either `limitChunkMatches` or `limitLineMatches` depending on whether the search options specify chunk-level or line-level matches.
 # CHAT_REPLY 
-# CHAT_REPLY - **`limitChunkMatches`:** This function limits the number of `ChunkMatches` within a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of the `ChunkMatch` objects to ensure that the limit is enforced.
+# CHAT_REPLY * **`limitChunkMatches`:** This function limits the number of `ChunkMatches` within a `FileMatch`. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of each `ChunkMatch` to ensure that the total number of matches does not exceed the specified limit.
 # CHAT_REPLY 
-# CHAT_REPLY - **`limitLineMatches`:** This function limits the number of `LineMatches` within a `FileMatch`. It truncates the `LineFragments` field of the `LineMatch` objects to enforce the limit.
+# CHAT_REPLY * **`limitLineMatches`:** This function limits the number of `LineMatches` within a `FileMatch`. It truncates the `LineFragments` field of each `LineMatch` to ensure that the total number of matches does not exceed the specified limit.
 # CHAT_REPLY 
-# CHAT_REPLY In summary, `limit.go` provides mechanisms to control the number of search results displayed to the user, ensuring that the results are manageable and do not overwhelm the user interface.
+# CHAT_REPLY In summary, `limit.go` provides a mechanism to control the number of search results displayed to the user, preventing overwhelming them with too much information. It ensures that the results are presented in a manageable and efficient way.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {
