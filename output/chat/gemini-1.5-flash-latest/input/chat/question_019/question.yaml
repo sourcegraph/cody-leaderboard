@@ -20,561 +20,465 @@
 # CHAT_REPLY 	"syscall"
 # CHAT_REPLY 	"time"
 # CHAT_REPLY 
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/query"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/search"
-# CHAT_REPLY 	"github.com/sourcegraph/zoekt/shard"
+# CHAT_REPLY 	"github.com/google/go-github/v32/github"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/config"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/git"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/index"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/mirror"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/cmd/zoekt-indexserver/internal/repo"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/log"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/search"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/shard"
+# CHAT_REPLY 	"github.com/sourcegraph/zoekt/pkg/text"
 # CHAT_REPLY 	"github.com/sourcegraph/zoekt/web"
+# CHAT_REPLY 	"golang.org/x/sync/errgroup"
 # CHAT_REPLY )
 # CHAT_REPLY 
-# CHAT_REPLY // Agent is a single instance of a zoekt search server.
-# CHAT_REPLY type Agent struct {
-# CHAT_REPLY 	// Index is the index to search.
-# CHAT_REPLY 	Index *shard.Index
+# CHAT_REPLY // agent is a single instance of the indexserver.
+# CHAT_REPLY type agent struct {
+# CHAT_REPLY 	cfg *config.Config
 # CHAT_REPLY 
-# CHAT_REPLY 	// WebServer is the web server to serve search results.
-# CHAT_REPLY 	WebServer *web.Server
+# CHAT_REPLY 	// repos is a map of repository names to their corresponding repo.Repo
+# CHAT_REPLY 	// objects.
+# CHAT_REPLY 	repos map[string]*repo.Repo
 # CHAT_REPLY 
-# CHAT_REPLY 	// Shutdown is a channel that is closed when the agent should shut down.
-# CHAT_REPLY 	Shutdown chan struct{}
+# CHAT_REPLY 	// indexer is the indexer used to index repositories.
+# CHAT_REPLY 	indexer *index.Indexer
 # CHAT_REPLY 
-# CHAT_REPLY 	// Stats is a channel that receives stats from the agent.
-# CHAT_REPLY 	Stats chan *Stats
+# CHAT_REPLY 	// mirror is the mirror used to mirror repositories.
+# CHAT_REPLY 	mirror *mirror.Mirror
 # CHAT_REPLY 
-# CHAT_REPLY 	// Ctx is the context for the agent.
-# CHAT_REPLY 	Ctx context.Context
+# CHAT_REPLY 	// git is the git client used to clone and fetch repositories.
+# CHAT_REPLY 	git *git.Git
 # CHAT_REPLY 
-# CHAT_REPLY 	// Cancel is the cancel function for the agent's context.
-# CHAT_REPLY 	Cancel context.CancelFunc
+# CHAT_REPLY 	// webserver is the webserver used to serve search results.
+# CHAT_REPLY 	webserver *web.Server
+# CHAT_REPLY 
+# CHAT_REPLY 	// shutdown is a channel that is closed when the agent is shutting down.
+# CHAT_REPLY 	shutdown chan struct{}
 # CHAT_REPLY 
 # CHAT_REPLY 	// wg is a wait group that is used to wait for all goroutines to finish.
 # CHAT_REPLY 	wg sync.WaitGroup
 # CHAT_REPLY 
-# CHAT_REPLY 	// mu protects the following fields.
+# CHAT_REPLY 	// mu protects the repos map.
 # CHAT_REPLY 	mu sync.Mutex
 # CHAT_REPLY 
-# CHAT_REPLY 	// lastStats is the last stats that were sent to the stats channel.
-# CHAT_REPLY 	lastStats *Stats
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsTime is the time that the last stats were sent.
-# CHAT_REPLY 	lastStatsTime time.Time
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsCount is the number of stats that have been sent.
-# CHAT_REPLY 	lastStatsCount int
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats updates.
-# CHAT_REPLY 	lastStatsInterval time.Duration
-# CHAT_REPLY 
-# CHAT_REPLY 	// lastStatsInterval is the interval between stats
+# CHAT_REPLY 	// log is the logger used by the agent.
+# CHAT_REPLY 	log *log.Logger
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // newAgent creates a new agent.
+# CHAT_REPLY func newAgent(cfg *config.Config) (*agent, error) {
+# CHAT_REPLY 	log := log.New(os.Stdout, "agent: ", log.LstdFlags)
+# CHAT_REPLY 	git, err := git.New(cfg.Git)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, fmt.Errorf("failed to create git client: %w", err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	indexer, err := index.New(cfg.Index, log)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, fmt.Errorf("failed to create indexer: %w", err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	mirror, err := mirror.New(cfg.Mirror, log)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, fmt.Errorf("failed to create mirror: %w", err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	webserver, err := web.New(cfg.Web, indexer, log)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, fmt.Errorf("failed to create webserver: %w", err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return &agent{
+# CHAT_REPLY 		cfg:      cfg,
+# CHAT_REPLY 		repos:    make(map[string]*repo.Repo),
+# CHAT_REPLY 		indexer:  indexer,
+# CHAT_REPLY 		mirror:   mirror,
+# CHAT_REPLY 		git:      git,
+# CHAT_REPLY 		webserver: webserver,
+# CHAT_REPLY 		shutdown: make(chan struct{}),
+# CHAT_REPLY 		log:      log,
+# CHAT_REPLY 	}, nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // run starts the agent.
+# CHAT_REPLY func (a *agent) run() error {
+# CHAT_REPLY 	a.log.Printf("starting agent")
+# CHAT_REPLY 
+# CHAT_REPLY 	// Start the webserver.
+# CHAT_REPLY 	a.wg.Add(1)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer a.wg.Done()
+# CHAT_REPLY 		if err := a.webserver.Run(); err != nil {
+# CHAT_REPLY 			a.log.Printf("webserver failed: %v", err)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Start the mirror.
+# CHAT_REPLY 	a.wg.Add(1)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer a.wg.Done()
+# CHAT_REPLY 		if err := a.mirror.Run(a.shutdown, a.repos); err != nil {
+# CHAT_REPLY 			a.log.Printf("mirror failed: %v", err)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Start the indexer.
+# CHAT_REPLY 	a.wg.Add(1)
+# CHAT_REPLY 	go func() {
+# CHAT_REPLY 		defer a.wg.Done()
+# CHAT_REPLY 		if err := a.indexer.Run(a.shutdown, a.repos); err != nil {
+# CHAT_REPLY 			a.log.Printf("indexer failed: %v", err)
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Wait for a shutdown signal.
+# CHAT_REPLY 	<-a.shutdown
+# CHAT_REPLY 
+# CHAT_REPLY 	// Stop the webserver.
+# CHAT_REPLY 	a.webserver.Shutdown()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Stop the mirror.
+# CHAT_REPLY 	a.mirror.Shutdown()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Stop the indexer.
+# CHAT_REPLY 	a.indexer.Shutdown()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Wait for all goroutines to finish.
+# CHAT_REPLY 	a.wg.Wait()
+# CHAT_REPLY 
+# CHAT_REPLY 	a.log.Printf("agent stopped")
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // shutdown gracefully shuts down the agent.
+# CHAT_REPLY func (a *agent) shutdown() {
+# CHAT_REPLY 	close(a.shutdown)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // addRepo adds a repository to the agent.
+# CHAT_REPLY func (a *agent) addRepo(repo *repo.Repo) {
+# CHAT_REPLY 	a.mu.Lock()
+# CHAT_REPLY 	defer a.mu.Unlock()
+# CHAT_REPLY 
+# CHAT_REPLY 	a.repos[repo.Name] = repo
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // removeRepo removes a repository from the agent.
+# CHAT_REPLY func (a *agent) removeRepo(name string) {
+# CHAT_REPLY 	a.mu.Lock()
+# CHAT_REPLY 	defer a.mu.Unlock()
+# CHAT_REPLY 
+# CHAT_REPLY 	delete(a.repos, name)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // getRepo returns the repo.Repo object for the given repository name.
+# CHAT_REPLY func (a *agent) getRepo(name string) *repo.Repo {
+# CHAT_REPLY 	a.mu.Lock()
+# CHAT_REPLY 	defer a.mu.Unlock()
+# CHAT_REPLY 
+# CHAT_REPLY 	return a.repos[name]
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // getRepos returns a slice of all repo.Repo objects.
+# CHAT_REPLY func (a *agent) getRepos() []*repo.Repo {
+# CHAT_REPLY 	a.mu.Lock()
+# CHAT_REPLY 	defer a.mu.Unlock()
+# CHAT_REPLY 
+# CHAT_REPLY 	repos := make([]*repo.Repo, 0, len(a.repos))
+# CHAT_REPLY 	for _, repo := range a.repos {
+# CHAT_REPLY 		repos = append(repos, repo)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return repos
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // mirrorRepo mirrors a repository.
+# CHAT_REPLY func (a *agent) mirrorRepo(repo *repo.Repo) error {
+# CHAT_REPLY 	a.log.Printf("mirroring repository %s", repo.Name)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Mirror the repository.
+# CHAT_REPLY 	if err := a.mirror.Mirror(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to mirror repository %s: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Index the repository.
+# CHAT_REPLY 	if err := a.indexer.Index(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to index repository %s: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // indexRepo indexes a repository.
+# CHAT_REPLY func (a *agent) indexRepo(repo *repo.Repo) error {
+# CHAT_REPLY 	a.log.Printf("indexing repository %s", repo.Name)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Index the repository.
+# CHAT_REPLY 	if err := a.indexer.Index(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to index repository %s: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // removeRepo removes a repository.
+# CHAT_REPLY func (a *agent) removeRepo(repo *repo.Repo) error {
+# CHAT_REPLY 	a.log.Printf("removing repository %s", repo.Name)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Remove the repository from the index.
+# CHAT_REPLY 	if err := a.indexer.Remove(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to remove repository %s from index: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Remove the repository from the mirror.
+# CHAT_REPLY 	if err := a.mirror.Remove(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to remove repository %s from mirror: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // updateRepo updates a repository.
+# CHAT_REPLY func (a *agent) updateRepo(repo *repo.Repo) error {
+# CHAT_REPLY 	a.log.Printf("updating repository %s", repo.Name)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Update the repository in the mirror.
+# CHAT_REPLY 	if err := a.mirror.Update(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to update repository %s in mirror: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Update the repository in the index.
+# CHAT_REPLY 	if err := a.indexer.Update(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to update repository %s in index: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // fetchRepo fetches a repository.
+# CHAT_REPLY func (a *agent) fetchRepo(repo *repo.Repo) error {
+# CHAT_REPLY 	a.log.Printf("fetching repository %s", repo.Name)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Fetch the repository.
+# CHAT_REPLY 	if err := a.git.Fetch(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to fetch repository %s: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // cloneRepo clones a repository.
+# CHAT_REPLY func (a *agent) cloneRepo(repo *repo.Repo) error {
+# CHAT_REPLY 	a.log.Printf("cloning repository %s", repo.Name)
+# CHAT_REPLY 
+# CHAT_REPLY 	// Clone the repository.
+# CHAT_REPLY 	if err := a.git.Clone(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to clone repository %s: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handleGithubWebhook handles a Github webhook.
+# CHAT_REPLY func (a *agent) handleGithubWebhook(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 	// Parse the webhook payload.
+# CHAT_REPLY 	payload, err := github.ParseWebHook(github.WebHookType(r), r.Body)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		http.Error(w, err.Error(), http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Handle the webhook event.
+# CHAT_REPLY 	switch event := payload.(type) {
+# CHAT_REPLY 	case *github.PushEvent:
+# CHAT_REPLY 		a.handlePushEvent(event)
+# CHAT_REPLY 	case *github.PullRequestEvent:
+# CHAT_REPLY 		a.handlePullRequestEvent(event)
+# CHAT_REPLY 	case *github.CreateEvent:
+# CHAT_REPLY 		a.handleCreateEvent(event)
+# CHAT_REPLY 	case *github.DeleteEvent:
+# CHAT_REPLY 		a.handleDeleteEvent(event)
+# CHAT_REPLY 	default:
+# CHAT_REPLY 		http.Error(w, "unsupported webhook event", http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Write a success response.
+# CHAT_REPLY 	w.WriteHeader(http.StatusOK)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handlePushEvent handles a Github push event.
+# CHAT_REPLY func (a *agent) handlePushEvent(event *github.PushEvent) {
+# CHAT_REPLY 	// Get the repository.
+# CHAT_REPLY 	repo := a.getRepo(event.GetRepo().GetFullName())
+# CHAT_REPLY 	if repo == nil {
+# CHAT_REPLY 		a.log.Printf("repository %s not found", event.GetRepo().GetFullName())
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Update the repository.
+# CHAT_REPLY 	if err := a.updateRepo(repo); err != nil {
+# CHAT_REPLY 		a.log.Printf("failed to update repository %s: %v", repo.Name, err)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handlePullRequestEvent handles a Github pull request event.
+# CHAT_REPLY func (a *agent) handlePullRequestEvent(event *github.PullRequestEvent) {
+# CHAT_REPLY 	// Get the repository.
+# CHAT_REPLY 	repo := a.getRepo(event.GetRepo().GetFullName())
+# CHAT_REPLY 	if repo == nil {
+# CHAT_REPLY 		a.log.Printf("repository %s not found", event.GetRepo().GetFullName())
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Update the repository.
+# CHAT_REPLY 	if err := a.updateRepo(repo); err != nil {
+# CHAT_REPLY 		a.log.Printf("failed to update repository %s: %v", repo.Name, err)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handleCreateEvent handles a Github create event.
+# CHAT_REPLY func (a *agent) handleCreateEvent(event *github.CreateEvent) {
+# CHAT_REPLY 	// Get the repository.
+# CHAT_REPLY 	repo := a.getRepo(event.GetRepo().GetFullName())
+# CHAT_REPLY 	if repo == nil {
+# CHAT_REPLY 		a.log.Printf("repository %s not found", event.GetRepo().GetFullName())
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Update the repository.
+# CHAT_REPLY 	if err := a.updateRepo(repo); err != nil {
+# CHAT_REPLY 		a.log.Printf("failed to update repository %s: %v", repo.Name, err)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handleDeleteEvent handles a Github delete event.
+# CHAT_REPLY func (a *agent) handleDeleteEvent(event *github.DeleteEvent) {
+# CHAT_REPLY 	// Get the repository.
+# CHAT_REPLY 	repo := a.getRepo(event.GetRepo().GetFullName())
+# CHAT_REPLY 	if repo == nil {
+# CHAT_REPLY 		a.log.Printf("repository %s not found", event.GetRepo().GetFullName())
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Remove the repository.
+# CHAT_REPLY 	if err := a.removeRepo(repo); err != nil {
+# CHAT_REPLY 		a.log.Printf("failed to remove repository %s: %v", repo.Name, err)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handleGitilesWebhook handles a Gitiles webhook.
+# CHAT_REPLY func (a *agent) handleGitilesWebhook(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 	// Parse the webhook payload.
+# CHAT_REPLY 	payload, err := io.ReadAll(r.Body)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		http.Error(w, err.Error(), http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Handle the webhook event.
+# CHAT_REPLY 	if err := a.handleGitilesPayload(payload); err != nil {
+# CHAT_REPLY 		http.Error(w, err.Error(), http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Write a success response.
+# CHAT_REPLY 	w.WriteHeader(http.StatusOK)
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handleGitilesPayload handles a Gitiles webhook payload.
+# CHAT_REPLY func (a *agent) handleGitilesPayload(payload []byte) error {
+# CHAT_REPLY 	// Parse the webhook payload.
+# CHAT_REPLY 	var event struct {
+# CHAT_REPLY 		Repo   string `json:"repo"`
+# CHAT_REPLY 		Branch string `json:"branch"`
+# CHAT_REPLY 	}
+# CHAT_REPLY 	if err := json.Unmarshal(payload, &event); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to parse webhook payload: %w", err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the repository.
+# CHAT_REPLY 	repo := a.getRepo(event.Repo)
+# CHAT_REPLY 	if repo == nil {
+# CHAT_REPLY 		return fmt.Errorf("repository %s not found", event.Repo)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Update the repository.
+# CHAT_REPLY 	if err := a.updateRepo(repo); err != nil {
+# CHAT_REPLY 		return fmt.Errorf("failed to update repository %s: %w", repo.Name, err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	return nil
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // handleSearch handles a search request.
+# CHAT_REPLY func (a *agent) handleSearch(w http.ResponseWriter, r *http.Request) {
+# CHAT_REPLY 	// Parse the search query.
+# CHAT_REPLY 	q, err := url.ParseQuery(r.URL.RawQuery)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		http.Error(w, err.Error(), http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the search query.
+# CHAT_REPLY 	query := q.Get("q")
+# CHAT_REPLY 	if query == "" {
+# CHAT_REPLY 		http.Error(w, "missing search query", http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the number of results to return.
+# CHAT_REPLY 	num := 10
+# CHAT_REPLY 	if n := q.Get("num"); n != "" {
+# CHAT_REPLY 		if num, err = strconv.Atoi(n); err != nil {
+# CHAT_REPLY 			http.Error(w, err.Error(), http.StatusBadRequest)
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the format of the results.
+# CHAT_REPLY 	format := "json"
+# CHAT_REPLY 	if f := q.Get("format"); f != "" {
+# CHAT_REPLY 		format = f
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Get the repositories to search.
+# CHAT_REPLY 	repos := a.getRepos()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Search the repositories.
+# CHAT_REPLY 	results, err := a.search(query, repos, num)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		http.Error(w, err.Error(), http.StatusInternalServerError)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Format the results.
+# CHAT_REPLY 	switch format {
+# CHAT_REPLY 	case "json":
+# CHAT_REPLY 		if err := json.NewEncoder(w).Encode(results); err != nil {
+# CHAT_REPLY 			http.Error(w, err.Error(), http.StatusInternalServerError)
+# CHAT_REPLY 			return
+# CHAT_REPLY 		}
+# CHAT_REPLY 	default:
+# CHAT_REPLY 		http.Error(w, "unsupported format", http.StatusBadRequest)
+# CHAT_REPLY 		return
+# CHAT_REPLY 	}
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // search searches the given repositories for the given query.
+# CHAT_REPLY func (a *agent) search(query string, repos []*repo.Repo, num int) (*web.ApiSearchResult, error) {
+# CHAT_REPLY 	// Parse the search query.
+# CHAT_REPLY 	parsedQuery, err := search.ParseQuery(query)
+# CHAT_REPLY 	if err != nil {
+# CHAT_REPLY 		return nil, fmt.Errorf("failed to parse search query: %w", err)
+# CHAT_REPLY 	}
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create a new search context.
+# CHAT_REPLY 	ctx := context.Background()
+# CHAT_REPLY 
+# CHAT_REPLY 	// Create
 # CHAT_REPLY ```
 
 # CONTEXT_ITEMS [

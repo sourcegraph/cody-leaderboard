@@ -1,7 +1,5 @@
 LANGUAGEID,WORKSPACE,FIXTURE,STRATEGY,FILEPATH,REVISION,MULTILINE,COMPLETION_INTENT,AUTOCOMPLETE_KIND,RANGE_START_LINE,RANGE_START_CHARACTER,RANGE_END_LINE,RANGE_END_CHARACTER,RESULT_TIMEOUT,RESULT_ERROR,RESULT_EMPTY,RESULT_EXACT,RESULT_TYPECHECKS,RESULT_PARSES,RESULT_TEXT,RESULT_CHAR_COUNT,RESULT_NON_INSERT_PATCH,EDIT_DIFF,CHAT_REPLY,CHAT_QUESTION,CONTEXT_ITEMS,QUESTION_CLASS,FIX_AFTER_DIAGNOSTIC,FIX_BEFORE_DIAGNOSTIC,LLM_JUDGE_SCORE,LLM_JUDGE_REASONING,CONCISENESS_SCORE,HEDGES,PROVIDER_IDENTIFIER,PROVIDER_MODEL,STOP_REASON,CONTEXT_BFG_RETRIEVED_COUNT,CONTEXT_BFG_SUGGESTED_COUNT,CONTEXT_BFG_DURATION_MS,EVENT,TEST_FILENAME,TEST_EXPECTED_FILENAME,TEST_GENERATED,TEST_USED_EXPECTED_TEST_FRAMEWORK,TEST_USED_CORRECT_APPEND_OPERATION,TEST_INPUT_FILENAME,TEST_LANGUAGE,TEST_NAME,TEST_DIAGNOSTICS
-yaml,chat,gemini-1.5-pro-latest,chat,question_001/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"Here's how you can implement a `Dog` class that implements the `Animal` interface:
-
-```typescript:mocked/enhanced_context/animal.ts
+yaml,chat,gemini-1.5-pro-latest,chat,question_001/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"```typescript:mocked/enhanced_context/animal.ts
 interface Animal {
     name: string;
     age: number;
@@ -10,12 +8,10 @@ interface Animal {
 class Dog implements Animal {
     name: string;
     age: number;
-    breed: string;
 
-    constructor(name: string, age: number, breed: string) {
+    constructor(name: string, age: number) {
         this.name = name;
         this.age = age;
-        this.breed = breed;
     }
 
     bark(): string {
@@ -29,106 +25,88 @@ class Dog implements Animal {
     ""content"": ""interface Animal {\n    name: string;\n    age: number;\n}\n\n""
   }
 ]",generate code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_002/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"Based on the code you provided, **Squirrel is a code intelligence API**. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_002/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"Squirrel is a code intelligence API. 
 
-The interface definition states: 
-
-```typescript:mocked/enhanced_context/squirrel.ts
-/**
- * Squirrel is a code intelligence API.
- */
-interface Squirrel {
-    symbolInformation(file: string): CodeIntelligence
-}
-```
-
-This tells us that Squirrel provides at least one method, `symbolInformation`, which takes a file path as input and returns an object containing code intelligence data, specifically a list of symbols.",what is squirrel?,"[
+It provides information about symbols (like functions, classes, variables) used in a given file.",what is squirrel?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
     ""content"": ""interface CodeIntelligence {\n    symbols: string[]\n}\n\n/**\n * Squirrel is a code intelligence API.\n */\ninterface Squirrel {\n    symbolInformation(file: string): CodeIntelligence\n}\n\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_003/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"I have access to the README.md file for the Zoekt codebase, specifically the Sourcegraph fork. This README file provides information on:
-
-* **Zoekt's purpose:** A fast text search engine for source code.
-* **Downloading and installing Zoekt.**
-* **Indexing directories, Git repositories, and multiple repositories.**
-* **Searching using the web interface, JSON API, and CLI.**
-* **Installation instructions for a Linux server using systemd.**
-* **Information on Zoekt's search service for managing repositories.**
-* **Recommendations for using Universal ctags to improve symbol search.**
-* **Acknowledgments and details about the Sourcegraph fork.** 
-
-Let me know if you have any other questions about the Zoekt codebase!",What code do you have access to?,"[
+yaml,chat,gemini-1.5-pro-latest,chat,question_003/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"I have access to the README.md file for the Zoekt codebase, which is a fork of Google's Zoekt project maintained by Sourcegraph.",What code do you have access to?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
-]",cody usage,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_004/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"Let's break down how slices work in Go.
+]",cody usage,,,0,,1,false,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_004/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"Let's break down how slices work in Go.
 
-Think of slices as dynamic arrays with extra features. Here's a breakdown:
+**Slices: Dynamic Arrays**
 
-**Key Points**
+At their core, slices in Go provide a powerful way to work with sequences of elements. Unlike arrays, which have a fixed size determined at compile time, slices are dynamic. This means they can grow or shrink as needed during your program's execution.
 
-* **Built on Arrays:** Underneath, a slice is a view into an underlying array.  This means when you modify a slice, you might be changing the original array.
-* **Flexible Sizing:** Unlike arrays with fixed lengths, slices can grow or shrink as needed.
-* **Reference Types:** Slices are reference types. When you pass a slice to a function or assign it to a new variable, you're copying the reference, not the underlying data.
+**Key Characteristics**
 
-**Structure**
+* **Dynamic Sizing:** Slices can change in length, making them adaptable to situations where the number of elements you need to store might vary.
+* **Reference Type:** Slices are reference types. This means when you pass a slice to a function or assign it to a new variable, you're actually working with a reference to the underlying data, not a copy.
+* **Built on Arrays:** Under the hood, slices are built on top of arrays. They provide a more flexible and convenient way to manage and access elements within those arrays.
 
-A slice is composed of three things:
+**Declaring and Initializing**
 
-1. **Pointer:** Points to the first element in the underlying array that the slice can access.
-2. **Length:** The number of elements currently accessible in the slice.
-3. **Capacity:** The total number of elements the underlying array can hold (from the slice's starting point).
+There are a few common ways to create slices:
+
+   ```go
+   // 1. Declaration with var (nil slice)
+   var numbers []int 
+
+   // 2. Short Declaration with Literal
+   names := []string{""Alice"", ""Bob"", ""Charlie""}
+
+   // 3. Using make()
+   sizes := make([]int, 5) // Creates a slice with capacity and length 5
+   ```
+
+**Important Concepts**
+
+* **Length:** The number of elements currently present in the slice. You can access it using `len(sliceName)`.
+* **Capacity:** The total number of elements the slice can hold without needing to allocate more memory. You can find this out with `cap(sliceName)`.
+
+**Common Operations**
+
+* **Appending:** `append(sliceName, element1, element2, ...)` adds elements to the end of a slice.
+* **Slicing:** `sliceName[startIndex:endIndex]` extracts a portion of a slice.
+* **Copying:** `copy(destinationSlice, sourceSlice)` copies elements from one slice to another.
 
 **Example**
 
 ```go
-numbers := []int{1, 2, 3, 4, 5} // Create a slice with length and capacity of 5
+package main
 
-part := numbers[1:4] // part is a slice pointing to [2, 3, 4] (length 3, capacity 4)
-```
+import ""fmt""
 
-**Important Operations**
+func main() {
+    fruits := []string{""apple"", ""banana""}
+    fmt.Println(""Initial fruits:"", fruits)
 
-* **`append()`:** Adds elements to the end of a slice, potentially increasing its capacity.
-* **`len(slice)`:** Returns the length of the slice.
-* **`cap(slice)`:** Returns the capacity of the slice.
-* **`make([]type, length, capacity)`:** Creates a new slice with a specific type, length, and capacity.
+    // Appending
+    fruits = append(fruits, ""orange"")
+    fmt.Println(""Fruits after appending:"", fruits)
 
-**Example from Your Code (mocked/enhanced_context/limit.go)**
-
-```go:mocked/enhanced_context/limit.go
-// ... other code ...
-
-func (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {
-	// ... other code ...
-
-	for _, val := range r.AllowedModels {
-		if slices.Contains(prefixedMasterAllowlist, val) {
-			result = append(result, val)
-		}
-	}
-	return result
+    // Slicing
+    citrus := fruits[1:3]
+    fmt.Println(""Citrus fruits:"", citrus)
 }
 ```
 
-In this example:
+**Key Points to Remember**
 
-1. `r.AllowedModels` and `prefixedMasterAllowlist` are string slices.
-2. `slices.Contains` checks if a value (`val`) exists within `prefixedMasterAllowlist`.
-3. If found, `append(result, val)` adds the value to the `result` slice.
+* When you modify a slice element, the change is reflected in the underlying array.
+* Appending beyond the capacity of a slice triggers a reallocation, which can have performance implications.
+* Understanding the distinction between length and capacity is crucial for writing efficient Go code that works with slices.
 
-**Key Takeaways**
-
-* Slices provide a powerful way to work with sequences of data in Go.
-* Understanding their dynamic nature and reference behavior is crucial for writing efficient and correct Go code.
-
-Let me know if you'd like to explore specific slice operations or have any more questions!",how do slices work in go?,"[
+Let me know if you'd like a deeper dive into any specific aspect of slices, such as how they work with functions, how to iterate over them effectively, or best practices for using them in your Go programs!",how do slices work in go?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -155,30 +133,22 @@ Let me know if you'd like to explore specific slice operations or have any more 
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_005/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"This regular expression will match any of the following characters, case-insensitively, followed by a forward slash:
+yaml,chat,gemini-1.5-pro-latest,chat,question_005/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"This regular expression will fail to match anything. Let's break it down:
 
-* `n/a` 
-* `e/`
-* `i/`
-* `o/`
-* `u/`
+* `/n/a|e|i|o|u//n` 
+    * The beginning and trailing `/` characters denote the start and end of the regular expression.
+    * `/n/` attempts to match the literal character ""n"" followed by a forward slash.
+    * `a|e|i|o|u` attempts to match any single character from the list ""a"", ""e"", ""i"", ""o"", or ""u"".
+    * `/` is treated as a literal forward slash character.
+    * `/n` attempts to match the literal characters ""/n"".
 
-**Explanation:**
+The issue is that the regex tries to match `/n/` at the beginning and then expects to find `/n` at the end. Since these patterns contradict each other, the regex will not match any string.
 
-* `/`: Start of the regular expression.
-* `n/a|e|i|o|u`: Matches the literal characters ""n/a"" or any of the single vowels ""e"", ""i"", ""o"", ""u"".
-* `/`: Matches a literal forward slash character.
-* `/n`: End of the regular expression with the ""n"" flag for case-insensitive matching. 
+If you were aiming to create a regex that matches strings containing vowels, a correct version would be:
 
-**Example Matches:**
+ `/a|e|i|o|u/`
 
-* ""n/a/""
-* ""e/""
-* ""I/""
-* ""O/""
-* ""u/"" 
-
-Let me know if you'd like to explore more complex regular expressions or have any other questions!",what does this regex do? \n/a|e|i|o|u/\n,"[
+This regex will match any string that contains at least one of the vowels.",what does this regex do? \n/a|e|i|o|u/\n,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -205,62 +175,29 @@ Let me know if you'd like to explore more complex regular expressions or have an
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
 ]",general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"This question is about styling a checkbox with CSS, and the provided code doesn't have any CSS or HTML related to checkboxes. 
-
-To help you style a checkbox with a light purple color, I need more information about what specifically you want to style.  Do you want to style:
-
-* **The checkbox itself?**  This is tricky as you have limited styling options for the default checkbox element.
-* **A custom checkbox replacement?** This involves hiding the default checkbox and styling other elements (like a `<span>`) to look like a checkbox.
-
-Once you clarify what you want to style, I can provide you with the appropriate CSS code. 
-
-For example, here's how you can create a custom checkbox replacement with a light purple checkmark:
-
-```html
-<input type=""checkbox"" id=""myCheckbox"">
-<label for=""myCheckbox"">
-  <span class=""custom-checkbox""></span>
-  My Checkbox
-</label>
-```
-
-```css
-/* Hide default checkbox visually */
+yaml,chat,gemini-1.5-pro-latest,chat,question_006/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"```css
+/* Style the checkbox */
 input[type=""checkbox""] {
-  position: absolute;
-  opacity: 0;
-}
-
-/* Style the custom checkbox */
-.custom-checkbox {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
   border: 2px solid #ccc;
   border-radius: 4px;
-  margin-right: 5px;
-  position: relative;
+  outline: none;
+  cursor: pointer;
 }
 
-/* Add a checkmark when checked */
-input[type=""checkbox""]:checked + label .custom-checkbox::before {
-  content: '\2713'; /* Unicode checkmark character */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: plum; /* Light purple color */
-  font-size: 12px;
+/* Style the checkmark */
+input[type=""checkbox""]:checked::before {
+  content: '\2713'; /* Unicode character for checkmark */
+  display: block;
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  background-color: #c8a2c8; /* Light purple color */
 }
-```
-
-This code will:
-
-1. **Hide the default checkbox:** The `input[type=""checkbox""]` styles hide the default checkbox visually.
-2. **Create a custom checkbox:** The `.custom-checkbox` styles create a simple square that acts as the custom checkbox.
-3. **Add a checkmark:** When the checkbox is checked, the `input[type=""checkbox""]:checked + label .custom-checkbox::before` styles add a light purple checkmark inside the custom checkbox.
-
-Remember to adapt this code to your specific HTML structure and desired styling.",style css checkbox using light purple,"[
+```",style css checkbox using light purple,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -286,79 +223,68 @@ Remember to adapt this code to your specific HTML structure and desired styling.
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/README.md:undefined-undefined"",
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
-]",general coding,,,1,,0,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_007/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"The provided code snippets are Go code. They don't contain information about upgrading your Python version. 
-
-To help you upgrade your Python version, I need more information:
-
-* **What is your current Python version?** You can check this by running `python --version` or `python3 --version` in your terminal.
-* **What operating system are you using?** (e.g., Windows, macOS, Linux)
-* **How did you install Python?** (e.g., system package manager, official installer from python.org, Anaconda)
-
-Once I have this information, I can provide you with tailored instructions on how to upgrade your Python version.",how to upgrade my python version?,"[
-  {
-    ""source"": ""user"",
-    ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/chunker_test.go:undefined-undefined"",
-    ""content"": ""type server struct {\n\tgrpc_testing.UnimplementedTestServiceServer\n}""
-  },
-  {
-    ""source"": ""user"",
-    ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/agent.go:undefined-undefined"",
-    ""content"": ""package agent\n\n// Agent is an agent""
-  },
-  {
-    ""source"": ""user"",
-    ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/limit.go:undefined-undefined"",
-    ""content"": ""package actor\n\nimport (\n\t\""context\""\n\t\""fmt\""\n\t\""net/http\""\n\t\""slices\""\n\t\""strconv\""\n\t\""time\""\n\n\t\""github.com/sourcegraph/log\""\n\t\""go.opentelemetry.io/otel/attribute\""\n\toteltrace \""go.opentelemetry.io/otel/trace\""\n\n\t\""github.com/sourcegraph/sourcegraph/cmd/cody-gateway/internal/limiter\""\n\t\""github.com/sourcegraph/sourcegraph/internal/codygateway\""\n\t\""github.com/sourcegraph/sourcegraph/internal/trace\""\n\t\""github.com/sourcegraph/sourcegraph/lib/errors\""\n)\n\ntype RateLimit struct {\n\t// AllowedModels is a set of models in Cody Gateway's model configuration\n\t// format, \""$PROVIDER/$MODEL_NAME\"". A single-item slice with value '*' means\n\t// that all models in the 'master allowlist' are allowed.\n\t//\n\t// DO NOT USE DIRECTLY when enforcing permissions: use EvaluateAllowedModels(...)\n\t// instead.\n\tAllowedModels []string `json:\""allowedModels\""`\n\n\tLimit    int64         `json:\""limit\""`\n\tInterval time.Duration `json:\""interval\""`\n\n\t// ConcurrentRequests, ConcurrentRequestsInterval are generally applied\n\t// with NewRateLimitWithPercentageConcurrency.\n\tConcurrentRequests         int           `json:\""concurrentRequests\""`\n\tConcurrentRequestsInterval time.Duration `json:\""concurrentRequestsInterval\""`\n}\n\nfunc NewRateLimitWithPercentageConcurrency(limit int64, interval time.Duration, allowedModels []string, concurrencyConfig codygateway.ActorConcurrencyLimitConfig) RateLimit {\n\t// The actual type of time.Duration is int64, so we can use it to compute the\n\t// ratio of the rate limit interval to a day (24 hours).\n\tratioToDay := float32(interval) / float32(24*time.Hour)\n\t// Then use the ratio to compute the rate limit for a day.\n\tdailyLimit := float32(limit) / ratioToDay\n\t// Finally, compute the concurrency limit with the given percentage of the daily limit.\n\tconcurrencyLimit := int(dailyLimit * concurrencyConfig.Percentage)\n\t// Just in case a poor choice of percentage results in a concurrency limit less than 1.\n\tif concurrencyLimit < 1 {\n\t\tconcurrencyLimit = 1\n\t}\n\n\treturn RateLimit{\n\t\tAllowedModels: allowedModels,\n\t\tLimit:         limit,\n\t\tInterval:      interval,\n\n\t\tConcurrentRequests:         concurrencyLimit,\n\t\tConcurrentRequestsInterval: concurrencyConfig.Interval,\n\t}\n}\n\nfunc (r *RateLimit) IsValid() bool {\n\treturn r != nil && r.Interval > 0 && r.Limit > 0 && len(r.AllowedModels) > 0\n}\n\n// EvaluateAllowedModels returns the intersection of a 'master' allowlist and\n// the actor's allowlist, where only values on the 'master' allowlist are returned.\n// The provided allowlist MUST be prefixed with the provider name (e.g. \""anthropic/\"").\n//\n// If the actor's allowlist is a single value '*', then the master allowlist is\n// returned (i.e. all models are allowed).\nfunc (r *RateLimit) EvaluateAllowedModels(prefixedMasterAllowlist []string) []string {\n\tif len(r.AllowedModels) == 1 && r.AllowedModels[0] == \""*\"" {\n\t\treturn prefixedMasterAllowlist // all models allowed\n\t}\n\n\tvar result []string\n\tfor _, val := range r.AllowedModels {\n\t\tif slices.Contains(prefixedMasterAllowlist, val) {\n\t\t\tresult = append(result, val)\n\t\t}\n\t}\n\treturn result\n}\n\ntype concurrencyLimiter struct {\n\tlogger  log.Logger\n\tactor   *Actor\n\tfeature codygateway.Feature\n\n\t// redis must be a prefixed store\n\tredis limiter.RedisStore\n\n\tconcurrentRequests int\n\tconcurrentInterval time.Duration\n\n\tnextLimiter limiter.Limiter\n\n\tnowFunc func() time.Time\n}\n\nfunc (l *concurrencyLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := (limiter.StaticLimiter{\n\t\tLimiterName:        \""actor.concurrencyLimiter\"",\n\t\tIdentifier:         l.actor.ID,\n\t\tRedis:              l.redis,\n\t\tLimit:              int64(l.concurrentRequests),\n\t\tInterval:           l.concurrentInterval,\n\t\tUpdateRateLimitTTL: true, // always adjust\n\t\tNowFunc:            l.nowFunc,\n\t}).TryAcquire(ctx)\n\tif err != nil {\n\t\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\t\tretryAfter, err := limiter.RetryAfterWithTTL(l.redis, l.nowFunc, l.actor.ID)\n\t\t\tif err != nil {\n\t\t\t\treturn nil, errors.Wrap(err, \""failed to get TTL for rate limit counter\"")\n\t\t\t}\n\t\t\treturn nil, ErrConcurrencyLimitExceeded{\n\t\t\t\tfeature:    l.feature,\n\t\t\t\tlimit:      l.concurrentRequests,\n\t\t\t\tretryAfter: retryAfter,\n\t\t\t}\n\t\t}\n\t\treturn nil, errors.Wrap(err, \""check concurrent limit\"")\n\t}\n\tif err = commit(ctx, 1); err != nil {\n\t\ttrace.Logger(ctx, l.logger).Error(\""failed to commit concurrency limit consumption\"", log.Error(err))\n\t}\n\n\treturn l.nextLimiter.TryAcquire(ctx)\n}\n\nfunc (l *concurrencyLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn l.nextLimiter.Usage(ctx)\n}\n\ntype ErrConcurrencyLimitExceeded struct {\n\tfeature    codygateway.Feature\n\tlimit      int\n\tretryAfter time.Time\n}\n\n// Error generates a simple string that is fairly static for use in logging.\n// This helps with categorizing errors. For more detailed output use Summary().\nfunc (e ErrConcurrencyLimitExceeded) Error() string {\n\treturn fmt.Sprintf(\""%q: concurrency limit exceeded\"", e.feature)\n}\n\nfunc (e ErrConcurrencyLimitExceeded) Summary() string {\n\treturn fmt.Sprintf(\""you have exceeded the concurrency limit of %d requests for %q. Retry after %s\"",\n\t\te.limit, e.feature, e.retryAfter.Truncate(time.Second))\n}\n\nfunc (e ErrConcurrencyLimitExceeded) WriteResponse(w http.ResponseWriter) {\n\t// Rate limit exceeded, write well known headers and return correct status code.\n\tw.Header().Set(\""x-ratelimit-limit\"", strconv.Itoa(e.limit))\n\tw.Header().Set(\""x-ratelimit-remaining\"", \""0\"")\n\tw.Header().Set(\""retry-after\"", e.retryAfter.Format(time.RFC1123))\n\t// Use Summary instead of Error for more informative text\n\thttp.Error(w, e.Summary(), http.StatusTooManyRequests)\n}\n\n// updateOnErrorLimiter calls Actor.Update if nextLimiter responds with certain\n// access errors.\ntype updateOnErrorLimiter struct {\n\tlogger log.Logger\n\tactor  *Actor\n\n\tnextLimiter limiter.Limiter\n}\n\nfunc (u updateOnErrorLimiter) TryAcquire(ctx context.Context) (func(context.Context, int) error, error) {\n\tcommit, err := u.nextLimiter.TryAcquire(ctx)\n\t// If we have an access issue, try to update the actor in case they have\n\t// been granted updated access.\n\tif errors.As(err, &limiter.NoAccessError{}) || errors.As(err, &limiter.RateLimitExceededError{}) {\n\t\toteltrace.SpanFromContext(ctx).\n\t\t\tSetAttributes(attribute.Bool(\""update-on-error\"", true))\n\t\t// Do update transiently, outside request hotpath\n\t\tgo func() {\n\t\t\tif updateErr := u.actor.Update(context.WithoutCancel(ctx)); updateErr != nil &&\n\t\t\t\t!IsErrActorRecentlyUpdated(updateErr) {\n\t\t\t\tu.logger.Warn(\""unexpected error updating actor\"",\n\t\t\t\t\tlog.Error(updateErr),\n\t\t\t\t\tlog.NamedError(\""originalError\"", err))\n\t\t\t}\n\t\t}()\n\t}\n\treturn commit, err\n}\n\nfunc (u updateOnErrorLimiter) Usage(ctx context.Context) (int, time.Time, error) {\n\treturn u.nextLimiter.Usage(ctx)\n}\n""
-  },
-  {
-    ""source"": ""user"",
-    ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/README.md:undefined-undefined"",
-    ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
-  }
 ]",general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_008/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"This code snippet doesn't provide enough information to determine what the entire repository does. It looks like it's part of a search engine or code indexing tool, based on the following:
+yaml,chat,gemini-1.5-pro-latest,chat,question_007/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,"no text reply. Got {
+  ""model"": ""google/gemini-1.5-pro-latest"",
+  ""speaker"": ""assistant"",
+  ""error"": {
+    ""isChatErrorGuard"": ""isChatErrorGuard"",
+    ""name"": ""PollyError"",
+    ""message"": ""[Polly] Request failed due to an unknown error.""
+  }
+}",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_008/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"This code snippet doesn't provide enough information to determine what the entire repository does. It looks like it's part of a search engine or code indexing tool, given the names and functionality present:
 
-- **Package name ""zoekt""**: This could be a misspelling of ""zoektocht,"" which is Dutch for ""search.""
-- **Functions like ""SortAndTruncateFiles"" and ""DisplayTruncator""**: These suggest functionality for processing and displaying search results.
-- **References to ""FileMatch,"" ""SearchOptions,"" ""ChunkMatches,"" and ""LineMatches""**: These further support the idea of a tool that deals with searching and displaying code.
+- **zoekt package:**  ""Zoekt"" likely refers to a search engine or indexing system. 
+- **FileMatch struct:** Represents matches within a file, containing information about matched chunks, lines, and potentially symbols.
+- **SearchOptions struct:**  Holds parameters for controlling a search operation, including limits on the number of documents and matches to display.
+- **SortAndTruncateFiles function:** Processes search results, sorting and truncating them based on user-defined limits.
+- **DisplayTruncator:** A mechanism to enforce display limits on search results, ensuring a manageable output size.
 
-To understand the repository's purpose, I would need more context such as:
+**In essence, this code snippet focuses on result processing and display within a larger codebase likely related to search and indexing.** 
 
-- **Other files in the repository:**  Analyzing other files in the same package or related packages would provide a broader view of the codebase's functionality.
-- **Documentation or comments:**  Any accompanying documentation or comments could explain the purpose and usage of the code.
-- **Repository name and description:**  The repository's name and description on a platform like GitHub could provide valuable clues about its overall goal. 
-
-Could you provide me with more information about the repository?",What does this repo do??,"[
+To understand the repository's full purpose, you'd need to examine other files and the project's documentation.",What does this repo do??,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined"",
     ""content"": ""package zoekt\n\nimport \""log\""\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\""Failed to find enough newlines when truncating Content, %d left over, %d ranges\"", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_009/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"Your code defines functions and types related to limiting the number of matches and documents returned in a search result in the Zoekt codebase. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_009/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"Your code implements a fast text search engine called Zoekt, specifically designed for searching source code. It's a fork of Google's Zoekt project and is now maintained by Sourcegraph. 
 
-Here's a breakdown:
+Here's a breakdown of its key features and functionalities:
 
-**Core Functions:**
+**1. Indexing:**
 
-* **`SortAndTruncateFiles`**: This function sorts and truncates a list of `FileMatch` objects based on the provided `SearchOptions`. It uses `SortFiles` for sorting and `NewDisplayTruncator` to create a `DisplayTruncator` for truncation.
-* **`NewDisplayTruncator`**: This function returns a `DisplayTruncator` function and a boolean indicating whether any limits are enforced. The returned `DisplayTruncator` enforces document and match display limits specified in the `SearchOptions`.
-* **`limitMatches`**: This function limits the number of matches (either `ChunkMatches` or `LineMatches`) within a list of `FileMatch` objects based on the provided limit and chunking preference.
-* **`limitChunkMatches`**: This function limits the number of `ChunkMatches` within a `FileMatch` object, truncating `Ranges`, `SymbolInfo`, and `Content` accordingly.
-* **`limitLineMatches`**: This function limits the number of `LineMatches` within a `FileMatch` object by truncating the `LineFragments` slice.
+- **Multiple Source Types:** Zoekt can index various source code repositories, including directories, Git repositories, and multi-repository setups like Gerrit.
+- **Efficient Indexing:** It uses optimized data structures and algorithms to enable fast indexing of large codebases.
+- **Metadata Storage:** Zoekt stores metadata like repository names, branches, file names, and language information to facilitate targeted searches.
 
-**Types:**
+**2. Searching:**
 
-* **`DisplayTruncator`**: This type represents a stateful function that enforces display limits by truncating and mutating `FileMatch` objects. It returns the truncated list and a boolean indicating whether more results are available.
+- **Expressive Queries:** Supports various query primitives like substring matching, regular expressions, filename matching, language filtering, and branch filtering.
+- **Ranking and Scoring:** Employs ranking algorithms (standard scoring and optionally BM25) to prioritize relevant search results.
+- **Result Structuring:** Returns structured search results containing file matches, line matches, chunk matches, repository information, and scoring details.
+- **Performance Optimizations:** Implements techniques like match tree pruning, candidate match sorting, and limiting matches to optimize search speed.
 
-**Functionality:**
+**3. Additional Features:**
 
-The code aims to prevent overly broad searches from consuming excessive resources by enforcing limits on the number of documents and matches returned. It provides flexibility in configuring these limits through `SearchOptions`. The code also handles different types of matches (`ChunkMatches` and `LineMatches`) and adjusts its truncation logic accordingly.
+- **Symbol Search:** Integrates with Universal ctags for improved ranking and allows symbol-based regex queries.
+- **Web Interface and API:** Provides a web interface for interactive searches and a JSON API for programmatic access.
+- **Service Management:** Includes tools for managing the indexing and mirroring of repositories, as well as cleaning up log files.
 
-**Context:**
+**4. Fork Specific Details (Outdated):**
 
-This code is part of the Zoekt codebase, which is a fast text search engine designed for source code. The functions and types defined here play a crucial role in ensuring that search results are presented efficiently and within reasonable limits, preventing performance issues and improving user experience.",describe my code,"[
+- **Sourcegraph Integration:** Originally included Sourcegraph-specific commands for indexing and updating repositories.
+- **RPC API:** Exposed the API via a fork of `net/rpc` that supports cancellation.
+- **Query Enhancements:** Added the `BranchesRepos` query primitive for efficient multi-repository searches.
+- **Symbol Data:** Enabled returning symbol/ctag data in search results.
+
+**5. Current Status:**
+
+This fork is now the primary maintained version of Zoekt, and many of the fork-specific details are outdated. The codebase reflects the evolution from a Google project to a Sourcegraph-maintained one.
+
+Overall, your code provides a powerful and efficient solution for code search, offering a rich set of features and optimizations to handle large codebases effectively.",describe my code,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -379,45 +305,8 @@ This code is part of the Zoekt codebase, which is a fast text search engine desi
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/vscode/src/external-services.ts:undefined-undefined"",
     ""content"": ""//         },\n//     }\n// }""
   }
-]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_010/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"It seems like you're asking me to describe a codebase related to rate limiting, concurrency control, and potentially a code intelligence API named ""Squirrel"". 
-
-Here's a breakdown based on what I see:
-
-**Rate Limiting and Concurrency Control (`limit.go`)**
-
-* **Purpose:** This code defines structures and functions to manage and enforce rate limits and concurrency limits, likely for API requests or resource access.
-* **Key Components:**
-    * `RateLimit` struct: Holds configuration for rate limiting (allowed models, limit, interval) and concurrency (concurrent requests, interval).
-    * `concurrencyLimiter` struct: Manages concurrent requests using a Redis-backed limiter.
-    * Various functions for:
-        * Creating rate limits with percentage-based concurrency.
-        * Evaluating allowed models against a master list.
-        * Acquiring and releasing concurrency permits.
-        * Handling concurrency limit exceeded errors.
-
-**Code Intelligence API (`squirrel.ts`)**
-
-* **Purpose:**  Defines a TypeScript interface for a code intelligence API named ""Squirrel"".
-* **Key Components:**
-    * `CodeIntelligence` interface: Represents code intelligence information, currently containing only a list of symbols (`string[]`).
-    * `Squirrel` interface:  The main API interface with a `symbolInformation` function that takes a file path and returns `CodeIntelligence`.
-
-**Other Files**
-
-* `README.md`:  Describes a `@sourcegraph/cody-agent` package, suggesting integration with Cody (likely an AI coding assistant) through JSON-RPC.
-* `agent.go`:  Seems unfinished, but the package name suggests it might be related to the Cody agent mentioned in the README.
-* `animal.ts`: Defines a basic `Animal` interface, likely unrelated to the core functionality.
-
-**Potential Use Case**
-
-This codebase could be part of a larger system that:
-
-1. Provides code intelligence features (like symbol information) through the ""Squirrel"" API.
-2. Employs rate limiting and concurrency control to manage access to these features, potentially protecting against abuse or overload.
-3. Integrates with an AI coding assistant (Cody) for enhanced functionality.
-
-Let me know if you have specific parts of the code you'd like me to elaborate on!",\@zoekt describe my code.,"[
+]",codebase onboarding,,,1,,0,false,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_010/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"I can't help with that. I'm an AI coding assistant and do not have access to any codebase or the ability to run commands like ""@zoekt"".",\@zoekt describe my code.,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -443,35 +332,29 @@ Let me know if you have specific parts of the code you'd like me to elaborate on
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/README.md:undefined-undefined"",
     ""content"": ""# Cody Agent\n\nThe `@sourcegraph/cody-agent` package implements a JSON-RPC server to interact\nwith Cody via stdout/stdin. This package is intended to be used by\nnon-ECMAScript clients such as the JetBrains and NeoVim plugins.\n""
   }
-]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_011/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"The `DirectoryWatcher`, as implemented in `mocked/codebase_context/shards/watcher.go`, monitors a directory for changes to shard files (`.zoekt` files) and updates the search index accordingly. 
+]",codebase onboarding,,,0,,1,false,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_011/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"The `DirectoryWatcher` type in `shards/watcher.go` watches a directory for changes to shard files (`.zoekt` files) and updates the search index accordingly. Here's a breakdown:
 
-Here's a breakdown:
+1. **Initialization:**
+   - It takes the directory path and a `shardLoader` as input.
+   - It starts a goroutine that scans the directory for existing shard files and loads them using the `shardLoader`.
+   - It sets up a file system watcher using `fsnotify` to monitor the directory for changes.
 
-1. **Initialization (`newDirectoryWatcher`)**:
-    - Takes a directory path and a `shardLoader` as arguments.
-    - Starts a goroutine that scans the directory for existing shard files and loads them using the `shardLoader`.
-    - Sets up a file system watcher using `fsnotify` to listen for changes in the directory.
+2. **Scanning:**
+   - The `scan` method is called periodically or when a change is detected in the directory.
+   - It identifies the latest versions of shard files based on their filenames (which include version numbers).
+   - It compares the timestamps of the shard files with its internal record.
+   - It determines which shards need to be loaded (new or modified) and which need to be unloaded (deleted).
+   - It calls the `load` and `drop` methods of the `shardLoader` to update the search index.
 
-2. **Initial Scan (`scan`)**:
-    - Uses `filepath.Glob` to find all `.zoekt` files in the directory.
-    - Determines the latest version of each shard based on filename.
-    - Compares the latest versions with a cached timestamp map.
-    - Calls `load` on the `shardLoader` for new or updated shards.
-    - Calls `drop` on the `shardLoader` for deleted shards.
-    - Updates the timestamp map.
+3. **Watching:**
+   - The `watch` method sets up a goroutine that listens for file system events from `fsnotify`.
+   - When a change is detected, it triggers the `scan` method to update the index.
 
-3. **Watching for Changes (`watch`)**:
-    - Uses `fsnotify.NewWatcher` to monitor the directory for events.
-    - When an event is received, triggers a scan of the directory to update the index.
-    - Ignores `ErrEventOverflow` errors from the watcher.
-    - Provides a `Stop` method to gracefully shut down the watcher.
+4. **Stopping:**
+   - The `Stop` method gracefully shuts down the directory watcher by closing the `quit` channel and waiting for the watcher goroutine to stop.
 
-4. **Waiting for Ready State (`WaitUntilReady`)**:
-    - Allows blocking until the initial scan and setup are complete.
-    - Returns an error if there were any issues during initialization.
-
-In short, the `DirectoryWatcher` ensures that the search index stays up-to-date with the contents of the shard directory by loading new shards, dropping deleted ones, and reloading modified ones.",What does directory watcher do?,"[
+In essence, the `DirectoryWatcher` acts as a bridge between the file system and the search index, ensuring that the index remains consistent with the latest shard files in the specified directory.",What does directory watcher do?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -508,16 +391,23 @@ In short, the `DirectoryWatcher` ensures that the search index stays up-to-date 
     ""content"": ""// Copyright 2017 Google Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \""License\"");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//    http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \""AS IS\"" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage shards\n\nimport (\n\t\""fmt\""\n\t\""log\""\n\t\""os\""\n\t\""path/filepath\""\n\t\""sort\""\n\t\""strconv\""\n\t\""strings\""\n\t\""sync\""\n\t\""time\""\n\n\t\""github.com/fsnotify/fsnotify\""\n\t\""github.com/sourcegraph/zoekt\""\n)\n\ntype shardLoader interface {\n\t// Load a new file.\n\tload(filenames ...string)\n\tdrop(filenames ...string)\n}\n\ntype DirectoryWatcher struct {\n\tdir        string\n\ttimestamps map[string]time.Time\n\tloader     shardLoader\n\n\t// closed once ready\n\tready    chan struct{}\n\treadyErr error\n\n\tcloseOnce sync.Once\n\t// quit is closed by Close to signal the directory watcher to stop.\n\tquit chan struct{}\n\t// stopped is closed once the directory watcher has stopped.\n\tstopped chan struct{}\n}\n\nfunc (sw *DirectoryWatcher) Stop() {\n\tsw.closeOnce.Do(func() {\n\t\tclose(sw.quit)\n\t\t<-sw.stopped\n\t})\n}\n\nfunc newDirectoryWatcher(dir string, loader shardLoader) (*DirectoryWatcher, error) {\n\tsw := &DirectoryWatcher{\n\t\tdir:        dir,\n\t\ttimestamps: map[string]time.Time{},\n\t\tloader:     loader,\n\t\tready:      make(chan struct{}),\n\t\tquit:       make(chan struct{}),\n\t\tstopped:    make(chan struct{}),\n\t}\n\n\tgo func() {\n\t\tdefer close(sw.ready)\n\n\t\tif err := sw.scan(); err != nil {\n\t\t\tsw.readyErr = err\n\t\t\treturn\n\t\t}\n\n\t\tif err := sw.watch(); err != nil {\n\t\t\tsw.readyErr = err\n\t\t\treturn\n\t\t}\n\t}()\n\n\treturn sw, nil\n}\n\nfunc (s *DirectoryWatcher) WaitUntilReady() error {\n\t<-s.ready\n\treturn s.readyErr\n}\n\nfunc (s *DirectoryWatcher) String() string {\n\treturn fmt.Sprintf(\""shardWatcher(%s)\"", s.dir)\n}\n\n// versionFromPath extracts url encoded repository name and\n// index format version from a shard name from builder.\nfunc versionFromPath(path string) (string, int) {\n\tund := strings.LastIndex(path, \""_\"")\n\tif und < 0 {\n\t\treturn path, 0\n\t}\n\n\tdot := strings.Index(path[und:], \"".\"")\n\tif dot < 0 {\n\t\treturn path, 0\n\t}\n\tdot += und\n\n\tversion, err := strconv.Atoi(path[und+2 : dot])\n\tif err != nil {\n\t\treturn path, 0\n\t}\n\n\treturn path[:und], version\n}\n\nfunc (s *DirectoryWatcher) scan() error {\n\tfs, err := filepath.Glob(filepath.Join(s.dir, \""*.zoekt\""))\n\tif err != nil {\n\t\treturn err\n\t}\n\n\tlatest := map[string]int{}\n\tfor _, fn := range fs {\n\t\tname, version := versionFromPath(fn)\n\n\t\t// In the case of downgrades, avoid reading\n\t\t// newer index formats.\n\t\tif version > zoekt.IndexFormatVersion && version > zoekt.NextIndexFormatVersion {\n\t\t\tcontinue\n\t\t}\n\n\t\tif latest[name] < version {\n\t\t\tlatest[name] = version\n\t\t}\n\t}\n\n\tts := map[string]time.Time{}\n\tfor _, fn := range fs {\n\t\tif name, version := versionFromPath(fn); latest[name] != version {\n\t\t\tcontinue\n\t\t}\n\n\t\tfi, err := os.Lstat(fn)\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\n\t\tts[fn] = fi.ModTime()\n\n\t\tfiMeta, err := os.Lstat(fn + \"".meta\"")\n\t\tif err != nil {\n\t\t\tcontinue\n\t\t}\n\t\tif fiMeta.ModTime().After(fi.ModTime()) {\n\t\t\tts[fn] = fiMeta.ModTime()\n\t\t}\n\t}\n\n\tvar toLoad []string\n\tfor k, mtime := range ts {\n\t\tif t, ok := s.timestamps[k]; !ok || t != mtime {\n\t\t\ttoLoad = append(toLoad, k)\n\t\t\ts.timestamps[k] = mtime\n\t\t}\n\t}\n\n\tvar toDrop []string\n\t// Unload deleted shards.\n\tfor k := range s.timestamps {\n\t\tif _, ok := ts[k]; !ok {\n\t\t\ttoDrop = append(toDrop, k)\n\t\t\tdelete(s.timestamps, k)\n\t\t}\n\t}\n\n\tif len(toDrop) > 0 {\n\t\tlog.Printf(\""unloading %d shard(s): %s\"", len(toDrop), humanTruncateList(toDrop, 5))\n\t}\n\n\ts.loader.drop(toDrop...)\n\ts.loader.load(toLoad...)\n\n\treturn nil\n}\n\nfunc humanTruncateList(paths []string, max int) string {\n\tsort.Strings(paths)\n\tvar b strings.Builder\n\tfor i, p := range paths {\n\t\tif i >= max {\n\t\t\tfmt.Fprintf(&b, \""... %d more\"", len(paths)-i)\n\t\t\tbreak\n\t\t}\n\t\tif i > 0 {\n\t\t\tb.WriteString(\"", \"")\n\t\t}\n\t\tb.WriteString(filepath.Base(p))\n\t}\n\treturn b.String()\n}\n\nfunc (s *DirectoryWatcher) watch() error {\n\twatcher, err := fsnotify.NewWatcher()\n\tif err != nil {\n\t\treturn err\n\t}\n\tif err := watcher.Add(s.dir); err != nil {\n\t\treturn err\n\t}\n\n\t// intermediate signal channel so if there are multiple watcher.Events we\n\t// only call scan once.\n\tsignal := make(chan struct{}, 1)\n\n\tgo func() {\n\t\tfor {\n\t\t\tselect {\n\t\t\tcase <-watcher.Events:\n\t\t\t\tselect {\n\t\t\t\tcase signal <- struct{}{}:\n\t\t\t\tdefault:\n\t\t\t\t}\n\t\t\tcase err := <-watcher.Errors:\n\t\t\t\t// Ignore ErrEventOverflow since we rely on the presence of events so\n\t\t\t\t// safe to ignore.\n\t\t\t\tif err != nil && err != fsnotify.ErrEventOverflow {\n\t\t\t\t\tlog.Println(\""watcher error:\"", err)\n\t\t\t\t}\n\t\t\tcase <-s.quit:\n\t\t\t\twatcher.Close()\n\t\t\t\tclose(signal)\n\t\t\t\treturn\n\t\t\t}\n\t\t}\n\t}()\n\n\tgo func() {\n\t\tdefer close(s.stopped)\n\t\tfor range signal {\n\t\t\tif err := s.scan(); err != nil {\n\t\t\t\tlog.Println(\""watcher error:\"", err)\n\t\t\t}\n\t\t}\n\t}()\n\n\treturn nil\n}\n""
   }
 ]",code search,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_012/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"It's difficult to assess the overall cleanliness of your codebase based on the provided snippets. Code cleanliness encompasses various aspects such as:
+yaml,chat,gemini-1.5-pro-latest,chat,question_012/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"It's difficult to assess the cleanliness of your codebase solely based on the provided snippets. Code cleanliness encompasses various aspects, including:
 
-- **Code style and formatting:** Consistent indentation, naming conventions, etc.
-- **Code complexity:** Avoiding deeply nested code, long functions, and complex conditional logic.
-- **Code duplication:** Identifying and eliminating redundant code segments.
+- **Code style and formatting:** Consistent indentation, naming conventions, and adherence to language-specific style guides.
+- **Code complexity:** Avoiding deeply nested code, long functions, and excessive complexity.
 - **Code documentation:** Clear and concise comments explaining the purpose and functionality of code.
-- **Code organization:** Logical structuring of files and modules.
-- **Adherence to best practices:** Following established coding conventions and patterns.
+- **Code organization:** Logical file and directory structure, modular design, and separation of concerns.
+- **Error handling:** Robust error handling mechanisms to prevent unexpected behavior.
+- **Testing:** Comprehensive unit, integration, and end-to-end tests to ensure code quality.
 
-To get a comprehensive understanding of your codebase's cleanliness, you can utilize static analysis tools like linters (e.g., ESLint for TypeScript, Golangci-lint for Go) and code quality analysis platforms. These tools can automatically identify potential issues and provide recommendations for improvement.",Is my codebase clean?,"[
+To get a better understanding of your codebase's cleanliness, I would need to analyze a larger portion of your code or have access to code quality metrics and reports.
+
+**Recommendations:**
+
+- Use a linter (e.g., ESLint for TypeScript, golangci-lint for Go) to enforce code style and identify potential issues.
+- Run code complexity analysis tools to identify areas that may be difficult to understand or maintain.
+- Write clear and concise documentation for your code.
+- Consider using a code review process to get feedback from other developers.",Is my codebase clean?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/squirrel.ts:undefined-undefined"",
@@ -544,9 +434,15 @@ To get a comprehensive understanding of your codebase's cleanliness, you can uti
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",codebase onboarding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_013/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"The provided context only includes a stub `server` implementation for a gRPC service and the README file for the project. It doesn't contain any information about where the gRPC chunker is tested. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_013/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"The provided context mentions a `server` type in `mocked/enhanced_context/chunker_test.go` that implements `grpc_testing.UnimplementedTestServiceServer`. This suggests that gRPC is involved and the file likely contains tests related to gRPC functionality. 
 
-To find where the gRPC chunker is tested, you'd need to look for files with names like `chunker_test.go`, `grpc_test.go`, or similar within the codebase.  You can also try searching for the string ""chunker"" within the codebase to see where it's used and potentially find tests related to it.",where do we test the grpc chunker,"[
+However, there's no direct mention of a ""chunker"" in this specific context. To determine where the gRPC chunker is tested, you'd need to look for files like:
+
+- `chunker_test.go`: This is a common naming convention for test files. Search for files with this name within the codebase, especially under directories related to gRPC or networking.
+- Files in the same directory as `chunker_test.go`:  Look for other test files in the `mocked/enhanced_context/` directory, as they might contain tests for related components or utilities used by the chunker.
+- Files importing a `chunker` package: Search for files that import a package related to a ""chunker,"" which might reveal the location of the chunker implementation and its corresponding tests.
+
+Without more context about the codebase structure and the purpose of the ""chunker,"" it's difficult to pinpoint the exact location of the tests.",where do we test the grpc chunker,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -557,16 +453,16 @@ To find where the gRPC chunker is tested, you'd need to look for files with name
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/enhanced_context/chunker_test.go:undefined-undefined"",
     ""content"": ""type server struct {\n\tgrpc_testing.UnimplementedTestServiceServer\n}""
   }
-]",code search,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_014/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"I understand you want to upgrade PyTorch to version 1.0.0 and are looking for help with that. However, the provided code snippets are related to the Zoekt search engine, written in Go, and don't contain any information about your PyTorch environment. 
+]",code search,,,1,,0,false,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_014/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"I understand you want to upgrade PyTorch to version 1.0.0 and are looking for guidance. While I can't directly execute commands or modify your environment, I can definitely help you with the process! 
 
-To help you effectively, I need more context:
+The code you shared doesn't seem to contain any PyTorch-specific code. To give you the best advice, I need a bit more context:
 
-1. **What is your current PyTorch version?**  You can find this out by running `pip show torch` or `conda list torch` depending on your environment.
-2. **What operating system and Python version are you using?** This information is crucial for providing tailored instructions.
-3. **Do you use pip or conda for managing your Python packages?** 
+1. **What is your current PyTorch version?**  You can check this by running `pip show torch` or `conda list torch` depending on your package manager.
+2. **What operating system and Python version are you using?**  This information is crucial for providing accurate instructions.
+3. **Do you use pip or conda for managing your Python packages?**
 
-Once I have this information, I can guide you through the upgrade process using the official PyTorch instructions.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site","[
+Once I have this information, I can guide you through the upgrade process using the official PyTorch installation instructions.","Are you capable of upgrading my pytorch version to 1.0.0, there is a guide in the pytorch site","[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -578,15 +474,15 @@ Once I have this information, I can guide you through the upgrade process using 
     ""content"": ""package zoekt\n\nimport \""log\""\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\""Failed to find enough newlines when truncating Content, %d left over, %d ranges\"", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n""
   }
 ]",cody usage,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_015/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"The provided context does not mention any conflicting packages or errors related to conflicting packages. Therefore, I cannot identify any conflicting packages based on the given information. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_015/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"The provided context does not describe a conflict between Go packages, nor does it give any specific error messages to diagnose. It describes how to use the `zoekt` search engine. 
 
 To help me identify the conflicting packages, please provide:
 
-* **Error messages:** Any error messages you are encountering that suggest a package conflict.
-* **Relevant code snippets:** Parts of your code that are involved in the conflict.
-* **Project structure:** Information about your project's directory structure and any dependency management tools you are using (e.g., Go modules). 
+* **Error messages:** Any error messages you are seeing, especially those mentioning conflicting packages.
+* **Relevant code snippets:** Parts of your code that might be involved in the conflict.
+* **Information about your project:** What are you trying to achieve? What libraries are you using?
 
-With more information, I can assist you in identifying and resolving the package conflicts.",Can you look through the files and identify the conflicting packages that may be causing this?,"[
+With more information, I can help you debug the issue.",Can you look through the files and identify the conflicting packages that may be causing this?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -598,9 +494,152 @@ With more information, I can assist you in identifying and resolving the package
     ""content"": ""package zoekt\n\nimport \""log\""\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\""Failed to find enough newlines when truncating Content, %d left over, %d ranges\"", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n""
   }
 ]",debug code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_016/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"You are correct! My previous responses incorrectly stated that I had access to the codebase context. I apologize for the error. I do not have memory of past conversations and can only access information provided in the current session. 
+yaml,chat,gemini-1.5-pro-latest,chat,question_016/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"```go
+package zoekt
 
-If you would like me to answer questions about `limit.go`, please provide me with the contents of the file.",Mind taking a second look at the file? @limit.go,"[
+import ""log""
+
+// SortAndTruncateFiles is a convenience around SortFiles and
+// DisplayTruncator. Given an aggregated files it will sort and then truncate
+// based on the search options.
+func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {
+	SortFiles(files)
+	truncator, _ := NewDisplayTruncator(opts)
+	files, _ = truncator(files)
+	return files
+}
+
+// DisplayTruncator is a stateful function which enforces Document and Match
+// display limits by truncating and mutating before. hasMore is true until the
+// limits are exhausted. Once hasMore is false each subsequent call will
+// return an empty after and hasMore false.
+type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
+
+// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in
+// opts. If there are no limits to enforce, hasLimits is false and there is no
+// need to call DisplayTruncator.
+func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {
+	docLimit := opts.MaxDocDisplayCount
+	docLimited := docLimit > 0
+
+	matchLimit := opts.MaxMatchDisplayCount
+	matchLimited := matchLimit > 0
+
+	done := false
+
+	if !docLimited && !matchLimited {
+		return func(fm []FileMatch) ([]FileMatch, bool) {
+			return fm, true
+		}, false
+	}
+
+	return func(fm []FileMatch) ([]FileMatch, bool) {
+		if done {
+			return nil, false
+		}
+
+		if docLimited {
+			if len(fm) >= docLimit {
+				done = true
+				fm = fm[:docLimit]
+			}
+			docLimit -= len(fm)
+		}
+
+		if matchLimited {
+			fm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)
+			if matchLimit <= 0 {
+				done = true
+			}
+		}
+
+		return fm, !done
+	}, true
+}
+
+func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
+	var limiter func(file *FileMatch, limit int) int
+	if chunkMatches {
+		limiter = limitChunkMatches
+	} else {
+		limiter = limitLineMatches
+	}
+	for i := range files {
+		limit = limiter(&files[i], limit)
+		if limit <= 0 {
+			return files[:i+1], 0
+		}
+	}
+	return files, limit
+}
+
+// Limit the number of ChunkMatches in the given FileMatch, returning the
+// remaining limit, if any.
+func limitChunkMatches(file *FileMatch, limit int) int {
+	for i := range file.ChunkMatches {
+		cm := &file.ChunkMatches[i]
+		if len(cm.Ranges) > limit {
+			// We potentially need to effect the limit upon 3 different fields:
+			// Ranges, SymbolInfo, and Content.
+
+			// Content is the most complicated: we need to remove the last N
+			// lines from it, where N is the difference between the line number
+			// of the end of the old last Range and that of the new last Range.
+			// This calculation is correct in the presence of both context lines
+			// and multiline Ranges, taking into account that Content never has
+			// a trailing newline.
+			n := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber
+			if n > 0 {
+				for b := len(cm.Content) - 1; b >= 0; b-- {
+					if cm.Content[b] == '/n' {
+						n -= 1
+					}
+					if n == 0 {
+						cm.Content = cm.Content[:b]
+						break
+					}
+				}
+				if n > 0 {
+					// Should be impossible.
+					log.Panicf(""Failed to find enough newlines when truncating Content, %d left over, %d ranges"", n, len(cm.Ranges))
+				}
+			}
+
+			cm.Ranges = cm.Ranges[:limit]
+			if cm.SymbolInfo != nil {
+				// When non-nil, SymbolInfo is specified to have the same length
+				// as Ranges.
+				cm.SymbolInfo = cm.SymbolInfo[:limit]
+			}
+		}
+		if len(cm.Ranges) == limit {
+			file.ChunkMatches = file.ChunkMatches[:i+1]
+			limit = 0
+			break
+		}
+		limit -= len(cm.Ranges)
+	}
+	return limit
+}
+
+// Limit the number of LineMatches in the given FileMatch, returning the
+// remaining limit, if any.
+func limitLineMatches(file *FileMatch, limit int) int {
+	for i := range file.LineMatches {
+		lm := &file.LineMatches[i]
+		if len(lm.LineFragments) > limit {
+			lm.LineFragments = lm.LineFragments[:limit]
+		}
+		if len(lm.LineFragments) == limit {
+			file.LineMatches = file.LineMatches[:i+1]
+			limit = 0
+			break
+		}
+		limit -= len(lm.LineFragments)
+	}
+	return limit
+}
+```",Mind taking a second look at the file? @limit.go,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -616,8 +655,8 @@ If you would like me to answer questions about `limit.go`, please provide me wit
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/eval.go:undefined-undefined"",
     ""content"": ""// Copyright 2016 Google Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \""License\"");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//    http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \""AS IS\"" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage zoekt\n\nimport (\n\t\""context\""\n\t\""fmt\""\n\t\""log\""\n\t\""regexp/syntax\""\n\t\""sort\""\n\t\""strings\""\n\t\""time\""\n\n\tenry_data \""github.com/go-enry/go-enry/v2/data\""\n\t\""github.com/grafana/regexp\""\n\n\t\""github.com/sourcegraph/zoekt/query\""\n)\n\n// simplifyMultiRepo takes a query and a predicate. It returns Const(true) if all\n// repository names fulfill the predicate, Const(false) if none of them do, and q\n// otherwise.\nfunc (d *indexData) simplifyMultiRepo(q query.Q, predicate func(*Repository) bool) query.Q {\n\tcount := 0\n\talive := len(d.repoMetaData)\n\tfor i := range d.repoMetaData {\n\t\tif d.repoMetaData[i].Tombstone {\n\t\t\talive--\n\t\t} else if predicate(&d.repoMetaData[i]) {\n\t\t\tcount++\n\t\t}\n\t}\n\tif count == alive {\n\t\treturn &query.Const{Value: true}\n\t}\n\tif count > 0 {\n\t\treturn q\n\t}\n\treturn &query.Const{Value: false}\n}\n\nfunc (d *indexData) simplify(in query.Q) query.Q {\n\teval := query.Map(in, func(q query.Q) query.Q {\n\t\tswitch r := q.(type) {\n\t\tcase *query.Repo:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Regexp.MatchString(repo.Name)\n\t\t\t})\n\t\tcase *query.RepoRegexp:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Regexp.MatchString(repo.Name)\n\t\t\t})\n\t\tcase *query.BranchesRepos:\n\t\t\tfor i := range d.repoMetaData {\n\t\t\t\tfor _, br := range r.List {\n\t\t\t\t\tif br.Repos.Contains(d.repoMetaData[i].ID) {\n\t\t\t\t\t\treturn q\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\treturn &query.Const{Value: false}\n\t\tcase *query.RepoSet:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Set[repo.Name]\n\t\t\t})\n\t\tcase *query.RepoIDs:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Repos.Contains(repo.ID)\n\t\t\t})\n\t\tcase *query.Language:\n\t\t\t_, has := d.metaData.LanguageMap[r.Language]\n\t\t\tif !has && d.metaData.IndexFeatureVersion < 12 {\n\t\t\t\t// For index files that haven't been re-indexed by go-enry,\n\t\t\t\t// fall back to file-based matching and continue even if this\n\t\t\t\t// repo doesn't have the specific language present.\n\t\t\t\textsForLang := enry_data.ExtensionsByLanguage[r.Language]\n\t\t\t\tif extsForLang != nil {\n\t\t\t\t\textFrags := make([]string, 0, len(extsForLang))\n\t\t\t\t\tfor _, ext := range extsForLang {\n\t\t\t\t\t\textFrags = append(extFrags, regexp.QuoteMeta(ext))\n\t\t\t\t\t}\n\t\t\t\t\tif len(extFrags) > 0 {\n\t\t\t\t\t\tpattern := fmt.Sprintf(\""(?i)(%s)$\"", strings.Join(extFrags, \""|\""))\n\t\t\t\t\t\t// inlined copy of query.regexpQuery\n\t\t\t\t\t\tre, err := syntax.Parse(pattern, syntax.Perl)\n\t\t\t\t\t\tif err != nil {\n\t\t\t\t\t\t\treturn &query.Const{Value: false}\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif re.Op == syntax.OpLiteral {\n\t\t\t\t\t\t\treturn &query.Substring{\n\t\t\t\t\t\t\t\tPattern:  string(re.Rune),\n\t\t\t\t\t\t\t\tFileName: true,\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t\treturn &query.Regexp{\n\t\t\t\t\t\t\tRegexp:   re,\n\t\t\t\t\t\t\tFileName: true,\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\tif !has {\n\t\t\t\treturn &query.Const{Value: false}\n\t\t\t}\n\t\t}\n\t\treturn q\n\t})\n\treturn query.Simplify(eval)\n}\n\nfunc (o *SearchOptions) SetDefaults() {\n\tif o.ShardMaxMatchCount == 0 {\n\t\t// We cap the total number of matches, so overly broad\n\t\t// searches don't crash the machine.\n\t\to.ShardMaxMatchCount = 100000\n\t}\n\tif o.TotalMaxMatchCount == 0 {\n\t\to.TotalMaxMatchCount = 10 * o.ShardMaxMatchCount\n\t}\n}\n\nfunc (d *indexData) Search(ctx context.Context, q query.Q, opts *SearchOptions) (sr *SearchResult, err error) {\n\ttimer := newTimer()\n\n\tcopyOpts := *opts\n\topts = &copyOpts\n\topts.SetDefaults()\n\n\tvar res SearchResult\n\tif len(d.fileNameIndex) == 0 {\n\t\treturn &res, nil\n\t}\n\n\tselect {\n\tcase <-ctx.Done():\n\t\tres.Stats.ShardsSkipped++\n\t\treturn &res, nil\n\tdefault:\n\t}\n\n\tq = d.simplify(q)\n\tif c, ok := q.(*query.Const); ok && !c.Value {\n\t\treturn &res, nil\n\t}\n\n\tif opts.EstimateDocCount {\n\t\tres.Stats.ShardFilesConsidered = len(d.fileBranchMasks)\n\t\treturn &res, nil\n\t}\n\n\tq = query.Map(q, query.ExpandFileContent)\n\n\tmt, err := d.newMatchTree(q, matchTreeOpt{})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\t// Capture the costs of construction before pruning\n\tupdateMatchTreeStats(mt, &res.Stats)\n\n\tmt, err = pruneMatchTree(mt)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tres.Stats.MatchTreeConstruction = timer.Elapsed()\n\tif mt == nil {\n\t\tres.Stats.ShardsSkippedFilter++\n\t\treturn &res, nil\n\t}\n\n\tres.Stats.ShardsScanned++\n\n\tcp := &contentProvider{\n\t\tid:    d,\n\t\tstats: &res.Stats,\n\t}\n\n\t// Track the number of documents found in a repository for\n\t// ShardRepoMaxMatchCount\n\tvar (\n\t\tlastRepoID     uint16\n\t\trepoMatchCount int\n\t)\n\n\tdocCount := uint32(len(d.fileBranchMasks))\n\tlastDoc := int(-1)\n\nnextFileMatch:\n\tfor {\n\t\tcanceled := false\n\t\tselect {\n\t\tcase <-ctx.Done():\n\t\t\tcanceled = true\n\t\tdefault:\n\t\t}\n\n\t\tnextDoc := mt.nextDoc()\n\t\tif int(nextDoc) <= lastDoc {\n\t\t\tnextDoc = uint32(lastDoc + 1)\n\t\t}\n\n\t\tfor ; nextDoc < docCount; nextDoc++ {\n\t\t\trepoID := d.repos[nextDoc]\n\t\t\trepoMetadata := &d.repoMetaData[repoID]\n\n\t\t\t// Skip tombstoned repositories\n\t\t\tif repoMetadata.Tombstone {\n\t\t\t\tcontinue\n\t\t\t}\n\n\t\t\t// Skip documents that are tombstoned\n\t\t\tif len(repoMetadata.FileTombstones) > 0 {\n\t\t\t\tif _, tombstoned := repoMetadata.FileTombstones[string(d.fileName(nextDoc))]; tombstoned {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Skip documents over ShardRepoMaxMatchCount if specified.\n\t\t\tif opts.ShardRepoMaxMatchCount > 0 {\n\t\t\t\tif repoMatchCount >= opts.ShardRepoMaxMatchCount && repoID == lastRepoID {\n\t\t\t\t\tres.Stats.FilesSkipped++\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tbreak\n\t\t}\n\n\t\tif nextDoc >= docCount {\n\t\t\tbreak\n\t\t}\n\n\t\tlastDoc = int(nextDoc)\n\n\t\t// We track lastRepoID for ShardRepoMaxMatchCount\n\t\tif lastRepoID != d.repos[nextDoc] {\n\t\t\tlastRepoID = d.repos[nextDoc]\n\t\t\trepoMatchCount = 0\n\t\t}\n\n\t\tif canceled || (res.Stats.MatchCount >= opts.ShardMaxMatchCount && opts.ShardMaxMatchCount > 0) {\n\t\t\tres.Stats.FilesSkipped += int(docCount - nextDoc)\n\t\t\tbreak\n\t\t}\n\n\t\tres.Stats.FilesConsidered++\n\t\tmt.prepare(nextDoc)\n\n\t\tcp.setDocument(nextDoc)\n\n\t\tknown := make(map[matchTree]bool)\n\t\tmd := d.repoMetaData[d.repos[nextDoc]]\n\n\t\tfor cost := costMin; cost <= costMax; cost++ {\n\t\t\tswitch evalMatchTree(cp, cost, known, mt) {\n\t\t\tcase matchesRequiresHigherCost:\n\t\t\t\tif cost == costMax {\n\t\t\t\t\tlog.Panicf(\""did not decide. Repo %s, doc %d, known %v\"",\n\t\t\t\t\t\tmd.Name, nextDoc, known)\n\t\t\t\t}\n\t\t\tcase matchesFound:\n\t\t\t\t// could short-circuit now, but we want to run higher costs to\n\t\t\t\t// potentially find higher ranked matches.\n\t\t\tcase matchesNone:\n\t\t\t\tcontinue nextFileMatch\n\t\t\t}\n\t\t}\n\n\t\tfileMatch := FileMatch{\n\t\t\tRepository:         md.Name,\n\t\t\tRepositoryID:       md.ID,\n\t\t\tRepositoryPriority: md.priority,\n\t\t\tFileName:           string(d.fileName(nextDoc)),\n\t\t\tChecksum:           d.getChecksum(nextDoc),\n\t\t\tLanguage:           d.languageMap[d.getLanguage(nextDoc)],\n\t\t}\n\n\t\tif s := d.subRepos[nextDoc]; s > 0 {\n\t\t\tif s >= uint32(len(d.subRepoPaths[d.repos[nextDoc]])) {\n\t\t\t\tlog.Panicf(\""corrupt index: subrepo %d beyond %v\"", s, d.subRepoPaths)\n\t\t\t}\n\t\t\tpath := d.subRepoPaths[d.repos[nextDoc]][s]\n\t\t\tfileMatch.SubRepositoryPath = path\n\t\t\tsr := md.SubRepoMap[path]\n\t\t\tfileMatch.SubRepositoryName = sr.Name\n\t\t\tif idx := d.branchIndex(nextDoc); idx >= 0 {\n\t\t\t\tfileMatch.Version = sr.Branches[idx].Version\n\t\t\t}\n\t\t} else {\n\t\t\tidx := d.branchIndex(nextDoc)\n\t\t\tif idx >= 0 {\n\t\t\t\tfileMatch.Version = md.Branches[idx].Version\n\t\t\t}\n\t\t}\n\n\t\t// Important invariant for performance: finalCands is sorted by offset and\n\t\t// non-overlapping. gatherMatches respects this invariant and all later\n\t\t// transformations respect this.\n\t\tshouldMergeMatches := !opts.ChunkMatches\n\t\tfinalCands := d.gatherMatches(nextDoc, mt, known, shouldMergeMatches)\n\n\t\tif opts.ChunkMatches {\n\t\t\tfileMatch.ChunkMatches = cp.fillChunkMatches(finalCands, opts.NumContextLines, fileMatch.Language, opts.DebugScore)\n\t\t} else {\n\t\t\tfileMatch.LineMatches = cp.fillMatches(finalCands, opts.NumContextLines, fileMatch.Language, opts.DebugScore)\n\t\t}\n\n\t\tif opts.UseBM25Scoring {\n\t\t\td.scoreFileUsingBM25(&fileMatch, nextDoc, finalCands, opts)\n\t\t} else {\n\t\t\t// Use the standard, non-experimental scoring method by default\n\t\t\td.scoreFile(&fileMatch, nextDoc, mt, known, opts)\n\t\t}\n\n\t\tfileMatch.Branches = d.gatherBranches(nextDoc, mt, known)\n\t\tsortMatchesByScore(fileMatch.LineMatches)\n\t\tsortChunkMatchesByScore(fileMatch.ChunkMatches)\n\t\tif opts.Whole {\n\t\t\tfileMatch.Content = cp.data(false)\n\t\t}\n\n\t\tmatchedChunkRanges := 0\n\t\tfor _, cm := range fileMatch.ChunkMatches {\n\t\t\tmatchedChunkRanges += len(cm.Ranges)\n\t\t}\n\n\t\trepoMatchCount += len(fileMatch.LineMatches)\n\t\trepoMatchCount += matchedChunkRanges\n\n\t\tif opts.DebugScore {\n\t\t\tfileMatch.Debug = fmt.Sprintf(\""score:%.2f <- %s\"", fileMatch.Score, fileMatch.Debug)\n\t\t}\n\n\t\tres.Files = append(res.Files, fileMatch)\n\t\tres.Stats.MatchCount += len(fileMatch.LineMatches)\n\t\tres.Stats.MatchCount += matchedChunkRanges\n\t\tres.Stats.FileCount++\n\t}\n\n\tfor _, md := range d.repoMetaData {\n\t\tr := md\n\t\taddRepo(&res, &r)\n\t\tfor _, v := range r.SubRepoMap {\n\t\t\taddRepo(&res, v)\n\t\t}\n\t}\n\n\t// Update stats based on work done during document search.\n\tupdateMatchTreeStats(mt, &res.Stats)\n\n\t// If document ranking is enabled, then we can rank and truncate the files to save memory.\n\tif opts.UseDocumentRanks {\n\t\tres.Files = SortAndTruncateFiles(res.Files, opts)\n\t}\n\n\tres.Stats.MatchTreeSearch = timer.Elapsed()\n\n\treturn &res, nil\n}\n\nfunc addRepo(res *SearchResult, repo *Repository) {\n\tif res.RepoURLs == nil {\n\t\tres.RepoURLs = map[string]string{}\n\t}\n\tres.RepoURLs[repo.Name] = repo.FileURLTemplate\n\n\tif res.LineFragments == nil {\n\t\tres.LineFragments = map[string]string{}\n\t}\n\tres.LineFragments[repo.Name] = repo.LineFragmentTemplate\n}\n\n// Gather matches from this document. The matches are returned in document\n// order and are non-overlapping. All filename and content matches are\n// returned, with filename matches first.\n//\n// If `merge` is set, overlapping and adjacent matches will be merged\n// into a single match. Otherwise, overlapping matches will be removed,\n// but adjacent matches will remain.\nfunc (d *indexData) gatherMatches(nextDoc uint32, mt matchTree, known map[matchTree]bool, merge bool) []*candidateMatch {\n\tvar cands []*candidateMatch\n\tvisitMatches(mt, known, 1, func(mt matchTree, scoreWeight float64) {\n\t\tif smt, ok := mt.(*substrMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, smt.current)...)\n\t\t}\n\t\tif rmt, ok := mt.(*regexpMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, rmt.found)...)\n\t\t}\n\t\tif rmt, ok := mt.(*wordMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, rmt.found)...)\n\t\t}\n\t\tif smt, ok := mt.(*symbolRegexpMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, smt.found)...)\n\t\t}\n\t})\n\n\t// If we found no candidate matches at all, assume there must have been a match on filename.\n\tif len(cands) == 0 {\n\t\tnm := d.fileName(nextDoc)\n\t\treturn []*candidateMatch{{\n\t\t\tcaseSensitive: false,\n\t\t\tfileName:      true,\n\t\t\tsubstrBytes:   nm,\n\t\t\tsubstrLowered: nm,\n\t\t\tfile:          nextDoc,\n\t\t\truneOffset:    0,\n\t\t\tbyteOffset:    0,\n\t\t\tbyteMatchSz:   uint32(len(nm)),\n\t\t}}\n\t}\n\n\tsort.Sort((sortByOffsetSlice)(cands))\n\tres := cands[:0]\n\tmergeRun := 1\n\tfor i, c := range cands {\n\t\tif i == 0 {\n\t\t\tres = append(res, c)\n\t\t\tcontinue\n\t\t}\n\n\t\tlast := res[len(res)-1]\n\n\t\t// Never compare filename and content matches\n\t\tif last.fileName != c.fileName {\n\t\t\tres = append(res, c)\n\t\t\tcontinue\n\t\t}\n\n\t\tif merge {\n\t\t\t// Merge adjacent candidates. This guarantees that the matches\n\t\t\t// are non-overlapping.\n\t\t\tlastEnd := last.byteOffset + last.byteMatchSz\n\t\t\tend := c.byteOffset + c.byteMatchSz\n\t\t\tif lastEnd >= c.byteOffset {\n\t\t\t\tmergeRun++\n\t\t\t\t// Average out the score across the merged candidates. Only do it if\n\t\t\t\t// we are boosting to avoid floating point funkiness in the normal\n\t\t\t\t// case.\n\t\t\t\tif !(epsilonEqualsOne(last.scoreWeight) && epsilonEqualsOne(c.scoreWeight)) {\n\t\t\t\t\tlast.scoreWeight = ((last.scoreWeight * float64(mergeRun-1)) + c.scoreWeight) / float64(mergeRun)\n\t\t\t\t}\n\n\t\t\t\t// latest candidate goes further, update our end\n\t\t\t\tif end > lastEnd {\n\t\t\t\t\tlast.byteMatchSz = end - last.byteOffset\n\t\t\t\t}\n\n\t\t\t\tcontinue\n\t\t\t} else {\n\t\t\t\tmergeRun = 1\n\t\t\t}\n\t\t} else {\n\t\t\t// Remove overlapping candidates. This guarantees that the matches\n\t\t\t// are non-overlapping, but also preserves expected match counts.\n\t\t\tlastEnd := last.byteOffset + last.byteMatchSz\n\t\t\tif lastEnd > c.byteOffset {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\n\t\tres = append(res, c)\n\t}\n\treturn res\n}\n\ntype sortByOffsetSlice []*candidateMatch\n\nfunc (m sortByOffsetSlice) Len() int      { return len(m) }\nfunc (m sortByOffsetSlice) Swap(i, j int) { m[i], m[j] = m[j], m[i] }\nfunc (m sortByOffsetSlice) Less(i, j int) bool {\n\t// Sort all filename matches to the start\n\tif m[i].fileName != m[j].fileName {\n\t\treturn m[i].fileName\n\t}\n\n\tif m[i].byteOffset == m[j].byteOffset { // tie break if same offset\n\t\t// Prefer longer candidates if starting at same position\n\t\treturn m[i].byteMatchSz > m[j].byteMatchSz\n\t}\n\treturn m[i].byteOffset < m[j].byteOffset\n}\n\n// setScoreWeight is a helper used by gatherMatches to set the weight based on\n// the score weight of the matchTree.\nfunc setScoreWeight(scoreWeight float64, cm []*candidateMatch) []*candidateMatch {\n\tfor _, m := range cm {\n\t\tm.scoreWeight = scoreWeight\n\t}\n\treturn cm\n}\n\nfunc (d *indexData) branchIndex(docID uint32) int {\n\tmask := d.fileBranchMasks[docID]\n\tidx := 0\n\tfor mask != 0 {\n\t\tif mask&0x1 != 0 {\n\t\t\treturn idx\n\t\t}\n\t\tidx++\n\t\tmask >>= 1\n\t}\n\treturn -1\n}\n\n// gatherBranches returns a list of branch names taking into account any branch\n// filters in the query. If the query contains a branch filter, it returns all\n// branches containing the docID and matching the branch filter. Otherwise, it\n// returns all branches containing docID.\nfunc (d *indexData) gatherBranches(docID uint32, mt matchTree, known map[matchTree]bool) []string {\n\tvar mask uint64\n\tvisitMatchAtoms(mt, known, func(mt matchTree) {\n\t\tbq, ok := mt.(*branchQueryMatchTree)\n\t\tif !ok {\n\t\t\treturn\n\t\t}\n\n\t\tmask = mask | bq.branchMask()\n\t})\n\n\tif mask == 0 {\n\t\tmask = d.fileBranchMasks[docID]\n\t}\n\n\tvar branches []string\n\tid := uint32(1)\n\tbranchNames := d.branchNames[d.repos[docID]]\n\tfor mask != 0 {\n\t\tif mask&0x1 != 0 {\n\t\t\tbranches = append(branches, branchNames[uint(id)])\n\t\t}\n\t\tid <<= 1\n\t\tmask >>= 1\n\t}\n\n\treturn branches\n}\n\nfunc (d *indexData) List(ctx context.Context, q query.Q, opts *ListOptions) (rl *RepoList, err error) {\n\tvar include func(rle *RepoListEntry) bool\n\n\tq = d.simplify(q)\n\tif c, ok := q.(*query.Const); ok {\n\t\tif !c.Value {\n\t\t\treturn &RepoList{}, nil\n\t\t}\n\t\tinclude = func(rle *RepoListEntry) bool {\n\t\t\treturn true\n\t\t}\n\t} else {\n\t\tsr, err := d.Search(ctx, q, &SearchOptions{\n\t\t\tShardRepoMaxMatchCount: 1,\n\t\t})\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\n\t\tfoundRepos := make(map[string]struct{}, len(sr.Files))\n\t\tfor _, file := range sr.Files {\n\t\t\tfoundRepos[file.Repository] = struct{}{}\n\t\t}\n\n\t\tinclude = func(rle *RepoListEntry) bool {\n\t\t\t_, ok := foundRepos[rle.Repository.Name]\n\t\t\treturn ok\n\t\t}\n\t}\n\n\tvar l RepoList\n\n\tfield, err := opts.GetField()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tswitch field {\n\tcase RepoListFieldRepos:\n\t\tl.Repos = make([]*RepoListEntry, 0, len(d.repoListEntry))\n\tcase RepoListFieldReposMap:\n\t\tl.ReposMap = make(ReposMap, len(d.repoListEntry))\n\t}\n\n\tfor i := range d.repoListEntry {\n\t\tif d.repoMetaData[i].Tombstone {\n\t\t\tcontinue\n\t\t}\n\t\trle := &d.repoListEntry[i]\n\t\tif !include(rle) {\n\t\t\tcontinue\n\t\t}\n\n\t\tl.Stats.Add(&rle.Stats)\n\n\t\t// Backwards compat for when ID is missing\n\t\tif rle.Repository.ID == 0 {\n\t\t\tl.Repos = append(l.Repos, rle)\n\t\t\tcontinue\n\t\t}\n\n\t\tswitch field {\n\t\tcase RepoListFieldRepos:\n\t\t\tl.Repos = append(l.Repos, rle)\n\t\tcase RepoListFieldReposMap:\n\t\t\tl.ReposMap[rle.Repository.ID] = MinimalRepoListEntry{\n\t\t\t\tHasSymbols:    rle.Repository.HasSymbols,\n\t\t\t\tBranches:      rle.Repository.Branches,\n\t\t\t\tIndexTimeUnix: rle.IndexMetadata.IndexTime.Unix(),\n\t\t\t}\n\t\t}\n\n\t}\n\n\t// Only one of these fields is populated and in all cases the size of that\n\t// field is the number of Repos in this shard.\n\tl.Stats.Repos = len(l.Repos) + len(l.ReposMap)\n\n\treturn &l, nil\n}\n\n// regexpToMatchTreeRecursive converts a regular expression to a matchTree mt. If\n// mt is equivalent to the input r, isEqual = true and the matchTree can be used\n// in place of the regex r. If singleLine = true, then the matchTree and all\n// its children only match terms on the same line. singleLine is used during\n// recursion to decide whether to return an andLineMatchTree (singleLine = true)\n// or a andMatchTree (singleLine = false).\nfunc (d *indexData) regexpToMatchTreeRecursive(r *syntax.Regexp, minTextSize int, fileName bool, caseSensitive bool) (mt matchTree, isEqual bool, singleLine bool, err error) {\n\t// TODO - we could perhaps transform Begin/EndText in '\\n'?\n\t// TODO - we could perhaps transform CharClass in (OrQuery )\n\t// if there are just a few runes, and part of a OpConcat?\n\tswitch r.Op {\n\tcase syntax.OpLiteral:\n\t\ts := string(r.Rune)\n\t\tif len(s) >= minTextSize {\n\t\t\tignoreCase := syntax.FoldCase == (r.Flags & syntax.FoldCase)\n\t\t\tmt, err := d.newSubstringMatchTree(&query.Substring{Pattern: s, FileName: fileName, CaseSensitive: !ignoreCase && caseSensitive})\n\t\t\treturn mt, true, !strings.Contains(s, \""\\n\""), err\n\t\t}\n\tcase syntax.OpCapture:\n\t\treturn d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\n\tcase syntax.OpPlus:\n\t\treturn d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\n\tcase syntax.OpRepeat:\n\t\tif r.Min == 1 {\n\t\t\treturn d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\t\t} else if r.Min > 1 {\n\t\t\t// (x){2,} can't be expressed precisely by the matchTree\n\t\t\tmt, _, singleLine, err := d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\t\t\treturn mt, false, singleLine, err\n\t\t}\n\tcase syntax.OpConcat, syntax.OpAlternate:\n\t\tvar qs []matchTree\n\t\tisEq := true\n\t\tsingleLine = true\n\t\tfor _, sr := range r.Sub {\n\t\t\tif sq, subIsEq, subSingleLine, err := d.regexpToMatchTreeRecursive(sr, minTextSize, fileName, caseSensitive); sq != nil {\n\t\t\t\tif err != nil {\n\t\t\t\t\treturn nil, false, false, err\n\t\t\t\t}\n\t\t\t\tisEq = isEq && subIsEq\n\t\t\t\tsingleLine = singleLine && subSingleLine\n\t\t\t\tqs = append(qs, sq)\n\t\t\t}\n\t\t}\n\t\tif r.Op == syntax.OpConcat {\n\t\t\tif len(qs) > 1 {\n\t\t\t\tisEq = false\n\t\t\t}\n\t\t\tnewQs := make([]matchTree, 0, len(qs))\n\t\t\tfor _, q := range qs {\n\t\t\t\tif _, ok := q.(*bruteForceMatchTree); ok {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tnewQs = append(newQs, q)\n\t\t\t}\n\t\t\tif len(newQs) == 1 {\n\t\t\t\treturn newQs[0], isEq, singleLine, nil\n\t\t\t}\n\t\t\tif len(newQs) == 0 {\n\t\t\t\treturn &bruteForceMatchTree{}, isEq, singleLine, nil\n\t\t\t}\n\t\t\tif singleLine {\n\t\t\t\treturn &andLineMatchTree{andMatchTree{children: newQs}}, isEq, singleLine, nil\n\t\t\t}\n\t\t\treturn &andMatchTree{newQs}, isEq, singleLine, nil\n\t\t}\n\t\tfor _, q := range qs {\n\t\t\tif _, ok := q.(*bruteForceMatchTree); ok {\n\t\t\t\treturn q, isEq, false, nil\n\t\t\t}\n\t\t}\n\t\tif len(qs) == 0 {\n\t\t\treturn &noMatchTree{Why: \""const\""}, isEq, false, nil\n\t\t}\n\t\treturn &orMatchTree{qs}, isEq, false, nil\n\tcase syntax.OpStar:\n\t\tif r.Sub[0].Op == syntax.OpAnyCharNotNL {\n\t\t\treturn &bruteForceMatchTree{}, false, true, nil\n\t\t}\n\t}\n\treturn &bruteForceMatchTree{}, false, false, nil\n}\n\ntype timer struct {\n\tlast time.Time\n}\n\nfunc newTimer() *timer {\n\treturn &timer{\n\t\tlast: time.Now(),\n\t}\n}\n\nfunc (t *timer) Elapsed() time.Duration {\n\tnow := time.Now()\n\td := now.Sub(t.last)\n\tt.last = now\n\treturn d\n}\n""
   }
-]",explain code,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,The provided codebase context does not contain the answer to why the project uses the MIT license. The context mainly describes how to use and install the Zoekt search engine.,Why does this project use the MIT license?,"[
+]",explain code,,,1,,0,false,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,The provided codebase context does not contain the answer to why the project uses the MIT license. The context mainly describes how to use and install the Zoekt search engine.,Why does this project use the MIT license?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined"",
@@ -629,7 +668,7 @@ yaml,chat,gemini-1.5-pro-latest,chat,question_017/question.yaml,6226b55869bdfd70
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",insufficient context,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, but I can't answer this question. The provided context does not include any information about tensors.",See zoekt repo find location of tensor function,"[
+yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"I'm sorry, but I can't answer this question. The provided context does not contain any information about tensors.",See zoekt repo find location of tensor function,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
@@ -646,7 +685,7 @@ yaml,chat,gemini-1.5-pro-latest,chat,question_018/question.yaml,6226b55869bdfd70
     ""content"": ""// Copyright 2016 Google Inc. All rights reserved.\n//\n// Licensed under the Apache License, Version 2.0 (the \""License\"");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//    http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \""AS IS\"" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage zoekt\n\nimport (\n\t\""context\""\n\t\""fmt\""\n\t\""log\""\n\t\""regexp/syntax\""\n\t\""sort\""\n\t\""strings\""\n\t\""time\""\n\n\tenry_data \""github.com/go-enry/go-enry/v2/data\""\n\t\""github.com/grafana/regexp\""\n\n\t\""github.com/sourcegraph/zoekt/query\""\n)\n\n// simplifyMultiRepo takes a query and a predicate. It returns Const(true) if all\n// repository names fulfill the predicate, Const(false) if none of them do, and q\n// otherwise.\nfunc (d *indexData) simplifyMultiRepo(q query.Q, predicate func(*Repository) bool) query.Q {\n\tcount := 0\n\talive := len(d.repoMetaData)\n\tfor i := range d.repoMetaData {\n\t\tif d.repoMetaData[i].Tombstone {\n\t\t\talive--\n\t\t} else if predicate(&d.repoMetaData[i]) {\n\t\t\tcount++\n\t\t}\n\t}\n\tif count == alive {\n\t\treturn &query.Const{Value: true}\n\t}\n\tif count > 0 {\n\t\treturn q\n\t}\n\treturn &query.Const{Value: false}\n}\n\nfunc (d *indexData) simplify(in query.Q) query.Q {\n\teval := query.Map(in, func(q query.Q) query.Q {\n\t\tswitch r := q.(type) {\n\t\tcase *query.Repo:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Regexp.MatchString(repo.Name)\n\t\t\t})\n\t\tcase *query.RepoRegexp:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Regexp.MatchString(repo.Name)\n\t\t\t})\n\t\tcase *query.BranchesRepos:\n\t\t\tfor i := range d.repoMetaData {\n\t\t\t\tfor _, br := range r.List {\n\t\t\t\t\tif br.Repos.Contains(d.repoMetaData[i].ID) {\n\t\t\t\t\t\treturn q\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\treturn &query.Const{Value: false}\n\t\tcase *query.RepoSet:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Set[repo.Name]\n\t\t\t})\n\t\tcase *query.RepoIDs:\n\t\t\treturn d.simplifyMultiRepo(q, func(repo *Repository) bool {\n\t\t\t\treturn r.Repos.Contains(repo.ID)\n\t\t\t})\n\t\tcase *query.Language:\n\t\t\t_, has := d.metaData.LanguageMap[r.Language]\n\t\t\tif !has && d.metaData.IndexFeatureVersion < 12 {\n\t\t\t\t// For index files that haven't been re-indexed by go-enry,\n\t\t\t\t// fall back to file-based matching and continue even if this\n\t\t\t\t// repo doesn't have the specific language present.\n\t\t\t\textsForLang := enry_data.ExtensionsByLanguage[r.Language]\n\t\t\t\tif extsForLang != nil {\n\t\t\t\t\textFrags := make([]string, 0, len(extsForLang))\n\t\t\t\t\tfor _, ext := range extsForLang {\n\t\t\t\t\t\textFrags = append(extFrags, regexp.QuoteMeta(ext))\n\t\t\t\t\t}\n\t\t\t\t\tif len(extFrags) > 0 {\n\t\t\t\t\t\tpattern := fmt.Sprintf(\""(?i)(%s)$\"", strings.Join(extFrags, \""|\""))\n\t\t\t\t\t\t// inlined copy of query.regexpQuery\n\t\t\t\t\t\tre, err := syntax.Parse(pattern, syntax.Perl)\n\t\t\t\t\t\tif err != nil {\n\t\t\t\t\t\t\treturn &query.Const{Value: false}\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif re.Op == syntax.OpLiteral {\n\t\t\t\t\t\t\treturn &query.Substring{\n\t\t\t\t\t\t\t\tPattern:  string(re.Rune),\n\t\t\t\t\t\t\t\tFileName: true,\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t\treturn &query.Regexp{\n\t\t\t\t\t\t\tRegexp:   re,\n\t\t\t\t\t\t\tFileName: true,\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t\tif !has {\n\t\t\t\treturn &query.Const{Value: false}\n\t\t\t}\n\t\t}\n\t\treturn q\n\t})\n\treturn query.Simplify(eval)\n}\n\nfunc (o *SearchOptions) SetDefaults() {\n\tif o.ShardMaxMatchCount == 0 {\n\t\t// We cap the total number of matches, so overly broad\n\t\t// searches don't crash the machine.\n\t\to.ShardMaxMatchCount = 100000\n\t}\n\tif o.TotalMaxMatchCount == 0 {\n\t\to.TotalMaxMatchCount = 10 * o.ShardMaxMatchCount\n\t}\n}\n\nfunc (d *indexData) Search(ctx context.Context, q query.Q, opts *SearchOptions) (sr *SearchResult, err error) {\n\ttimer := newTimer()\n\n\tcopyOpts := *opts\n\topts = &copyOpts\n\topts.SetDefaults()\n\n\tvar res SearchResult\n\tif len(d.fileNameIndex) == 0 {\n\t\treturn &res, nil\n\t}\n\n\tselect {\n\tcase <-ctx.Done():\n\t\tres.Stats.ShardsSkipped++\n\t\treturn &res, nil\n\tdefault:\n\t}\n\n\tq = d.simplify(q)\n\tif c, ok := q.(*query.Const); ok && !c.Value {\n\t\treturn &res, nil\n\t}\n\n\tif opts.EstimateDocCount {\n\t\tres.Stats.ShardFilesConsidered = len(d.fileBranchMasks)\n\t\treturn &res, nil\n\t}\n\n\tq = query.Map(q, query.ExpandFileContent)\n\n\tmt, err := d.newMatchTree(q, matchTreeOpt{})\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\n\t// Capture the costs of construction before pruning\n\tupdateMatchTreeStats(mt, &res.Stats)\n\n\tmt, err = pruneMatchTree(mt)\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tres.Stats.MatchTreeConstruction = timer.Elapsed()\n\tif mt == nil {\n\t\tres.Stats.ShardsSkippedFilter++\n\t\treturn &res, nil\n\t}\n\n\tres.Stats.ShardsScanned++\n\n\tcp := &contentProvider{\n\t\tid:    d,\n\t\tstats: &res.Stats,\n\t}\n\n\t// Track the number of documents found in a repository for\n\t// ShardRepoMaxMatchCount\n\tvar (\n\t\tlastRepoID     uint16\n\t\trepoMatchCount int\n\t)\n\n\tdocCount := uint32(len(d.fileBranchMasks))\n\tlastDoc := int(-1)\n\nnextFileMatch:\n\tfor {\n\t\tcanceled := false\n\t\tselect {\n\t\tcase <-ctx.Done():\n\t\t\tcanceled = true\n\t\tdefault:\n\t\t}\n\n\t\tnextDoc := mt.nextDoc()\n\t\tif int(nextDoc) <= lastDoc {\n\t\t\tnextDoc = uint32(lastDoc + 1)\n\t\t}\n\n\t\tfor ; nextDoc < docCount; nextDoc++ {\n\t\t\trepoID := d.repos[nextDoc]\n\t\t\trepoMetadata := &d.repoMetaData[repoID]\n\n\t\t\t// Skip tombstoned repositories\n\t\t\tif repoMetadata.Tombstone {\n\t\t\t\tcontinue\n\t\t\t}\n\n\t\t\t// Skip documents that are tombstoned\n\t\t\tif len(repoMetadata.FileTombstones) > 0 {\n\t\t\t\tif _, tombstoned := repoMetadata.FileTombstones[string(d.fileName(nextDoc))]; tombstoned {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Skip documents over ShardRepoMaxMatchCount if specified.\n\t\t\tif opts.ShardRepoMaxMatchCount > 0 {\n\t\t\t\tif repoMatchCount >= opts.ShardRepoMaxMatchCount && repoID == lastRepoID {\n\t\t\t\t\tres.Stats.FilesSkipped++\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tbreak\n\t\t}\n\n\t\tif nextDoc >= docCount {\n\t\t\tbreak\n\t\t}\n\n\t\tlastDoc = int(nextDoc)\n\n\t\t// We track lastRepoID for ShardRepoMaxMatchCount\n\t\tif lastRepoID != d.repos[nextDoc] {\n\t\t\tlastRepoID = d.repos[nextDoc]\n\t\t\trepoMatchCount = 0\n\t\t}\n\n\t\tif canceled || (res.Stats.MatchCount >= opts.ShardMaxMatchCount && opts.ShardMaxMatchCount > 0) {\n\t\t\tres.Stats.FilesSkipped += int(docCount - nextDoc)\n\t\t\tbreak\n\t\t}\n\n\t\tres.Stats.FilesConsidered++\n\t\tmt.prepare(nextDoc)\n\n\t\tcp.setDocument(nextDoc)\n\n\t\tknown := make(map[matchTree]bool)\n\t\tmd := d.repoMetaData[d.repos[nextDoc]]\n\n\t\tfor cost := costMin; cost <= costMax; cost++ {\n\t\t\tswitch evalMatchTree(cp, cost, known, mt) {\n\t\t\tcase matchesRequiresHigherCost:\n\t\t\t\tif cost == costMax {\n\t\t\t\t\tlog.Panicf(\""did not decide. Repo %s, doc %d, known %v\"",\n\t\t\t\t\t\tmd.Name, nextDoc, known)\n\t\t\t\t}\n\t\t\tcase matchesFound:\n\t\t\t\t// could short-circuit now, but we want to run higher costs to\n\t\t\t\t// potentially find higher ranked matches.\n\t\t\tcase matchesNone:\n\t\t\t\tcontinue nextFileMatch\n\t\t\t}\n\t\t}\n\n\t\tfileMatch := FileMatch{\n\t\t\tRepository:         md.Name,\n\t\t\tRepositoryID:       md.ID,\n\t\t\tRepositoryPriority: md.priority,\n\t\t\tFileName:           string(d.fileName(nextDoc)),\n\t\t\tChecksum:           d.getChecksum(nextDoc),\n\t\t\tLanguage:           d.languageMap[d.getLanguage(nextDoc)],\n\t\t}\n\n\t\tif s := d.subRepos[nextDoc]; s > 0 {\n\t\t\tif s >= uint32(len(d.subRepoPaths[d.repos[nextDoc]])) {\n\t\t\t\tlog.Panicf(\""corrupt index: subrepo %d beyond %v\"", s, d.subRepoPaths)\n\t\t\t}\n\t\t\tpath := d.subRepoPaths[d.repos[nextDoc]][s]\n\t\t\tfileMatch.SubRepositoryPath = path\n\t\t\tsr := md.SubRepoMap[path]\n\t\t\tfileMatch.SubRepositoryName = sr.Name\n\t\t\tif idx := d.branchIndex(nextDoc); idx >= 0 {\n\t\t\t\tfileMatch.Version = sr.Branches[idx].Version\n\t\t\t}\n\t\t} else {\n\t\t\tidx := d.branchIndex(nextDoc)\n\t\t\tif idx >= 0 {\n\t\t\t\tfileMatch.Version = md.Branches[idx].Version\n\t\t\t}\n\t\t}\n\n\t\t// Important invariant for performance: finalCands is sorted by offset and\n\t\t// non-overlapping. gatherMatches respects this invariant and all later\n\t\t// transformations respect this.\n\t\tshouldMergeMatches := !opts.ChunkMatches\n\t\tfinalCands := d.gatherMatches(nextDoc, mt, known, shouldMergeMatches)\n\n\t\tif opts.ChunkMatches {\n\t\t\tfileMatch.ChunkMatches = cp.fillChunkMatches(finalCands, opts.NumContextLines, fileMatch.Language, opts.DebugScore)\n\t\t} else {\n\t\t\tfileMatch.LineMatches = cp.fillMatches(finalCands, opts.NumContextLines, fileMatch.Language, opts.DebugScore)\n\t\t}\n\n\t\tif opts.UseBM25Scoring {\n\t\t\td.scoreFileUsingBM25(&fileMatch, nextDoc, finalCands, opts)\n\t\t} else {\n\t\t\t// Use the standard, non-experimental scoring method by default\n\t\t\td.scoreFile(&fileMatch, nextDoc, mt, known, opts)\n\t\t}\n\n\t\tfileMatch.Branches = d.gatherBranches(nextDoc, mt, known)\n\t\tsortMatchesByScore(fileMatch.LineMatches)\n\t\tsortChunkMatchesByScore(fileMatch.ChunkMatches)\n\t\tif opts.Whole {\n\t\t\tfileMatch.Content = cp.data(false)\n\t\t}\n\n\t\tmatchedChunkRanges := 0\n\t\tfor _, cm := range fileMatch.ChunkMatches {\n\t\t\tmatchedChunkRanges += len(cm.Ranges)\n\t\t}\n\n\t\trepoMatchCount += len(fileMatch.LineMatches)\n\t\trepoMatchCount += matchedChunkRanges\n\n\t\tif opts.DebugScore {\n\t\t\tfileMatch.Debug = fmt.Sprintf(\""score:%.2f <- %s\"", fileMatch.Score, fileMatch.Debug)\n\t\t}\n\n\t\tres.Files = append(res.Files, fileMatch)\n\t\tres.Stats.MatchCount += len(fileMatch.LineMatches)\n\t\tres.Stats.MatchCount += matchedChunkRanges\n\t\tres.Stats.FileCount++\n\t}\n\n\tfor _, md := range d.repoMetaData {\n\t\tr := md\n\t\taddRepo(&res, &r)\n\t\tfor _, v := range r.SubRepoMap {\n\t\t\taddRepo(&res, v)\n\t\t}\n\t}\n\n\t// Update stats based on work done during document search.\n\tupdateMatchTreeStats(mt, &res.Stats)\n\n\t// If document ranking is enabled, then we can rank and truncate the files to save memory.\n\tif opts.UseDocumentRanks {\n\t\tres.Files = SortAndTruncateFiles(res.Files, opts)\n\t}\n\n\tres.Stats.MatchTreeSearch = timer.Elapsed()\n\n\treturn &res, nil\n}\n\nfunc addRepo(res *SearchResult, repo *Repository) {\n\tif res.RepoURLs == nil {\n\t\tres.RepoURLs = map[string]string{}\n\t}\n\tres.RepoURLs[repo.Name] = repo.FileURLTemplate\n\n\tif res.LineFragments == nil {\n\t\tres.LineFragments = map[string]string{}\n\t}\n\tres.LineFragments[repo.Name] = repo.LineFragmentTemplate\n}\n\n// Gather matches from this document. The matches are returned in document\n// order and are non-overlapping. All filename and content matches are\n// returned, with filename matches first.\n//\n// If `merge` is set, overlapping and adjacent matches will be merged\n// into a single match. Otherwise, overlapping matches will be removed,\n// but adjacent matches will remain.\nfunc (d *indexData) gatherMatches(nextDoc uint32, mt matchTree, known map[matchTree]bool, merge bool) []*candidateMatch {\n\tvar cands []*candidateMatch\n\tvisitMatches(mt, known, 1, func(mt matchTree, scoreWeight float64) {\n\t\tif smt, ok := mt.(*substrMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, smt.current)...)\n\t\t}\n\t\tif rmt, ok := mt.(*regexpMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, rmt.found)...)\n\t\t}\n\t\tif rmt, ok := mt.(*wordMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, rmt.found)...)\n\t\t}\n\t\tif smt, ok := mt.(*symbolRegexpMatchTree); ok {\n\t\t\tcands = append(cands, setScoreWeight(scoreWeight, smt.found)...)\n\t\t}\n\t})\n\n\t// If we found no candidate matches at all, assume there must have been a match on filename.\n\tif len(cands) == 0 {\n\t\tnm := d.fileName(nextDoc)\n\t\treturn []*candidateMatch{{\n\t\t\tcaseSensitive: false,\n\t\t\tfileName:      true,\n\t\t\tsubstrBytes:   nm,\n\t\t\tsubstrLowered: nm,\n\t\t\tfile:          nextDoc,\n\t\t\truneOffset:    0,\n\t\t\tbyteOffset:    0,\n\t\t\tbyteMatchSz:   uint32(len(nm)),\n\t\t}}\n\t}\n\n\tsort.Sort((sortByOffsetSlice)(cands))\n\tres := cands[:0]\n\tmergeRun := 1\n\tfor i, c := range cands {\n\t\tif i == 0 {\n\t\t\tres = append(res, c)\n\t\t\tcontinue\n\t\t}\n\n\t\tlast := res[len(res)-1]\n\n\t\t// Never compare filename and content matches\n\t\tif last.fileName != c.fileName {\n\t\t\tres = append(res, c)\n\t\t\tcontinue\n\t\t}\n\n\t\tif merge {\n\t\t\t// Merge adjacent candidates. This guarantees that the matches\n\t\t\t// are non-overlapping.\n\t\t\tlastEnd := last.byteOffset + last.byteMatchSz\n\t\t\tend := c.byteOffset + c.byteMatchSz\n\t\t\tif lastEnd >= c.byteOffset {\n\t\t\t\tmergeRun++\n\t\t\t\t// Average out the score across the merged candidates. Only do it if\n\t\t\t\t// we are boosting to avoid floating point funkiness in the normal\n\t\t\t\t// case.\n\t\t\t\tif !(epsilonEqualsOne(last.scoreWeight) && epsilonEqualsOne(c.scoreWeight)) {\n\t\t\t\t\tlast.scoreWeight = ((last.scoreWeight * float64(mergeRun-1)) + c.scoreWeight) / float64(mergeRun)\n\t\t\t\t}\n\n\t\t\t\t// latest candidate goes further, update our end\n\t\t\t\tif end > lastEnd {\n\t\t\t\t\tlast.byteMatchSz = end - last.byteOffset\n\t\t\t\t}\n\n\t\t\t\tcontinue\n\t\t\t} else {\n\t\t\t\tmergeRun = 1\n\t\t\t}\n\t\t} else {\n\t\t\t// Remove overlapping candidates. This guarantees that the matches\n\t\t\t// are non-overlapping, but also preserves expected match counts.\n\t\t\tlastEnd := last.byteOffset + last.byteMatchSz\n\t\t\tif lastEnd > c.byteOffset {\n\t\t\t\tcontinue\n\t\t\t}\n\t\t}\n\n\t\tres = append(res, c)\n\t}\n\treturn res\n}\n\ntype sortByOffsetSlice []*candidateMatch\n\nfunc (m sortByOffsetSlice) Len() int      { return len(m) }\nfunc (m sortByOffsetSlice) Swap(i, j int) { m[i], m[j] = m[j], m[i] }\nfunc (m sortByOffsetSlice) Less(i, j int) bool {\n\t// Sort all filename matches to the start\n\tif m[i].fileName != m[j].fileName {\n\t\treturn m[i].fileName\n\t}\n\n\tif m[i].byteOffset == m[j].byteOffset { // tie break if same offset\n\t\t// Prefer longer candidates if starting at same position\n\t\treturn m[i].byteMatchSz > m[j].byteMatchSz\n\t}\n\treturn m[i].byteOffset < m[j].byteOffset\n}\n\n// setScoreWeight is a helper used by gatherMatches to set the weight based on\n// the score weight of the matchTree.\nfunc setScoreWeight(scoreWeight float64, cm []*candidateMatch) []*candidateMatch {\n\tfor _, m := range cm {\n\t\tm.scoreWeight = scoreWeight\n\t}\n\treturn cm\n}\n\nfunc (d *indexData) branchIndex(docID uint32) int {\n\tmask := d.fileBranchMasks[docID]\n\tidx := 0\n\tfor mask != 0 {\n\t\tif mask&0x1 != 0 {\n\t\t\treturn idx\n\t\t}\n\t\tidx++\n\t\tmask >>= 1\n\t}\n\treturn -1\n}\n\n// gatherBranches returns a list of branch names taking into account any branch\n// filters in the query. If the query contains a branch filter, it returns all\n// branches containing the docID and matching the branch filter. Otherwise, it\n// returns all branches containing docID.\nfunc (d *indexData) gatherBranches(docID uint32, mt matchTree, known map[matchTree]bool) []string {\n\tvar mask uint64\n\tvisitMatchAtoms(mt, known, func(mt matchTree) {\n\t\tbq, ok := mt.(*branchQueryMatchTree)\n\t\tif !ok {\n\t\t\treturn\n\t\t}\n\n\t\tmask = mask | bq.branchMask()\n\t})\n\n\tif mask == 0 {\n\t\tmask = d.fileBranchMasks[docID]\n\t}\n\n\tvar branches []string\n\tid := uint32(1)\n\tbranchNames := d.branchNames[d.repos[docID]]\n\tfor mask != 0 {\n\t\tif mask&0x1 != 0 {\n\t\t\tbranches = append(branches, branchNames[uint(id)])\n\t\t}\n\t\tid <<= 1\n\t\tmask >>= 1\n\t}\n\n\treturn branches\n}\n\nfunc (d *indexData) List(ctx context.Context, q query.Q, opts *ListOptions) (rl *RepoList, err error) {\n\tvar include func(rle *RepoListEntry) bool\n\n\tq = d.simplify(q)\n\tif c, ok := q.(*query.Const); ok {\n\t\tif !c.Value {\n\t\t\treturn &RepoList{}, nil\n\t\t}\n\t\tinclude = func(rle *RepoListEntry) bool {\n\t\t\treturn true\n\t\t}\n\t} else {\n\t\tsr, err := d.Search(ctx, q, &SearchOptions{\n\t\t\tShardRepoMaxMatchCount: 1,\n\t\t})\n\t\tif err != nil {\n\t\t\treturn nil, err\n\t\t}\n\n\t\tfoundRepos := make(map[string]struct{}, len(sr.Files))\n\t\tfor _, file := range sr.Files {\n\t\t\tfoundRepos[file.Repository] = struct{}{}\n\t\t}\n\n\t\tinclude = func(rle *RepoListEntry) bool {\n\t\t\t_, ok := foundRepos[rle.Repository.Name]\n\t\t\treturn ok\n\t\t}\n\t}\n\n\tvar l RepoList\n\n\tfield, err := opts.GetField()\n\tif err != nil {\n\t\treturn nil, err\n\t}\n\tswitch field {\n\tcase RepoListFieldRepos:\n\t\tl.Repos = make([]*RepoListEntry, 0, len(d.repoListEntry))\n\tcase RepoListFieldReposMap:\n\t\tl.ReposMap = make(ReposMap, len(d.repoListEntry))\n\t}\n\n\tfor i := range d.repoListEntry {\n\t\tif d.repoMetaData[i].Tombstone {\n\t\t\tcontinue\n\t\t}\n\t\trle := &d.repoListEntry[i]\n\t\tif !include(rle) {\n\t\t\tcontinue\n\t\t}\n\n\t\tl.Stats.Add(&rle.Stats)\n\n\t\t// Backwards compat for when ID is missing\n\t\tif rle.Repository.ID == 0 {\n\t\t\tl.Repos = append(l.Repos, rle)\n\t\t\tcontinue\n\t\t}\n\n\t\tswitch field {\n\t\tcase RepoListFieldRepos:\n\t\t\tl.Repos = append(l.Repos, rle)\n\t\tcase RepoListFieldReposMap:\n\t\t\tl.ReposMap[rle.Repository.ID] = MinimalRepoListEntry{\n\t\t\t\tHasSymbols:    rle.Repository.HasSymbols,\n\t\t\t\tBranches:      rle.Repository.Branches,\n\t\t\t\tIndexTimeUnix: rle.IndexMetadata.IndexTime.Unix(),\n\t\t\t}\n\t\t}\n\n\t}\n\n\t// Only one of these fields is populated and in all cases the size of that\n\t// field is the number of Repos in this shard.\n\tl.Stats.Repos = len(l.Repos) + len(l.ReposMap)\n\n\treturn &l, nil\n}\n\n// regexpToMatchTreeRecursive converts a regular expression to a matchTree mt. If\n// mt is equivalent to the input r, isEqual = true and the matchTree can be used\n// in place of the regex r. If singleLine = true, then the matchTree and all\n// its children only match terms on the same line. singleLine is used during\n// recursion to decide whether to return an andLineMatchTree (singleLine = true)\n// or a andMatchTree (singleLine = false).\nfunc (d *indexData) regexpToMatchTreeRecursive(r *syntax.Regexp, minTextSize int, fileName bool, caseSensitive bool) (mt matchTree, isEqual bool, singleLine bool, err error) {\n\t// TODO - we could perhaps transform Begin/EndText in '\\n'?\n\t// TODO - we could perhaps transform CharClass in (OrQuery )\n\t// if there are just a few runes, and part of a OpConcat?\n\tswitch r.Op {\n\tcase syntax.OpLiteral:\n\t\ts := string(r.Rune)\n\t\tif len(s) >= minTextSize {\n\t\t\tignoreCase := syntax.FoldCase == (r.Flags & syntax.FoldCase)\n\t\t\tmt, err := d.newSubstringMatchTree(&query.Substring{Pattern: s, FileName: fileName, CaseSensitive: !ignoreCase && caseSensitive})\n\t\t\treturn mt, true, !strings.Contains(s, \""\\n\""), err\n\t\t}\n\tcase syntax.OpCapture:\n\t\treturn d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\n\tcase syntax.OpPlus:\n\t\treturn d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\n\tcase syntax.OpRepeat:\n\t\tif r.Min == 1 {\n\t\t\treturn d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\t\t} else if r.Min > 1 {\n\t\t\t// (x){2,} can't be expressed precisely by the matchTree\n\t\t\tmt, _, singleLine, err := d.regexpToMatchTreeRecursive(r.Sub[0], minTextSize, fileName, caseSensitive)\n\t\t\treturn mt, false, singleLine, err\n\t\t}\n\tcase syntax.OpConcat, syntax.OpAlternate:\n\t\tvar qs []matchTree\n\t\tisEq := true\n\t\tsingleLine = true\n\t\tfor _, sr := range r.Sub {\n\t\t\tif sq, subIsEq, subSingleLine, err := d.regexpToMatchTreeRecursive(sr, minTextSize, fileName, caseSensitive); sq != nil {\n\t\t\t\tif err != nil {\n\t\t\t\t\treturn nil, false, false, err\n\t\t\t\t}\n\t\t\t\tisEq = isEq && subIsEq\n\t\t\t\tsingleLine = singleLine && subSingleLine\n\t\t\t\tqs = append(qs, sq)\n\t\t\t}\n\t\t}\n\t\tif r.Op == syntax.OpConcat {\n\t\t\tif len(qs) > 1 {\n\t\t\t\tisEq = false\n\t\t\t}\n\t\t\tnewQs := make([]matchTree, 0, len(qs))\n\t\t\tfor _, q := range qs {\n\t\t\t\tif _, ok := q.(*bruteForceMatchTree); ok {\n\t\t\t\t\tcontinue\n\t\t\t\t}\n\t\t\t\tnewQs = append(newQs, q)\n\t\t\t}\n\t\t\tif len(newQs) == 1 {\n\t\t\t\treturn newQs[0], isEq, singleLine, nil\n\t\t\t}\n\t\t\tif len(newQs) == 0 {\n\t\t\t\treturn &bruteForceMatchTree{}, isEq, singleLine, nil\n\t\t\t}\n\t\t\tif singleLine {\n\t\t\t\treturn &andLineMatchTree{andMatchTree{children: newQs}}, isEq, singleLine, nil\n\t\t\t}\n\t\t\treturn &andMatchTree{newQs}, isEq, singleLine, nil\n\t\t}\n\t\tfor _, q := range qs {\n\t\t\tif _, ok := q.(*bruteForceMatchTree); ok {\n\t\t\t\treturn q, isEq, false, nil\n\t\t\t}\n\t\t}\n\t\tif len(qs) == 0 {\n\t\t\treturn &noMatchTree{Why: \""const\""}, isEq, false, nil\n\t\t}\n\t\treturn &orMatchTree{qs}, isEq, false, nil\n\tcase syntax.OpStar:\n\t\tif r.Sub[0].Op == syntax.OpAnyCharNotNL {\n\t\t\treturn &bruteForceMatchTree{}, false, true, nil\n\t\t}\n\t}\n\treturn &bruteForceMatchTree{}, false, false, nil\n}\n\ntype timer struct {\n\tlast time.Time\n}\n\nfunc newTimer() *timer {\n\treturn &timer{\n\t\tlast: time.Now(),\n\t}\n}\n\nfunc (t *timer) Elapsed() time.Duration {\n\tnow := time.Now()\n\td := now.Sub(t.last)\n\tt.last = now\n\treturn d\n}\n""
   }
 ]",insufficient context,,,1,,1,true,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,"no text reply. Got {
+yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,"no text reply. Got {
   ""model"": ""google/gemini-1.5-pro-latest"",
   ""speaker"": ""assistant"",
   ""error"": {
@@ -655,56 +694,88 @@ yaml,chat,gemini-1.5-pro-latest,chat,question_019/question.yaml,6226b55869bdfd70
     ""name"": ""Error""
   }
 }",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_020/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"The file `mocked/codebase_context/README.md` provides a comprehensive overview of Zoekt, a fast text search engine specifically designed for source code. Here's a breakdown of the key points:
+yaml,chat,gemini-1.5-pro-latest,chat,question_020/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"The file you provided is a README file for the Zoekt codebase, a text search engine designed for source code. Here's a breakdown of the key sections:
 
-**What is Zoekt?**
+**Introduction**
 
-- It's a powerful text search engine optimized for searching within codebases.
-- Originally a Google project, it's now primarily maintained by Sourcegraph.
-- The name is pronounced similarly to ""zooked.""
+* **What is Zoekt?** A fast text search engine specifically built for searching through source code. 
+* **Origin:** Originally created by Google ([google/zoekt](https://github.com/google/zoekt)), it's now primarily maintained by Sourcegraph ([sourcegraph/zoekt](https://github.com/sourcegraph/zoekt)).
 
-**Key Features:**
+**Instructions**
 
-- **Fast Indexing and Searching:**  Zoekt is built for speed, allowing it to index and search large codebases efficiently.
-- **Multiple Repository Support:** It can index and search across various source code repositories, including local directories, Git repositories, and even collections of repositories.
-- **Flexible Search Options:** Zoekt supports sophisticated search queries, including ngram-based searches, file filtering, and symbol search (with the help of Universal ctags).
-- **Web Interface and API:** It offers both a web interface for interactive searches and a JSON API for programmatic access to search results.
-- **Service Management:** Zoekt includes tools like `zoekt-indexserver` to simplify the management of indexing and mirroring repositories.
+This section provides a quick guide on how to get started with Zoekt:
 
-**How to Use Zoekt:**
+* **Downloading:**  Use `go get` to fetch the Zoekt source code.
+* **Indexing:**  
+    * **Directories:** Index a directory using `zoekt-index`.
+    * **Git repositories:** Index a Git repository using `zoekt-git-index`, specifying branches and prefixes.
+    * **Multiple repositories:** Use `zoekt-repo-index` and `zoekt-mirror-gitiles` to manage and index multiple repositories.
+* **Searching:**
+    * **Web interface:** Start a web server with `zoekt-webserver` to search through the indexed code.
+    * **JSON API:**  Interact with the search engine programmatically using the JSON API.
+    * **Command-line:** Use the `zoekt` command to perform searches from the terminal.
 
-The README provides detailed instructions on:
+**Installation**
 
-1. **Downloading and Installing** Zoekt.
-2. **Indexing** different types of codebases (directories, Git repositories, multiple repositories).
-3. **Searching** using the web interface, JSON API, or command-line interface.
-4. **Setting up** Zoekt as a service using systemd.
-5. **Enhancing Symbol Search** with Universal ctags.
+* **Systemd:**  Instructions on how to set up Zoekt as a service using a systemd unit file for more robust deployments on Linux servers.
 
-**Fork Details:**
+**Search Service**
 
-The README also mentions that this version of Zoekt is a fork maintained by Sourcegraph. It highlights some of the key differences and additions made in this fork compared to the original Google version.
+* **`zoekt-indexserver`:**  Introduces a service management tool to automate the mirroring, indexing, and updating of repositories from sources like GitHub and Gitiles.
 
-**Overall, the README serves as an essential guide for anyone looking to understand, set up, and utilize Zoekt for powerful code search capabilities.**",explain @README.md,"[
+**Symbol Search**
+
+* **Universal ctags:** Recommends using Universal ctags for improved symbol search and ranking within Zoekt.
+
+**Acknowledgements**
+
+* Gives credit to the original creators and contributors of Zoekt.
+
+**Fork Details**
+
+* **Historical context:** Explains that while this repository was initially a fork, it's now the primary one. It highlights some key differences that existed earlier between the Google and Sourcegraph versions.
+
+**Disclaimer**
+
+* Clarifies that this is not an official Google product.",explain @README.md,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined"",
     ""content"": ""\n    \""Zoekt, en gij zult spinazie eten\"" - Jan Eertink\n\n    (\""seek, and ye shall eat spinach\"" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \""zooked\"" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \""http://localhost:6070/search\"" \\\n        --data-urlencode \""q=ngram f:READ\"" \\\n        --data-urlencode \""num=50\"" \\\n        --data-urlencode \""format=json\""\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\""GithubUser\"": \""username\""},\n     {\""GithubOrg\"": \""org\""},\n     {\""GitilesURL\"": \""https://gerrit.googlesource.com\"", \""Name\"": \""zoekt\"" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n""
   }
 ]",explain code,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_021/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"Goroutines are lightweight, concurrent functions in Go. They're key to Go's concurrency model, allowing you to execute multiple tasks seemingly simultaneously. Here's a breakdown:
+yaml,chat,gemini-1.5-pro-latest,chat,question_021/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"Goroutines are lightweight, independently executing functions or methods within a Go program. They are managed by the Go runtime and are incredibly lightweight compared to traditional operating system threads. 
 
-**Understanding Goroutines**
+Here's a breakdown of how they work:
 
-* **Lightweight:** Goroutines are incredibly lightweight compared to traditional threads. They have a smaller memory footprint (starting at just a few kilobytes), making it practical to create thousands or even millions of them.
-* **Multiplexed onto OS Threads:**  The Go runtime manages a pool of OS threads. Goroutines are multiplexed onto these threads, meaning multiple goroutines can share the same OS thread. This efficient scheduling is handled by the Go scheduler.
-* **Concurrent, Not Parallel:** While goroutines enable concurrency, they don't guarantee parallelism. True parallelism (running on multiple CPU cores simultaneously) depends on your system's CPU cores and whether your Go program is configured to utilize them (using `GOMAXPROCS`).
+**1. Creation:**
 
-**Creating Goroutines**
+* You create a goroutine by placing the keyword `go` before a function or method call.
+* Example: `go myFunction()`
 
-You create a goroutine by simply adding the keyword `go` before a function call:
+**2. Concurrent Execution:**
 
-```go:main.go
+* Goroutines run concurrently, meaning they can execute seemingly in parallel with other goroutines and the main program.
+* The Go runtime manages the scheduling and execution of goroutines across available operating system threads.
+
+**3. Lightweight Nature:**
+
+* Goroutines have a smaller memory footprint (typically starting at 2KB) compared to OS threads (which can be several MBs).
+* This allows you to create thousands or even millions of goroutines without overwhelming your system resources.
+
+**4. The Go Scheduler:**
+
+* The Go runtime employs a sophisticated scheduler that efficiently distributes goroutines onto available OS threads (known as ""M"" in Go's terminology).
+* It uses a technique called ""m:n threading"" where 'm' goroutines are multiplexed onto 'n' OS threads.
+
+**5. Communication and Synchronization:**
+
+* Goroutines communicate with each other primarily through channels, which provide a safe and synchronized way to send and receive data.
+* You can also use other synchronization primitives like mutexes and wait groups when needed.
+
+**Example:**
+
+```go
 package main
 
 import (
@@ -712,88 +783,48 @@ import (
 	""time""
 )
 
-func sayHello() {
-	fmt.Println(""Hello from a goroutine!"")
-}
-
-func main() {
-	go sayHello() // Run sayHello concurrently
-
-	time.Sleep(time.Second) // Give the goroutine time to run
-	fmt.Println(""Main function exiting"")
-}
-```
-
-**Communication and Synchronization**
-
-* **Channels:** Goroutines communicate and synchronize using channels. A channel is a typed conduit that allows you to send and receive values between goroutines safely.
-* **Synchronization Primitives:** Go provides synchronization primitives like `sync.Mutex` and `sync.WaitGroup` to handle more complex concurrency scenarios.
-
-**Example with Channels**
-
-```go:main.go
-package main
-
-import (
-	""fmt""
-	""time""
-)
-
-func worker(id int, jobs <-chan int, results chan<- int) {
-	for j := range jobs {
-		fmt.Println(""Worker"", id, ""started  job"", j)
-		time.Sleep(time.Second)
-		fmt.Println(""Worker"", id, ""finished job"", j)
-		results <- j * 2
+func printNumbers() {
+	for i := 1; i <= 5; i++ {
+		fmt.Println(""Goroutine:"", i)
+		time.Sleep(time.Millisecond * 500)
 	}
 }
 
 func main() {
-	jobs := make(chan int, 100)
-	results := make(chan int, 100)
+	go printNumbers() // Start the goroutine
 
-	// Start 3 workers
-	for w := 1; w <= 3; w++ {
-		go worker(w, jobs, results)
-	}
-
-	// Send 5 jobs
-	for j := 1; j <= 5; j++ {
-		jobs <- j
-	}
-	close(jobs)
-
-	// Collect results
-	for a := 1; a <= 5; a++ {
-		<-results
+	// Do other work in the main function
+	for i := 1; i <= 5; i++ {
+		fmt.Println(""Main function:"", i)
+		time.Sleep(time.Second * 1)
 	}
 }
 ```
 
-**Key Points**
+In this example, `printNumbers` runs concurrently with the `main` function. The output will demonstrate the interleaved execution of both.
 
-* Goroutines are cheap and efficient, making concurrency in Go very approachable.
-* Channels are the preferred way to communicate and synchronize between goroutines.
-* Understanding how the Go scheduler works is essential for writing efficient concurrent programs.
+**Key Points:**
 
-Let me know if you'd like to explore specific aspects of goroutines, channels, or concurrency patterns in more detail!",how do goroutines work?,[],general coding,,,1,,1,false,,,,,,,,,,,,,,,,
-yaml,chat,gemini-1.5-pro-latest,chat,question_022/question.yaml,6226b55869bdfd70516e9ebfd557b6128ca4e668,,,,0,0,0,0,,,,,,,,,,,"```go:mocked/codebase_context/limit.go``` defines functions for truncating search results based on document and match limits specified in search options. 
+* Goroutines are a powerful tool for concurrent programming in Go.
+* Their lightweight nature and efficient scheduling make them suitable for handling a large number of concurrent tasks.
+* Understanding channels and synchronization mechanisms is crucial for writing correct and efficient concurrent Go programs.",how do goroutines work?,[],general coding,,,1,,1,false,,,,,,,,,,,,,,,,
+yaml,chat,gemini-1.5-pro-latest,chat,question_022/question.yaml,1f757a6675cafa91ba2c09324f6ad57170e54291,,,,0,0,0,0,,,,,,,,,,,"```go:mocked/codebase_context/limit.go``` defines functions and types related to enforcing display limits on search results in the zoekt codebase. 
 
 Here's a breakdown:
 
-- **SortAndTruncateFiles:** This function sorts and truncates a list of FileMatches based on the provided SearchOptions. It uses `SortFiles` (not shown in the provided code) for sorting and `NewDisplayTruncator` to handle truncation.
+* **SortAndTruncateFiles**: This function takes a list of FileMatches and SearchOptions. It sorts the files, then applies a DisplayTruncator to enforce display limits based on the search options.
 
-- **DisplayTruncator:** This is a stateful function type that enforces document and match display limits. It takes a list of FileMatches and returns a potentially truncated list and a boolean indicating whether there are more results.
+* **DisplayTruncator**: This type represents a stateful function that enforces document and match display limits. It takes a list of FileMatches and returns a potentially truncated list and a boolean indicating if there are more results.
 
-- **NewDisplayTruncator:** This function creates a `DisplayTruncator` based on the provided SearchOptions. It determines if any limits are set and returns a `DisplayTruncator` function accordingly.
+* **NewDisplayTruncator**: This function creates a DisplayTruncator based on the provided SearchOptions. It determines if limits are enforced and returns the appropriate DisplayTruncator function.
 
-- **limitMatches:** This function applies match limiting to a list of FileMatches. It uses either `limitChunkMatches` or `limitLineMatches` based on the `chunkMatches` option.
+* **limitMatches**: This function applies either `limitChunkMatches` or `limitLineMatches` based on the `chunkMatches` flag to enforce the match limit.
 
-- **limitChunkMatches:** This function limits the number of ChunkMatches within each FileMatch. It handles truncating `Ranges`, `SymbolInfo`, and `Content` fields.
+* **limitChunkMatches**: This function limits the number of ChunkMatches within a FileMatch based on the provided limit. It handles truncating Ranges, SymbolInfo, and Content fields.
 
-- **limitLineMatches:** This function limits the number of LineMatches within each FileMatch by truncating the `LineFragments` field.
+* **limitLineMatches**: This function limits the number of LineMatches within a FileMatch based on the provided limit.
 
-In essence, this code ensures that search results displayed to the user adhere to the specified display limits, preventing overwhelming outputs and improving performance.",what does @limit.go do?,"[
+In essence, this code ensures that search results are displayed within the configured limits for both the number of documents and the number of matches within each document. This helps to prevent overwhelming the user with too much information and improves the performance of displaying search results.",what does @limit.go do?,"[
   {
     ""source"": ""user"",
     ""file"": ""/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined"",

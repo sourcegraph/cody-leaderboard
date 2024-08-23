@@ -4,11 +4,12 @@
 
 # CHAT_REPLY The `DirectoryWatcher` in the `shards` package is responsible for monitoring a directory containing Zoekt index shards. It performs the following actions:
 # CHAT_REPLY 
-# CHAT_REPLY 1. **Scanning:** It scans the directory for `.zoekt` files, identifying the latest version of each shard based on the filename. It also checks the modification times of the shard files and their corresponding `.meta` files to determine if they have been updated.
-# CHAT_REPLY 2. **Loading and Dropping:** Based on the scan results, it loads new or updated shards into the index and drops any deleted shards.
-# CHAT_REPLY 3. **Watching:** It uses `fsnotify` to watch for changes in the directory. When a change is detected, it triggers a new scan to update the index.
+# CHAT_REPLY 1. **Scanning:** It scans the directory for `.zoekt` files, which represent the index shards. It keeps track of the latest version of each shard and its modification time.
+# CHAT_REPLY 2. **Loading:** It loads new shards that have been added or updated since the last scan.
+# CHAT_REPLY 3. **Dropping:** It unloads shards that have been deleted.
+# CHAT_REPLY 4. **Watching:** It uses `fsnotify` to watch for changes in the directory, such as file creation, modification, or deletion. When a change is detected, it triggers a new scan.
 # CHAT_REPLY 
-# CHAT_REPLY In essence, the `DirectoryWatcher` ensures that the Zoekt index is kept up-to-date by automatically loading new shards, dropping deleted shards, and reflecting changes to existing shards. This allows for a dynamic and efficient indexing process.
+# CHAT_REPLY In essence, the `DirectoryWatcher` ensures that the Zoekt index is kept up-to-date by automatically loading new shards and unloading deleted ones. This allows the search engine to reflect changes in the underlying codebase without manual intervention.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

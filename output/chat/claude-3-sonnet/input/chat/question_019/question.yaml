@@ -2,58 +2,48 @@
 # CHAT
 # CHAT_QUESTION Explain the logic in src/agent.go, particularly how agents interact with ranking
 
-# CHAT_REPLY Here's an explanation of the logic in `src/agent.go`, focusing on how agents interact with ranking:
+# CHAT_REPLY Here's an overview of the logic in `src/agent.go` related to how agents interact with ranking:
+# CHAT_REPLY 
+# CHAT_REPLY 1. The `Agent` struct represents a search agent that handles searching a specific shard of the indexed data.
+# CHAT_REPLY 
+# CHAT_REPLY 2. When a search query is received, the `Agent.Search` method is called, which performs the following steps:
+# CHAT_REPLY 
+# CHAT_REPLY    a. It calls `agent.loadRankers()` to load the ranking functions for the shard.
+# CHAT_REPLY    b. It calls `agent.searchMaster()` to perform the actual search on the shard's data.
+# CHAT_REPLY    c. The search results are passed through the loaded ranking functions via `agent.rank(...)`.
+# CHAT_REPLY 
+# CHAT_REPLY 3. The `loadRankers()` method loads the ranking functions based on the configured ranking options:
 # CHAT_REPLY 
 # CHAT_REPLY ```go:src/agent.go
-# CHAT_REPLY // agent.go contains the logic for running searches on a shard.
-# CHAT_REPLY type Agent struct {
-# CHAT_REPLY     // ...
-# CHAT_REPLY }
-# CHAT_REPLY 
-# CHAT_REPLY // Search searches the shard managed by the agent.
-# CHAT_REPLY func (a *Agent) Search(ctx context.Context, req *SearchRequest, stats *Stats) (*SearchResponse, error) {
-# CHAT_REPLY     // ...
-# CHAT_REPLY 
-# CHAT_REPLY     // Run the search query on the shard.
-# CHAT_REPLY     results, err := a.searcher.Search(ctx, &SearchRequest{
-# CHAT_REPLY         Query:    req.Query,
-# CHAT_REPLY         FileRe:   req.FileRe,
-# CHAT_REPLY         Shard:    a.shard,
-# CHAT_REPLY         Stats:    stats,
-# CHAT_REPLY         TotalMax: req.TotalMax,
-# CHAT_REPLY     })
-# CHAT_REPLY     if err != nil {
-# CHAT_REPLY         return nil, err
-# CHAT_REPLY     }
-# CHAT_REPLY 
-# CHAT_REPLY     // Rank the search results.
-# CHAT_REPLY     rankedResults, err := a.ranker.RankResults(ctx, req.Query, results.Files)
-# CHAT_REPLY     if err != nil {
-# CHAT_REPLY         return nil, err
-# CHAT_REPLY     }
-# CHAT_REPLY 
-# CHAT_REPLY     // Construct the search response with the ranked results.
-# CHAT_REPLY     resp := &SearchResponse{
-# CHAT_REPLY         Stats:   results.Stats,
-# CHAT_REPLY         Files:   rankedResults,
-# CHAT_REPLY         Shards:  []uint32{a.shard},
-# CHAT_REPLY         Sharded: true,
-# CHAT_REPLY     }
-# CHAT_REPLY 
-# CHAT_REPLY     return resp, nil
+# CHAT_REPLY func (agent *Agent) loadRankers() error {
+# CHAT_REPLY 	agent.rankers = make([]zoekt.Ranker, 0, len(agent.opts.RankOptions))
+# CHAT_REPLY 	for _, o := range agent.opts.RankOptions {
+# CHAT_REPLY 		r, err := zoekt.GetRanker(o)
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			return err
+# CHAT_REPLY 		}
+# CHAT_REPLY 		agent.rankers = append(agent.rankers, r)
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return nil
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY The key points are:
+# CHAT_REPLY 4. The `rank(...)` method applies the loaded ranking functions to the search results:
 # CHAT_REPLY 
-# CHAT_REPLY 1. The `Agent` struct represents a worker that handles searching a specific shard (partition) of the indexed data.
-# CHAT_REPLY 2. The `Search` method is called to perform a search on the agent's shard.
-# CHAT_REPLY 3. It calls `a.searcher.Search` to run the actual search query on the shard's data.
-# CHAT_REPLY 4. The search results (a list of matching files) are then passed to `a.ranker.RankResults`.
-# CHAT_REPLY 5. The `Ranker` implementation (e.g., `CtagsRanker`) ranks the files based on various signals, such as the presence of symbols/tags matching the query.
-# CHAT_REPLY 6. The ranked list of files is returned as part of the `SearchResponse`.
+# CHAT_REPLY ```go:src/agent.go
+# CHAT_REPLY func (agent *Agent) rank(ctx context.Context, results []zoekt.SearchResult) ([]zoekt.SearchResult, error) {
+# CHAT_REPLY 	for _, r := range agent.rankers {
+# CHAT_REPLY 		var err error
+# CHAT_REPLY 		results, err = r.RankResults(ctx, agent.opts.Stats, results)
+# CHAT_REPLY 		if err != nil {
+# CHAT_REPLY 			return nil, err
+# CHAT_REPLY 		}
+# CHAT_REPLY 	}
+# CHAT_REPLY 	return results, nil
+# CHAT_REPLY }
+# CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY So, the agents are responsible for searching their assigned shard and obtaining the initial set of matching files. The ranking component (`Ranker`) then re-orders/ranks these files based on additional criteria to improve the relevance of the search results.
+# CHAT_REPLY So in summary, the agents load the configured ranking functions and apply them to the search results before returning them. The ranking functions can use various factors like file content, file path, repository information, etc. to score and rank the results.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

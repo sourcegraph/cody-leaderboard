@@ -2,19 +2,17 @@
 # CHAT
 # CHAT_QUESTION What does directory watcher do?
 
-# CHAT_REPLY Based on the code in `mocked/codebase_context/shards/watcher.go`, the `DirectoryWatcher` is responsible for watching a directory for changes to files with the `.zoekt` extension. It performs the following tasks:
+# CHAT_REPLY Based on the code in `mocked/codebase_context/shards/watcher.go`, the `DirectoryWatcher` is responsible for watching a directory for changes to files with the `.zoekt` extension. It does the following:
 # CHAT_REPLY 
-# CHAT_REPLY 1. On initialization, it scans the directory and loads any existing `.zoekt` files into memory by calling the `load` method on the provided `shardLoader` interface.
+# CHAT_REPLY 1. On initialization, it scans the directory and loads any new or updated `.zoekt` files using the provided `shardLoader`. It also drops (unloads) any `.zoekt` files that have been deleted.
 # CHAT_REPLY 
-# CHAT_REPLY 2. It then starts watching the directory using the `fsnotify` package. Whenever a file change event is detected, it rescans the directory and updates the in-memory state accordingly:
-# CHAT_REPLY    - If a new `.zoekt` file is added or an existing one is modified, it calls `load` on the `shardLoader` to load the new/updated file.
-# CHAT_REPLY    - If a `.zoekt` file is deleted, it calls `drop` on the `shardLoader` to unload that file.
+# CHAT_REPLY 2. It then starts watching the directory using the `fsnotify` package. Whenever a file change event is detected, it rescans the directory and updates the loaded shards accordingly.
 # CHAT_REPLY 
-# CHAT_REPLY 3. The `DirectoryWatcher` keeps track of the modification times of the loaded `.zoekt` files to efficiently determine which files need to be reloaded on subsequent scans.
+# CHAT_REPLY 3. The `DirectoryWatcher` has a `ready` channel that is closed once the initial scan and watch setup is complete. Callers can use `WaitUntilReady` to block until the watcher is ready.
 # CHAT_REPLY 
-# CHAT_REPLY 4. It provides a `WaitUntilReady` method that blocks until the initial scan and watch setup is complete, allowing clients to wait for the watcher to be fully initialized before proceeding.
+# CHAT_REPLY 4. The `Stop` method can be called to stop the directory watcher. It closes the `quit` channel, which signals the watcher goroutine to stop and clean up resources.
 # CHAT_REPLY 
-# CHAT_REPLY In summary, the `DirectoryWatcher` is responsible for monitoring a directory for changes to `.zoekt` files (which likely contain search indexes) and keeping the in-memory state of those files up-to-date by loading, unloading, and reloading them as needed.
+# CHAT_REPLY The `DirectoryWatcher` is likely used in the Zoekt search engine to watch for changes to the search index shards (the `.zoekt` files) and keep the loaded index up-to-date without having to restart the entire process.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {
