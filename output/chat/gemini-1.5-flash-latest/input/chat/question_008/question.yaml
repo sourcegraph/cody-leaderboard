@@ -2,21 +2,18 @@
 # CHAT
 # CHAT_QUESTION What does this repo do??
 
-# CHAT_REPLY This codebase appears to be part of a search engine, specifically focused on code search. Here's why:
+# CHAT_REPLY This codebase appears to be part of a code search engine called **Zoekt**. It focuses on providing search results for code, including file matches, line matches, and chunk matches. 
 # CHAT_REPLY 
-# CHAT_REPLY * **FileMatch:** The `FileMatch` struct suggests that the code is dealing with results from a search, where each match represents a file that contains the search term.
-# CHAT_REPLY * **ChunkMatches and LineMatches:** These fields within `FileMatch` indicate that the search engine can return results at the level of code chunks (likely code blocks) or individual lines.
-# CHAT_REPLY * **DisplayTruncator:** The `DisplayTruncator` function is responsible for limiting the number of search results displayed to the user, suggesting a user interface component.
-# CHAT_REPLY * **SearchOptions:** The `SearchOptions` struct likely holds parameters for customizing the search, such as the maximum number of results to display.
-# CHAT_REPLY * **Zoekt:** The package name `zoekt` is a strong indicator that this code is part of a search engine.
+# CHAT_REPLY Here's a breakdown of what the code does:
 # CHAT_REPLY 
-# CHAT_REPLY Based on these observations, this codebase likely implements a component of a code search engine that handles:
+# CHAT_REPLY * **`SortAndTruncateFiles`:** This function sorts the search results (files) and then truncates them based on the search options.
+# CHAT_REPLY * **`DisplayTruncator`:** This is a function that enforces limits on the number of documents and matches displayed. It truncates the results and returns a boolean indicating if there are more results available.
+# CHAT_REPLY * **`NewDisplayTruncator`:** This function creates a `DisplayTruncator` based on the search options. It checks if there are any limits set and returns a function that enforces those limits.
+# CHAT_REPLY * **`limitMatches`:** This function limits the number of matches (either line matches or chunk matches) within a file. It calls either `limitChunkMatches` or `limitLineMatches` depending on the search options.
+# CHAT_REPLY * **`limitChunkMatches`:** This function limits the number of chunk matches within a file. It truncates the `Ranges`, `SymbolInfo`, and `Content` fields of the chunk matches to ensure the limit is enforced.
+# CHAT_REPLY * **`limitLineMatches`:** This function limits the number of line matches within a file. It truncates the `LineFragments` field of the line matches.
 # CHAT_REPLY 
-# CHAT_REPLY * **Retrieving search results:** It likely interacts with a code index to retrieve files matching a search query.
-# CHAT_REPLY * **Formatting search results:** It structures the results into `FileMatch` objects, including information about matching code chunks or lines.
-# CHAT_REPLY * **Limiting search results:** It implements logic to truncate the number of results displayed to the user, based on search options.
-# CHAT_REPLY 
-# CHAT_REPLY Overall, this codebase appears to be a crucial part of a code search engine, responsible for managing and presenting search results to users.
+# CHAT_REPLY Overall, this code is responsible for handling the display of search results in Zoekt, ensuring that the results are sorted, truncated, and limited according to the search options.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {

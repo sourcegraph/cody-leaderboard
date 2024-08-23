@@ -2,11 +2,11 @@
 # CHAT
 # CHAT_QUESTION where do we test the grpc chunker
 
-# CHAT_REPLY The provided codebase context includes a snippet from `mocked/enhanced_context/chunker_test.go`, which contains a type definition for a `server` struct. However, this snippet alone does not provide enough information to determine where the gRPC chunker is tested.
+# CHAT_REPLY The gRPC chunker is likely tested in the file `mocked/enhanced_context/chunker_test.go`. The presence of the `server` struct, which embeds `grpc_testing.UnimplementedTestServiceServer`, suggests that this file is used for testing gRPC services. 
 # CHAT_REPLY 
-# CHAT_REPLY To find where the gRPC chunker is tested, you would typically look for test functions within the `chunker_test.go` file or other related test files. These test functions usually have names starting with `Test` and are used to test specific functionalities.
+# CHAT_REPLY To confirm, you would look for test functions within that file that exercise the chunking functionality. These functions typically have names starting with `Test` and use the `testing` package.
 # CHAT_REPLY 
-# CHAT_REPLY Here is an example of what a test function might look like in `chunker_test.go`:
+# CHAT_REPLY Here's a hypothetical example of what such a test might look like:
 # CHAT_REPLY 
 # CHAT_REPLY ```go:mocked/enhanced_context/chunker_test.go
 # CHAT_REPLY package enhanced_context
@@ -17,8 +17,7 @@
 # CHAT_REPLY     "google.golang.org/grpc"
 # CHAT_REPLY     "google.golang.org/grpc/test/bufconn"
 # CHAT_REPLY     "net"
-# CHAT_REPLY     "log"
-# CHAT_REPLY     "grpc_testing"
+# CHAT_REPLY     grpc_testing "path/to/grpc/testing"
 # CHAT_REPLY )
 # CHAT_REPLY 
 # CHAT_REPLY const bufSize = 1024 * 1024
@@ -49,13 +48,27 @@
 # CHAT_REPLY     defer conn.Close()
 # CHAT_REPLY     client := grpc_testing.NewTestServiceClient(conn)
 # CHAT_REPLY 
-# CHAT_REPLY     // Add your chunker test logic here
+# CHAT_REPLY     // Call the chunking method and verify the results
+# CHAT_REPLY     req := &grpc_testing.ChunkRequest{ /* fill in request fields */ }
+# CHAT_REPLY     stream, err := client.ChunkMethod(ctx, req)
+# CHAT_REPLY     if err != nil {
+# CHAT_REPLY         t.Fatalf("ChunkMethod failed: %v", err)
+# CHAT_REPLY     }
+# CHAT_REPLY 
+# CHAT_REPLY     for {
+# CHAT_REPLY         chunk, err := stream.Recv()
+# CHAT_REPLY         if err == io.EOF {
+# CHAT_REPLY             break
+# CHAT_REPLY         }
+# CHAT_REPLY         if err != nil {
+# CHAT_REPLY             t.Fatalf("ChunkMethod.Recv() failed: %v", err)
+# CHAT_REPLY         }
+# CHAT_REPLY         // Validate chunk
+# CHAT_REPLY     }
 # CHAT_REPLY }
 # CHAT_REPLY ```
 # CHAT_REPLY 
-# CHAT_REPLY In this example, `TestChunker` is a test function that sets up a gRPC server and client, and you would add the logic to test the chunker functionality within this function.
-# CHAT_REPLY 
-# CHAT_REPLY To find the exact location of the gRPC chunker tests, you would need to search for similar test functions in the `chunker_test.go` file or other related test files in the codebase.
+# CHAT_REPLY In this example, `TestChunker` sets up a gRPC server and client, makes a call to the chunking method, and verifies the results. You would need to replace `grpc_testing.ChunkRequest` and `client.ChunkMethod` with the actual request and method names used in your chunker implementation.
 
 # CONTEXT_ITEMS [
 # CONTEXT_ITEMS   {
