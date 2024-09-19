@@ -2,21 +2,78 @@
 # CHAT
 # CHAT_QUESTION Mind taking a second look at the file? @limit.go
 
-# CHAT_REPLY Sure, let's take a look at limit.go:
+# CHAT_REPLY Sure, let's take a look at mocked/codebase_context/limit.go:
 # CHAT_REPLY 
-# CHAT_REPLY This file contains functions related to limiting the number of matches and file results returned from a search query. Here are some key points:
+# CHAT_REPLY ```go:mocked/codebase_context/limit.go
+# CHAT_REPLY package zoekt
 # CHAT_REPLY 
-# CHAT_REPLY 1. `SortAndTruncateFiles` sorts the `FileMatch` results and then truncates them based on the `SearchOptions` limits like `MaxDocDisplayCount` and `MaxMatchDisplayCount`.
+# CHAT_REPLY import "log"
 # CHAT_REPLY 
-# CHAT_REPLY 2. `NewDisplayTruncator` returns a `DisplayTruncator` function that enforces the display limits by truncating the `FileMatch` slices. If no limits are set, it returns a no-op function.
+# CHAT_REPLY // SortAndTruncateFiles sorts the given FileMatches and then truncates them based on the SearchOptions.
+# CHAT_REPLY func SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {
+# CHAT_REPLY 	SortFiles(files)
+# CHAT_REPLY 	truncator, _ := NewDisplayTruncator(opts)
+# CHAT_REPLY 	files, _ = truncator(files)
+# CHAT_REPLY 	return files
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY 3. `limitMatches` is a helper that applies either `limitChunkMatches` or `limitLineMatches` to each `FileMatch` based on the `ChunkMatches` option.
+# CHAT_REPLY // DisplayTruncator is a function that enforces limits on the number of displayed documents and matches.
+# CHAT_REPLY // It takes a slice of FileMatches and returns a truncated slice along with a boolean indicating if more results are available.
+# CHAT_REPLY type DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)
 # CHAT_REPLY 
-# CHAT_REPLY 4. `limitChunkMatches` truncates the `ChunkMatches` and their associated `Ranges`, `SymbolInfo`, and `Content` fields to the specified limit.
+# CHAT_REPLY // NewDisplayTruncator returns a DisplayTruncator function that enforces the limits specified in the SearchOptions.
+# CHAT_REPLY // If there are no limits, it returns a function that doesn't truncate and sets hasLimits to false.
+# CHAT_REPLY func NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {
+# CHAT_REPLY 	// ... (implementation omitted for brevity) ...
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY 5. `limitLineMatches` simply truncates the `LineMatches` field to the specified limit.
+# CHAT_REPLY // limitMatches limits the number of matches in the given FileMatches based on the specified limit and chunking option.
+# CHAT_REPLY func limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {
+# CHAT_REPLY 	// ... (implementation omitted for brevity) ...
+# CHAT_REPLY }
 # CHAT_REPLY 
-# CHAT_REPLY The file seems to handle limiting and truncating search results in various ways, like capping the number of files, capping the number of line/chunk matches per file, and truncating the content previews. This is likely important for performance and memory usage, especially for very broad searches that could return a massive number of results.
+# CHAT_REPLY // limitChunkMatches limits the number of ChunkMatches in the given FileMatch, returning the remaining limit.
+# CHAT_REPLY func limitChunkMatches(file *FileMatch, limit int) int {
+# CHAT_REPLY 	// ... (implementation omitted for brevity) ...
+# CHAT_REPLY }
+# CHAT_REPLY 
+# CHAT_REPLY // limitLineMatches limits the number of LineMatches in the given FileMatch, returning the remaining limit.
+# CHAT_REPLY func limitLineMatches(file *FileMatch, limit int) int {
+# CHAT_REPLY 	// ... (implementation omitted for brevity) ...
+# CHAT_REPLY }
+# CHAT_REPLY ```
+# CHAT_REPLY 
+# CHAT_REPLY This file contains functions related to limiting the number of search results displayed to the user. Here's a brief overview of the functions:
+# CHAT_REPLY 
+# CHAT_REPLY 1. `SortAndTruncateFiles`: Sorts the given `FileMatch` slice and then truncates it based on the `SearchOptions`.
+# CHAT_REPLY 2. `DisplayTruncator`: A function type that takes a slice of `FileMatch` and returns a truncated slice along with a boolean indicating if more results are available.
+# CHAT_REPLY 3. `NewDisplayTruncator`: Returns a `DisplayTruncator` function that enforces the limits specified in the `SearchOptions`.
+# CHAT_REPLY 4. `limitMatches`: Limits the number of matches in the given `FileMatch` slice based on the specified limit and chunking option.
+# CHAT_REPLY 5. `limitChunkMatches`: Limits the number of `ChunkMatches` in the given `FileMatch`, returning the remaining limit.
+# CHAT_REPLY 6. `limitLineMatches`: Limits the number of `LineMatches` in the given `FileMatch`, returning the remaining limit.
+# CHAT_REPLY 
+# CHAT_REPLY The main functions here are `NewDisplayTruncator` and `limitMatches`. `NewDisplayTruncator` creates a `DisplayTruncator` function that enforces the limits specified in the `SearchOptions`. If there are no limits, it returns a function that doesn't truncate and sets `hasLimits` to `false`.
+# CHAT_REPLY 
+# CHAT_REPLY `limitMatches` is the function that actually limits the number of matches in the given `FileMatch` slice. It uses either `limitChunkMatches` or `limitLineMatches` depending on the `chunkMatches` flag.
+# CHAT_REPLY 
+# CHAT_REPLY Overall, this file provides functionality to limit the number of search results displayed to the user based on the specified options.
+
+# CONTEXT_ITEMS [
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/README.md:undefined-undefined",
+# CONTEXT_ITEMS     "content": "\n    \"Zoekt, en gij zult spinazie eten\" - Jan Eertink\n\n    (\"seek, and ye shall eat spinach\" - My primary school teacher)\n\nThis is a fast text search engine, intended for use with source\ncode. (Pronunciation: roughly as you would pronounce \"zooked\" in English)\n\n**Note:** This is a [Sourcegraph](https://github.com/sourcegraph/zoekt) fork\nof [github.com/google/zoekt](https://github.com/google/zoekt). It is now the\nmain maintained source of Zoekt.\n\n# INSTRUCTIONS\n\n## Downloading\n\n    go get github.com/sourcegraph/zoekt/\n\n## Indexing\n\n### Directory\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-index\n    $GOPATH/bin/zoekt-index .\n\n### Git repository\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-git-index\n    $GOPATH/bin/zoekt-git-index -branches master,stable-1.4 -prefix origin/ .\n\n### Repo repositories\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-{repo-index,mirror-gitiles}\n    zoekt-mirror-gitiles -dest ~/repos/ https://gfiber.googlesource.com\n    zoekt-repo-index \\\n        -name gfiber \\\n        -base_url https://gfiber.googlesource.com/ \\\n        -manifest_repo ~/repos/gfiber.googlesource.com/manifests.git \\\n        -repo_cache ~/repos \\\n        -manifest_rev_prefix=refs/heads/ --rev_prefix= \\\n        master:default_unrestricted.xml\n\n## Searching\n\n### Web interface\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-webserver\n    $GOPATH/bin/zoekt-webserver -listen :6070\n\n### JSON API\n\nYou can retrieve search results as JSON by sending a GET request to zoekt-webserver.\n\n    curl --get \\\n        --url \"http://localhost:6070/search\" \\\n        --data-urlencode \"q=ngram f:READ\" \\\n        --data-urlencode \"num=50\" \\\n        --data-urlencode \"format=json\"\n\nThe response data is a JSON object. You can refer to [web.ApiSearchResult](https://sourcegraph.com/github.com/sourcegraph/zoekt@6b1df4f8a3d7b34f13ba0cafd8e1a9b3fc728cf0/-/blob/web/api.go?L23:6&subtree=true) to learn about the structure of the object.\n\n### CLI\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt\n    $GOPATH/bin/zoekt 'ngram f:READ'\n\n## Installation\nA more organized installation on a Linux server should use a systemd unit file,\neg.\n\n    [Unit]\n    Description=zoekt webserver\n\n    [Service]\n    ExecStart=/zoekt/bin/zoekt-webserver -index /zoekt/index -listen :443  --ssl_cert /zoekt/etc/cert.pem   --ssl_key /zoekt/etc/key.pem\n    Restart=always\n\n    [Install]\n    WantedBy=default.target\n\n\n# SEARCH SERVICE\n\nZoekt comes with a small service management program:\n\n    go install github.com/sourcegraph/zoekt/cmd/zoekt-indexserver\n\n    cat << EOF > config.json\n    [{\"GithubUser\": \"username\"},\n     {\"GithubOrg\": \"org\"},\n     {\"GitilesURL\": \"https://gerrit.googlesource.com\", \"Name\": \"zoekt\" }\n    ]\n    EOF\n\n    $GOPATH/bin/zoekt-indexserver -mirror_config config.json\n\nThis will mirror all repos under 'github.com/username', 'github.com/org', as\nwell as the 'zoekt' repository. It will index the repositories.\n\nIt takes care of fetching and indexing new data and cleaning up logfiles.\n\nThe webserver can be started from a standard service management framework, such\nas systemd.\n\n\n# SYMBOL SEARCH\n\nIt is recommended to install [Universal\nctags](https://github.com/universal-ctags/ctags) to improve\nranking. See [here](doc/ctags.md) for more information.\n\n\n# ACKNOWLEDGEMENTS\n\nThanks to Han-Wen Nienhuys for creating Zoekt. Thanks to Alexander Neubeck for\ncoming up with this idea, and helping Han-Wen Nienhuys flesh it out.\n\n\n# FORK DETAILS\n\nOriginally this fork contained some changes that do not make sense to upstream\nand or have not yet been upstreamed. However, this is now the defacto source\nfor Zoekt. This section will remain for historical reasons and contains\noutdated information. It can be removed once the dust settles on moving from\ngoogle/zoekt to sourcegraph/zoekt. Differences:\n\n- [zoekt-sourcegraph-indexserver](cmd/zoekt-sourcegraph-indexserver/main.go)\n  is a Sourcegraph specific command which indexes all enabled repositories on\n  Sourcegraph, as well as keeping the indexes up to date.\n- We have exposed the API via\n  [keegancsmith/rpc](https://github.com/keegancsmith/rpc) (a fork of `net/rpc`\n  which supports cancellation).\n- Query primitive `BranchesRepos` to efficiently specify a set of repositories to\n  search.\n- Allow empty shard directories on startup. Needed when starting a fresh\n  instance which hasn't indexed anything yet.\n- We can return symbol/ctag data in results. Additionally we can run symbol regex queries.\n- We search shards in order of repo name and ignore shard ranking.\n- Other minor changes.\n\nAssuming you have the gerrit upstream configured, a useful way to see what we\nchanged is:\n\n``` shellsession\n$ git diff gerrit/master -- ':(exclude)vendor/' ':(exclude)Gopkg*'\n```\n\n# DISCLAIMER\n\nThis is not an official Google product\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/limit.go:undefined-undefined",
+# CONTEXT_ITEMS     "content": "package zoekt\n\nimport \"log\"\n\n// SortAndTruncateFiles is a convenience around SortFiles and\n// DisplayTruncator. Given an aggregated files it will sort and then truncate\n// based on the search options.\nfunc SortAndTruncateFiles(files []FileMatch, opts *SearchOptions) []FileMatch {\n\tSortFiles(files)\n\ttruncator, _ := NewDisplayTruncator(opts)\n\tfiles, _ = truncator(files)\n\treturn files\n}\n\n// DisplayTruncator is a stateful function which enforces Document and Match\n// display limits by truncating and mutating before. hasMore is true until the\n// limits are exhausted. Once hasMore is false each subsequent call will\n// return an empty after and hasMore false.\ntype DisplayTruncator func(before []FileMatch) (after []FileMatch, hasMore bool)\n\n// NewDisplayTruncator will return a DisplayTruncator which enforces the limits in\n// opts. If there are no limits to enforce, hasLimits is false and there is no\n// need to call DisplayTruncator.\nfunc NewDisplayTruncator(opts *SearchOptions) (_ DisplayTruncator, hasLimits bool) {\n\tdocLimit := opts.MaxDocDisplayCount\n\tdocLimited := docLimit > 0\n\n\tmatchLimit := opts.MaxMatchDisplayCount\n\tmatchLimited := matchLimit > 0\n\n\tdone := false\n\n\tif !docLimited && !matchLimited {\n\t\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\t\treturn fm, true\n\t\t}, false\n\t}\n\n\treturn func(fm []FileMatch) ([]FileMatch, bool) {\n\t\tif done {\n\t\t\treturn nil, false\n\t\t}\n\n\t\tif docLimited {\n\t\t\tif len(fm) >= docLimit {\n\t\t\t\tdone = true\n\t\t\t\tfm = fm[:docLimit]\n\t\t\t}\n\t\t\tdocLimit -= len(fm)\n\t\t}\n\n\t\tif matchLimited {\n\t\t\tfm, matchLimit = limitMatches(fm, matchLimit, opts.ChunkMatches)\n\t\t\tif matchLimit <= 0 {\n\t\t\t\tdone = true\n\t\t\t}\n\t\t}\n\n\t\treturn fm, !done\n\t}, true\n}\n\nfunc limitMatches(files []FileMatch, limit int, chunkMatches bool) ([]FileMatch, int) {\n\tvar limiter func(file *FileMatch, limit int) int\n\tif chunkMatches {\n\t\tlimiter = limitChunkMatches\n\t} else {\n\t\tlimiter = limitLineMatches\n\t}\n\tfor i := range files {\n\t\tlimit = limiter(&files[i], limit)\n\t\tif limit <= 0 {\n\t\t\treturn files[:i+1], 0\n\t\t}\n\t}\n\treturn files, limit\n}\n\n// Limit the number of ChunkMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitChunkMatches(file *FileMatch, limit int) int {\n\tfor i := range file.ChunkMatches {\n\t\tcm := &file.ChunkMatches[i]\n\t\tif len(cm.Ranges) > limit {\n\t\t\t// We potentially need to effect the limit upon 3 different fields:\n\t\t\t// Ranges, SymbolInfo, and Content.\n\n\t\t\t// Content is the most complicated: we need to remove the last N\n\t\t\t// lines from it, where N is the difference between the line number\n\t\t\t// of the end of the old last Range and that of the new last Range.\n\t\t\t// This calculation is correct in the presence of both context lines\n\t\t\t// and multiline Ranges, taking into account that Content never has\n\t\t\t// a trailing newline.\n\t\t\tn := cm.Ranges[len(cm.Ranges)-1].End.LineNumber - cm.Ranges[limit-1].End.LineNumber\n\t\t\tif n > 0 {\n\t\t\t\tfor b := len(cm.Content) - 1; b >= 0; b-- {\n\t\t\t\t\tif cm.Content[b] == '\\n' {\n\t\t\t\t\t\tn -= 1\n\t\t\t\t\t}\n\t\t\t\t\tif n == 0 {\n\t\t\t\t\t\tcm.Content = cm.Content[:b]\n\t\t\t\t\t\tbreak\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\tif n > 0 {\n\t\t\t\t\t// Should be impossible.\n\t\t\t\t\tlog.Panicf(\"Failed to find enough newlines when truncating Content, %d left over, %d ranges\", n, len(cm.Ranges))\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tcm.Ranges = cm.Ranges[:limit]\n\t\t\tif cm.SymbolInfo != nil {\n\t\t\t\t// When non-nil, SymbolInfo is specified to have the same length\n\t\t\t\t// as Ranges.\n\t\t\t\tcm.SymbolInfo = cm.SymbolInfo[:limit]\n\t\t\t}\n\t\t}\n\t\tif len(cm.Ranges) == limit {\n\t\t\tfile.ChunkMatches = file.ChunkMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(cm.Ranges)\n\t}\n\treturn limit\n}\n\n// Limit the number of LineMatches in the given FileMatch, returning the\n// remaining limit, if any.\nfunc limitLineMatches(file *FileMatch, limit int) int {\n\tfor i := range file.LineMatches {\n\t\tlm := &file.LineMatches[i]\n\t\tif len(lm.LineFragments) > limit {\n\t\t\tlm.LineFragments = lm.LineFragments[:limit]\n\t\t}\n\t\tif len(lm.LineFragments) == limit {\n\t\t\tfile.LineMatches = file.LineMatches[:i+1]\n\t\t\tlimit = 0\n\t\t\tbreak\n\t\t}\n\t\tlimit -= len(lm.LineFragments)\n\t}\n\treturn limit\n}\n"
+# CONTEXT_ITEMS   },
+# CONTEXT_ITEMS   {
+# CONTEXT_ITEMS     "source": "user",
+# CONTEXT_ITEMS     "file": "/Users/tomross/dev/cody-leaderboard/input/chat/mocked/codebase_context/eval.go:undefined-undefined"
+# CONTEXT_ITEMS   }
+# CONTEXT_ITEMS ]
 
  class: explain code
  files:
