@@ -9,7 +9,8 @@ out to [@olafurpg](https://github.com/olafurpg) if you want to learn more.
 
 Setting up the virtual environment:
 
-1. Install uv (A Python package installer and resolver): `curl -LsSf https://astral.sh/uv/install.sh | sh`
+0. [Install `asdf`](https://asdf-vm.com/guide/getting-started.html)
+1. Install uv (A Python package installer and resolver): `asdf install` (or `curl -LsSf https://astral.sh/uv/install.sh | sh` to install globally)
 2. To create a virtual environment: `uv venv`
 3. To activate the virtual environment: `source .venv/bin/activate`
 4. To install packages into the virtual environment: `uv pip install -r requirements.txt`
